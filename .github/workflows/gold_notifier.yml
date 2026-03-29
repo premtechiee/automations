@@ -1,0 +1,76 @@
+name: Gold Price Notifier
+
+on:
+  schedule:
+    # All times UTC (IST = UTC+5:30)
+    - cron: '30 3 * * 1-6'   # 09:00 IST Mon–Sat  → morning briefing
+    - cron: '30 9 * * 1-6'   # 15:00 IST Mon–Sat  → afternoon drop check
+    - cron: '30 5 * * 1-6'   # 11:00 IST Mon–Sat  → mid-morning threshold check
+    - cron: '30 7 * * 1-6'   # 13:00 IST Mon–Sat  → midday threshold check
+    - cron: '30 11 * * 1-6'  # 17:00 IST Mon–Sat  → evening threshold check
+
+  # Allow manual trigger from GitHub Actions UI
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Command to run'
+        required: true
+        default: '--test'
+        type: choice
+        options:
+          - '--test'
+          - '--now'
+          - '--morning'
+          - '--afternoon'
+          - '--check'
+          - '--dry-run'
+
+jobs:
+  run-notifier:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Morning briefing (09:00 IST)
+        if: github.event_name == 'schedule' && github.event.schedule == '30 3 * * 1-6'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/gold_notifier.py --morning --channel telegram
+
+      - name: Afternoon drop check (15:00 IST)
+        if: github.event_name == 'schedule' && github.event.schedule == '30 9 * * 1-6'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/gold_notifier.py --afternoon --channel telegram
+
+      - name: Threshold check (mid-morning / midday / evening)
+        if: >
+          github.event_name == 'schedule' && (
+            github.event.schedule == '30 5 * * 1-6' ||
+            github.event.schedule == '30 7 * * 1-6' ||
+            github.event.schedule == '30 11 * * 1-6'
+          )
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/gold_notifier.py --check --channel telegram
+
+      - name: Manual run
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:   ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/gold_notifier.py ${{ github.event.inputs.command }} --channel telegram
