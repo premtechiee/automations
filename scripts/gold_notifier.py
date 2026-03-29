@@ -23,6 +23,16 @@ _ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _ROOT not in sys.path:
     sys.path.insert(0, _ROOT)
 
+# Auto-load .env file from repo root (must happen before any lib imports)
+_ENV_FILE = os.path.join(_ROOT, ".env")
+if os.path.exists(_ENV_FILE):
+    with open(_ENV_FILE, encoding="utf-8") as _f:
+        for _line in _f:
+            _line = _line.strip()
+            if _line and not _line.startswith("#") and "=" in _line:
+                _k, _v = _line.split("=", 1)
+                os.environ.setdefault(_k.strip(), _v.strip())
+
 from lib.logging_setup import get_logger
 from src.gold_notifier.config import LOG_FILE
 from src.gold_notifier.main import send_price_update, send_test_message
