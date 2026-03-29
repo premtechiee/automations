@@ -5,13 +5,14 @@ scripts/gold_notifier.py
 Entry point for the gold price notifier automation.
 
 Usage:
-    python scripts/gold_notifier.py               # start the scheduler
-    python scripts/gold_notifier.py --now         # run a one-shot update
-    python scripts/gold_notifier.py --dry-run     # preview without sending
-    python scripts/gold_notifier.py --morning     # send morning briefing
-    python scripts/gold_notifier.py --afternoon   # send afternoon check
-    python scripts/gold_notifier.py --check       # check alert thresholds
-    python scripts/gold_notifier.py --test        # send a test WhatsApp message
+    python scripts/gold_notifier.py                            # scheduler (WhatsApp)
+    python scripts/gold_notifier.py --channel telegram         # scheduler (Telegram)
+    python scripts/gold_notifier.py --now                      # one-shot update
+    python scripts/gold_notifier.py --dry-run                  # preview without sending
+    python scripts/gold_notifier.py --morning                  # morning briefing
+    python scripts/gold_notifier.py --afternoon                # afternoon check
+    python scripts/gold_notifier.py --check                    # check alert thresholds
+    python scripts/gold_notifier.py --test --channel telegram  # test via Telegram
 """
 
 import argparse
@@ -45,7 +46,13 @@ from src.gold_notifier.scheduler import (
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="gold_notifier",
-        description="Gold / silver price notifier with WhatsApp delivery.",
+        description="Gold / silver price notifier with WhatsApp or Telegram delivery.",
+    )
+    p.add_argument(
+        "--channel",
+        choices=["whatsapp", "telegram"],
+        default="whatsapp",
+        help="Notification channel to use (default: whatsapp).",
     )
     ex = p.add_mutually_exclusive_group()
     ex.add_argument("--now",       action="store_true", help="Run one-shot price update and exit.")
@@ -53,30 +60,31 @@ def _build_parser() -> argparse.ArgumentParser:
     ex.add_argument("--morning",   action="store_true", help="Send morning briefing.")
     ex.add_argument("--afternoon", action="store_true", help="Send afternoon check.")
     ex.add_argument("--check",     action="store_true", help="Check price alert thresholds.")
-    ex.add_argument("--test",      action="store_true", help="Send a simple test WhatsApp message.")
+    ex.add_argument("--test",      action="store_true", help="Send a simple test message.")
     return p
 
 
 def main() -> None:
     args = _build_parser().parse_args()
+    ch   = args.channel  # "whatsapp" | "telegram"
 
     log = get_logger("gold_notifier_script", LOG_FILE)
-    log.info("gold_notifier starting …")
+    log.info(f"gold_notifier starting … (channel={ch})")
 
     if args.test:
-        send_test_message()
+        send_test_message(channel=ch)
     elif args.now:
-        send_price_update(dry_run=False)
+        send_price_update(dry_run=False, channel=ch)
     elif args.dry_run:
-        send_price_update(dry_run=True)
+        send_price_update(dry_run=True, channel=ch)
     elif args.morning:
-        send_morning_briefing()
+        send_morning_briefing(channel=ch)
     elif args.afternoon:
-        send_afternoon_check()
+        send_afternoon_check(channel=ch)
     elif args.check:
-        check_price_threshold()
+        check_price_threshold(channel=ch)
     else:
-        run_scheduler()
+        run_scheduler(channel=ch)
 
 
 if __name__ == "__main__":

@@ -18,7 +18,8 @@ from .config import (
 from .fetchers import _fetch_goodreturns_history, get_gold_price
 from .analysis import get_geopolitical_analysis, get_global_market_signals
 from lib.whatsapp import send_message as _send_msg
-from .config import PHONE_NUMBER, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL
+from lib import telegram as _tg
+from .config import PHONE_NUMBER, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 from lib.proxy import PROXIES
 
 logger = logging.getLogger(__name__)
@@ -72,11 +73,14 @@ def _get_quick_price_22k() -> int | None:
     return None
 
 
-def _wa(message: str) -> bool:
+def _notify_alert(message: str, channel: str = "whatsapp") -> bool:
+    """Send an alert via Telegram or WhatsApp depending on `channel`."""
+    if channel == "telegram":
+        return _tg.send_message(TELEGRAM_CHAT_ID, message, TELEGRAM_BOT_TOKEN, PROXIES)
     return _send_msg(PHONE_NUMBER, message, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES)
 
 
-def send_morning_briefing() -> None:
+def send_morning_briefing(channel: str = "whatsapp") -> None:
     """Full 8:00 AM IST morning briefing — skips Sundays."""
     from .main import send_price_update
     now_ist = _ist_now()
@@ -84,7 +88,7 @@ def send_morning_briefing() -> None:
         logger.info("[MORNING] Sunday — skipping morning briefing.")
         return
     logger.info("[MORNING] Sending morning briefing …")
-    send_price_update()
+    send_price_update(channel=channel)
     try:
         rows = _fetch_goodreturns_history()
         if rows:
@@ -97,7 +101,7 @@ def send_morning_briefing() -> None:
         logger.warning(f"[MORNING] Could not snapshot opening price: {exc}")
 
 
-def send_afternoon_check() -> None:
+def send_afternoon_check(channel: str = "whatsapp") -> None:
     """
     2:00 PM IST conditional alert — sends only if a trigger fires:
       1. 22K dropped ≥ AFTERNOON_DROP_PCT% since this morning
@@ -148,19 +152,20 @@ def send_afternoon_check() -> None:
     if triggers:
         trigger_lines = "\n".join(f"  • {t}" for t in triggers)
         logger.info(f"[AFTERNOON] {len(triggers)} trigger(s) fired — sending update.")
-        _wa(
+        _notify_alert(
             f"🔔 *Afternoon Gold Alert*\n\n"
             f"Market update triggered at 2 PM IST:\n{trigger_lines}\n\n"
-            f"Full analysis below ↓"
+            f"Full analysis below ↓",
+            channel,
         )
-        send_price_update()
+        send_price_update(channel=channel)
     else:
         logger.info(
             f"[AFTERNOON] No triggers (22K=₹{curr_22k:,}/g) — skipping send."
         )
 
 
-def check_price_threshold() -> None:
+def check_price_threshold(channel: str = "whatsapp") -> None:
     """Immediate alert if 22K < PRICE_ALERT_THRESHOLD_22K (deduplicated per day)."""
     from .main import send_price_update
     curr_22k = _get_quick_price_22k()
@@ -175,18 +180,19 @@ def check_price_threshold() -> None:
     logger.info(f"[THRESHOLD] ⚠️  22K=₹{curr_22k:,} below ₹{PRICE_ALERT_THRESHOLD_22K:,} — sending IMMEDIATE alert!")
     state["last_threshold_breach_date"] = today_str
     _save_alert_state(state)
-    _wa(
+    _notify_alert(
         f"🚨 *IMMEDIATE GOLD PRICE ALERT* 🚨\n\n"
         f"🔻 22 Carat gold has fallen BELOW ₹{PRICE_ALERT_THRESHOLD_22K:,}/g!\n\n"
         f"  Current 22K price : ₹{curr_22k:,}/g\n"
         f"  Your alert level  : ₹{PRICE_ALERT_THRESHOLD_22K:,}/g\n\n"
         f"💡 Consider this a potential buying opportunity window.\n"
-        f"📊 Full market analysis follows ↓"
+        f"📊 Full market analysis follows ↓",
+        channel,
     )
-    send_price_update()
+    send_price_update(channel=channel)
 
 
-def run_scheduler() -> None:
+def run_scheduler(channel: str = "whatsapp") -> None:
     """
     IST-aware smart scheduler:
       1) 08:00 IST — morning briefing (Mon–Sat)
@@ -195,6 +201,7 @@ def run_scheduler() -> None:
     """
     logger.info("=" * 60)
     logger.info("Gold Price Notifier — Smart IST Scheduler started")
+    logger.info(f"  Channel          : {channel}")
     logger.info(f"  Target number    : {PHONE_NUMBER}")
     logger.info(f"  Morning briefing : {MORNING_UPDATE_TIME} IST  (Mon–Sat)")
     logger.info(f"  Afternoon check  : {AFTERNOON_CHECK_TIME} IST  (Mon–Sat, conditional)")
@@ -214,18 +221,18 @@ def run_scheduler() -> None:
 
             if (8,0) <= hm < (8,30) and today_ist != _last_morning_date and _is_market_day(now_ist):
                 logger.info("[SCHEDULER] Window: morning briefing")
-                try:    send_morning_briefing()
+                try:    send_morning_briefing(channel=channel)
                 except Exception as exc: logger.error(f"[SCHEDULER] Morning briefing error: {exc}")
                 _last_morning_date = today_ist
 
             if (14,0) <= hm < (14,30) and today_ist != _last_afternoon_date and _is_market_day(now_ist):
                 logger.info("[SCHEDULER] Window: afternoon check")
-                try:    send_afternoon_check()
+                try:    send_afternoon_check(channel=channel)
                 except Exception as exc: logger.error(f"[SCHEDULER] Afternoon check error: {exc}")
                 _last_afternoon_date = today_ist
 
             if _is_market_day(now_ist) and tblock != _last_threshold_block:
-                try:    check_price_threshold()
+                try:    check_price_threshold(channel=channel)
                 except Exception as exc: logger.error(f"[SCHEDULER] Threshold check error: {exc}")
                 _last_threshold_block = tblock
 

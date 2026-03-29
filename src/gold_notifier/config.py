@@ -14,6 +14,12 @@ GREEN_API_INSTANCE = os.environ.get("GREEN_API_INSTANCE",   "7107567480")
 GREEN_API_TOKEN    = os.environ.get("GREEN_API_TOKEN",      "ba5038e7960e42c48335a62e573e0f40652c8a1df6594c67ab")
 GREEN_API_URL      = os.environ.get("GREEN_API_URL",        "https://7107.api.greenapi.com")
 
+# ── Telegram Bot (works on PythonAnywhere free tier) ──────────────────────────
+# Get a bot token from @BotFather on Telegram, then get your chat_id via:
+#   https://api.telegram.org/bot<TOKEN>/getUpdates  (send any message to your bot first)
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8716823723:AAGTb3TUy01RuaLHJTNxFEr4Go4DqJ9tRb4")
+TELEGRAM_CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID",   "8639220099")
+
 # ── India duty/tax factors ──────────────────────────────────────────────────
 # Gold:  import duty (6%) + AIDC (5%) + GST (3%) ≈ 9.4%
 INDIA_GOLD_DUTY_FACTOR   = 1.094

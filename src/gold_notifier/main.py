@@ -9,6 +9,7 @@ from datetime import date
 
 from .config import (
     PHONE_NUMBER, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL,
+    TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID,
     INDIA_GOLD_DUTY_FACTOR, PREDICTION_LOG_FILE,
 )
 from .fetchers import (
@@ -27,14 +28,39 @@ from .prediction import (
 from .formatter import format_message
 from .image import generate_price_image
 from lib.whatsapp import send_message as _send_msg, send_image as _send_img
+from lib import telegram as _tg
 from lib.proxy import PROXIES
+
+
+def _notify(message: str, img_path: str | None = None, channel: str = "whatsapp") -> None:
+    """Send via Telegram or WhatsApp depending on `channel`."""
+    if channel == "telegram":
+        if img_path:
+            sent = _tg.send_photo(TELEGRAM_CHAT_ID, img_path, "Gold Price Update", TELEGRAM_BOT_TOKEN, PROXIES)
+            if not sent:
+                logger.warning("Telegram photo failed — falling back to text.")
+                _tg.send_message(TELEGRAM_CHAT_ID, message, TELEGRAM_BOT_TOKEN, PROXIES)
+        else:
+            _tg.send_message(TELEGRAM_CHAT_ID, message, TELEGRAM_BOT_TOKEN, PROXIES)
+    else:
+        if img_path:
+            sent = _send_img(
+                PHONE_NUMBER, img_path, "Gold Price Update",
+                GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES,
+            )
+            if not sent:
+                logger.warning("Image send failed — falling back to text message.")
+                _send_msg(PHONE_NUMBER, message, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES)
+        else:
+            _send_msg(PHONE_NUMBER, message, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES)
 
 logger = logging.getLogger(__name__)
 
 
-def send_price_update(dry_run: bool = False) -> None:
-    """Fetch all data, run analysis, produce prediction, send WhatsApp update."""
+def send_price_update(dry_run: bool = False, channel: str = "whatsapp") -> None:
+    """Fetch all data, run analysis, produce prediction, send update."""
     logger.info("─" * 50)
+    logger.info(f"channel={channel}")
     logger.info("Fetching gold price …")
     data = get_gold_price()
     if data:
@@ -165,9 +191,10 @@ def send_price_update(dry_run: bool = False) -> None:
         silver=silver,
     )
 
+    channel_label = channel.capitalize()
     if dry_run:
         print("\n" + "=" * 50)
-        print("DRY RUN — WhatsApp message preview:")
+        print(f"DRY RUN — {channel_label} message preview:")
         print("=" * 50)
         print(message)
         print("=" * 50 + "\n")
@@ -176,31 +203,21 @@ def send_price_update(dry_run: bool = False) -> None:
             prediction, weekly_prediction, global_signals,
             monthly_low_pred=monthly_low_pred, silver=silver,
         )
-        print(f"Image saved as data/gold_update.png")
+        print("Image saved as data/gold_update.png")
     else:
         img_path = generate_price_image(
             data, analysis, payment, geo, history,
             prediction, weekly_prediction, global_signals,
             monthly_low_pred=monthly_low_pred, silver=silver,
         )
-        if img_path:
-            sent = _send_img(
-                PHONE_NUMBER, img_path, "🥇 Gold Price Update",
-                GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES,
-            )
-            if not sent:
-                logger.warning("Image send failed — falling back to text message.")
-                _send_msg(PHONE_NUMBER, message, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES)
-        else:
-            _send_msg(PHONE_NUMBER, message, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES)
+        _notify(message, img_path, channel)
 
 
-def send_test_message() -> None:
-    """Send a simple test message to verify the WhatsApp setup."""
-    logger.info("Sending test message …")
-    _send_msg(
-        PHONE_NUMBER,
+def send_test_message(channel: str = "whatsapp") -> None:
+    """Send a simple test message to verify the configured notification channel."""
+    logger.info(f"Sending test message via {channel} …")
+    _notify(
         "🔔 *Gold Price Notifier* – Setup successful!\n"
         "You will receive gold price updates at scheduled intervals.",
-        GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES,
+        channel=channel,
     )
