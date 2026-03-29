@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gold Price Notifier — Documentation</title>
+  <style>
+    :root {
+      --gold:       #f5a623;
+      --gold-light: #fdf3dc;
+      --bg:         #0f1117;
+      --surface:    #1a1d27;
+      --surface2:   #22263a;
+      --border:     #2e3250;
+      --text:       #e2e4ef;
+      --muted:      #8890b0;
+      --green:      #4ade80;
+      --red:        #f87171;
+      --blue:       #60a5fa;
+      --purple:     #c084fc;
+      --mono:       'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      display: flex;
+    }
+
+    /* ── Sidebar ── */
+    nav {
+      width: 260px;
+      min-height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 24px 0;
+      position: sticky;
+      top: 0;
+      flex-shrink: 0;
+    }
+    nav .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px 20px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--gold);
+    }
+    nav .logo span { font-size: 24px; }
+    nav ul { list-style: none; padding: 12px 0; }
+    nav ul li a {
+      display: block;
+      padding: 6px 20px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color .15s, background .15s;
+      border-left: 2px solid transparent;
+    }
+    nav ul li a:hover,
+    nav ul li a.active {
+      color: var(--gold);
+      background: rgba(245,166,35,.07);
+      border-left-color: var(--gold);
+    }
+    nav .section-label {
+      padding: 14px 20px 4px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      padding: 48px 56px;
+      max-width: 960px;
+    }
+
+    h1 { font-size: 32px; font-weight: 800; color: var(--gold); margin-bottom: 6px; }
+    h2 { font-size: 22px; font-weight: 700; color: var(--text); margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 16px; font-weight: 700; color: var(--gold); margin: 28px 0 10px; }
+    h4 { font-size: 14px; font-weight: 600; color: var(--blue); margin: 20px 0 8px; }
+
+    p { margin-bottom: 12px; color: var(--text); }
+    .subtitle { color: var(--muted); font-size: 15px; margin-bottom: 32px; }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Chips / badges ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--mono);
+    }
+    .badge-gold   { background: rgba(245,166,35,.15); color: var(--gold); }
+    .badge-green  { background: rgba(74,222,128,.12); color: var(--green); }
+    .badge-blue   { background: rgba(96,165,250,.12); color: var(--blue); }
+    .badge-purple { background: rgba(192,132,252,.12); color: var(--purple); }
+    .badge-red    { background: rgba(248,113,113,.12); color: var(--red); }
+
+    /* ── Code ── */
+    code {
+      font-family: var(--mono);
+      background: var(--surface2);
+      color: var(--gold);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    pre {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 16px 0;
+    }
+    pre code { background: none; color: var(--text); padding: 0; font-size: 13px; line-height: 1.6; }
+    .kw  { color: #c084fc; }
+    .fn  { color: #60a5fa; }
+    .st  { color: #4ade80; }
+    .cm  { color: #6b7280; font-style: italic; }
+    .nu  { color: #fb923c; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin: 16px 0;
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+      margin: 16px 0;
+    }
+    .card-sm {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .card-sm .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 4px; }
+    .card-sm .val   { font-size: 15px; font-weight: 600; font-family: var(--mono); }
+
+    /* ── Function signature blocks ── */
+    .fn-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--gold);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin: 18px 0;
+    }
+    .fn-sig { font-family: var(--mono); font-size: 13px; margin-bottom: 10px; }
+    .fn-sig .kw  { color: var(--purple); }
+    .fn-sig .fn  { color: var(--blue); font-weight: 700; }
+    .fn-sig .ty  { color: var(--gold); }
+    .fn-desc { color: var(--muted); font-size: 14px; margin-bottom: 10px; }
+    .fn-params table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .fn-params th { text-align: left; color: var(--muted); padding: 4px 8px 4px 0; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+    .fn-params td { padding: 4px 8px 4px 0; vertical-align: top; border-top: 1px solid var(--border); }
+    .fn-params td:first-child { font-family: var(--mono); color: var(--blue); white-space: nowrap; }
+    .fn-params td:nth-child(2) { color: var(--gold); font-family: var(--mono); white-space: nowrap; }
+    .fn-params td:last-child { color: var(--muted); }
+    .returns { margin-top: 10px; font-size: 13px; }
+    .returns span:first-child { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+
+    /* ── Flow diagram ── */
+    .flow {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0;
+      margin: 20px 0;
+    }
+    .flow-step {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 16px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      min-width: 110px;
+    }
+    .flow-step .icon { font-size: 20px; display: block; margin-bottom: 3px; }
+    .flow-step .step-label { color: var(--muted); font-size: 11px; margin-top: 2px; }
+    .flow-arrow { color: var(--gold); font-size: 18px; padding: 0 6px; }
+
+    /* ── Schedule table ── */
+    table.sched { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px; }
+    table.sched th { background: var(--surface2); padding: 10px 14px; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    table.sched td { padding: 10px 14px; border-top: 1px solid var(--border); }
+    table.sched tr:hover td { background: rgba(255,255,255,.02); }
+
+    /* ── Alert box ── */
+    .alert {
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .alert-warn { background: rgba(245,166,35,.1); border-left: 3px solid var(--gold); }
+    .alert-info { background: rgba(96,165,250,.1); border-left: 3px solid var(--blue); }
+    .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── File tree ── */
+    .tree {
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.8;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin: 16px 0;
+    }
+    .tree .dir  { color: var(--blue); font-weight: 600; }
+    .tree .file { color: var(--text); }
+    .tree .comm { color: var(--muted); }
+
+    hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 16px; }
+
+    /* ── Weights grid ── */
+    .weights-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; margin: 14px 0; }
+    .weight-item  { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; font-family: var(--mono); font-size: 12px; display: flex; justify-content: space-between; }
+    .weight-item .wname { color: var(--blue); }
+    .weight-item .wval  { color: var(--gold); font-weight: 700; }
+
+    @media (max-width: 860px) {
+      nav   { display: none; }
+      main  { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════ SIDEBAR ═══════════════════ -->
+<nav>
+  <div class="logo"><span>🥇</span> Gold Notifier</div>
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#structure">Project Structure</a></li>
+    <li><a href="#quickstart">Quick Start</a></li>
+    <li><a href="#flow">Execution Flow</a></li>
+  </ul>
+  <div class="section-label">Modules — src/</div>
+  <ul>
+    <li><a href="#config">config.py</a></li>
+    <li><a href="#fetchers">fetchers.py</a></li>
+    <li><a href="#analysis">analysis.py</a></li>
+    <li><a href="#prediction">prediction.py</a></li>
+    <li><a href="#formatter">formatter.py</a></li>
+    <li><a href="#image">image.py</a></li>
+    <li><a href="#scheduler">scheduler.py</a></li>
+    <li><a href="#main">main.py</a></li>
+  </ul>
+  <div class="section-label">Library — lib/</div>
+  <ul>
+    <li><a href="#proxy">proxy.py</a></li>
+    <li><a href="#whatsapp">whatsapp.py</a></li>
+    <li><a href="#logging">logging_setup.py</a></li>
+  </ul>
+  <div class="section-label">Entry Point</div>
+  <ul>
+    <li><a href="#script">scripts/gold_notifier.py</a></li>
+    <li><a href="#env">Environment Variables</a></li>
+    <li><a href="#schedule">Schedule Reference</a></li>
+  </ul>
+</nav>
+
+<!-- ═══════════════════ MAIN ═══════════════════ -->
+<main>
+
+  <!-- ── Header ── -->
+  <h1>Gold Price Notifier</h1>
+  <p class="subtitle">Automated gold &amp; silver price intelligence with WhatsApp delivery — self-learning predictions, technical analysis, geopolitical signals, and scheduled briefings.</p>
+
+  <div class="tag-row">
+    <span class="badge badge-gold">Python 3.10+</span>
+    <span class="badge badge-blue">yfinance</span>
+    <span class="badge badge-blue">requests</span>
+    <span class="badge badge-blue">curl_cffi</span>
+    <span class="badge badge-green">Green API</span>
+    <span class="badge badge-purple">Pillow</span>
+    <span class="badge badge-purple">IST Scheduler</span>
+  </div>
+
+  <!-- ── Overview ── -->
+  <h2 id="overview">Overview</h2>
+  <p>The Gold Price Notifier fetches live gold and silver prices from multiple sources, runs technical and geopolitical analysis, generates a self-learning price direction prediction, and delivers a richly formatted WhatsApp message (with price-card image) to a configured phone number.</p>
+
+  <div class="card-grid">
+    <div class="card-sm">
+      <div class="label">Price Sources</div>
+      <div class="val" style="color:var(--gold)">3 sources</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">yfinance · IBJA · goodreturns.in</div>
+    </div>
+    <div class="card-sm">
+      <div class="label">Analysis Signals</div>
+      <div class="val" style="color:var(--blue)">21 signals</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">RSI · MACD · DXY · VIX · RY · …</div>
+    </div>
+    <div class="card-sm">
+      <div class="label">Daily Briefings</div>
+      <div class="val" style="color:var(--green)">2 + alerts</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">08:00 morning · 14:00 afternoon</div>
+    </div>
+    <div class="card-sm">
+      <div class="label">Prediction Window</div>
+      <div class="val" style="color:var(--purple)">7 + 30 days</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Daily · weekly · monthly low</div>
+    </div>
+  </div>
+
+  <!-- ── Structure ── -->
+  <h2 id="structure">Project Structure</h2>
+  <div class="tree">
+    <span class="dir">automations/</span><br>
+    ├── <span class="dir">src/</span><br>
+    │   └── <span class="dir">gold_notifier/</span>       <span class="comm"># automation package</span><br>
+    │       ├── <span class="file">config.py</span>       <span class="comm"># constants &amp; env-var overrides</span><br>
+    │       ├── <span class="file">fetchers.py</span>     <span class="comm"># price fetching (yfinance/IBJA/goodreturns)</span><br>
+    │       ├── <span class="file">analysis.py</span>     <span class="comm"># technical + geo + macro analysis</span><br>
+    │       ├── <span class="file">prediction.py</span>   <span class="comm"># self-learning prediction model</span><br>
+    │       ├── <span class="file">formatter.py</span>    <span class="comm"># WhatsApp message formatter</span><br>
+    │       ├── <span class="file">image.py</span>        <span class="comm"># Pillow price-card image generator</span><br>
+    │       ├── <span class="file">scheduler.py</span>    <span class="comm"># IST-aware job scheduler</span><br>
+    │       └── <span class="file">main.py</span>         <span class="comm"># orchestration entry point</span><br>
+    ├── <span class="dir">lib/</span>                         <span class="comm"># shared library</span><br>
+    │   ├── <span class="file">proxy.py</span>            <span class="comm"># Intel VPN auto-detection</span><br>
+    │   ├── <span class="file">whatsapp.py</span>         <span class="comm"># Green API sender</span><br>
+    │   └── <span class="file">logging_setup.py</span>    <span class="comm"># logger factory</span><br>
+    ├── <span class="dir">scripts/</span><br>
+    │   └── <span class="file">gold_notifier.py</span>    <span class="comm"># CLI runner</span><br>
+    ├── <span class="dir">data/</span>                        <span class="comm"># runtime outputs (gitignored)</span><br>
+    ├── <span class="file">.env.example</span><br>
+    ├── <span class="file">requirements.txt</span><br>
+    └── <span class="file">README.md</span>
+  </div>
+
+  <!-- ── Quick Start ── -->
+  <h2 id="quickstart">Quick Start</h2>
+  <pre><code><span class="cm"># 1. Install dependencies</span>
+pip install -r requirements.txt
+
+<span class="cm"># 2. Configure credentials</span>
+copy .env.example .env
+<span class="cm"># Edit .env with your Green API credentials and phone number</span>
+
+<span class="cm"># 3. Preview a full update (no WhatsApp send)</span>
+python scripts/gold_notifier.py <span class="st">--dry-run</span>
+
+<span class="cm"># 4. Send one update immediately</span>
+python scripts/gold_notifier.py <span class="st">--now</span>
+
+<span class="cm"># 5. Start the automated scheduler</span>
+python scripts/gold_notifier.py</code></pre>
+
+  <!-- ── Execution Flow ── -->
+  <h2 id="flow">Execution Flow</h2>
+  <p>Every call to <code>send_price_update()</code> follows this pipeline:</p>
+  <div class="flow">
+    <div class="flow-step"><span class="icon">📡</span>Fetch Prices<div class="step-label">fetchers.py</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><span class="icon">📊</span>Analysis<div class="step-label">analysis.py</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><span class="icon">🤖</span>Predict<div class="step-label">prediction.py</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><span class="icon">✍️</span>Format<div class="step-label">formatter.py</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><span class="icon">🖼️</span>Image<div class="step-label">image.py</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-step"><span class="icon">📱</span>Send<div class="step-label">whatsapp.py</div></div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════
+       MODULE: config.py
+  ═══════════════════════════════════════════ -->
+  <h2 id="config">config.py <span class="badge badge-blue" style="vertical-align:middle;font-size:12px">src/gold_notifier</span></h2>
+  <p>All constants and environment-variable overrides. Sensitive credentials are read from environment variables with hardcoded fallbacks.</p>
+
+  <h3>WhatsApp / Green API</h3>
+  <div class="card">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr><th style="text-align:left;color:var(--muted);padding:4px 12px 4px 0;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Constant</th><th style="text-align:left;color:var(--muted);padding:4px 12px 4px 0;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Env Var</th><th style="text-align:left;color:var(--muted);padding:4px 12px 4px 0;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Description</th></tr></thead>
+      <tbody>
+        <tr><td style="padding:6px 12px 6px 0;font-family:var(--mono);color:var(--blue);border-top:1px solid var(--border)">PHONE_NUMBER</td><td style="padding:6px 12px 6px 0;font-family:var(--mono);color:var(--gold);border-top:1px solid var(--border)">GOLD_PHONE_NUMBER</td><td style="padding:6px 12px 6px 0;color:var(--muted);border-top:1px solid var(--border)">Recipient phone number (WhatsApp format)</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;font-family:var(--mono);color:var(--blue);border-top:1px solid var(--border)">GREEN_API_INSTANCE</td><td style="padding:6px 12px 6px 0;font-family:var(--mono);color:var(--gold);border-top:1px solid var(--border)">GREEN_API_INSTANCE</td><td style="padding:6px 12px 6px 0;color:var(--muted);border-top:1px solid var(--border)">Green API instance ID</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;font-family:var(--mono);color:var(--blue);border-top:1px solid var(--border)">GREEN_API_TOKEN</td><td style="padding:6px 12px 6px 0;font-family:var(--mono);color:var(--gold);border-top:1px solid var(--border)">GREEN_API_TOKEN</td><td style="padding:6px 12px 6px 0;color:var(--muted);border-top:1px solid var(--border)">Green API authentication token</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;font-family:var(--mono);color:var(--blue);border-top:1px solid var(--border)">GREEN_API_URL</td><td style="padding:6px 12px 6px 0;font-family:var(--mono);color:var(--gold);border-top:1px solid var(--border)">GREEN_API_URL</td><td style="padding:6px 12px 6px 0;color:var(--muted);border-top:1px solid var(--border)">API base URL (region-specific)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>India Duty Factors</h3>
+  <div class="card-grid">
+    <div class="card-sm">
+      <div class="label">INDIA_GOLD_DUTY_FACTOR</div>
+      <div class="val" style="color:var(--gold)">1.094</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Import duty 6% + AIDC 5% + GST 3%</div>
+    </div>
+    <div class="card-sm">
+      <div class="label">INDIA_SILVER_DUTY_FACTOR</div>
+      <div class="val" style="color:var(--blue)">1.14</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Customs 6% + AIDC 5% + GST 3%</div>
+    </div>
+  </div>
+
+  <h3>Runtime Paths</h3>
+  <div class="card">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr><th style="text-align:left;color:var(--muted);padding:4px 12px 4px 0;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Constant</th><th style="text-align:left;color:var(--muted);padding:4px 0;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Default Path</th></tr></thead>
+      <tbody>
+        <tr><td style="padding:6px 12px 6px 0;font-family:var(--mono);color:var(--blue);border-top:1px solid var(--border)">PREDICTION_LOG_FILE</td><td style="padding:6px 0;font-family:var(--mono);color:var(--muted);border-top:1px solid var(--border)">data/gold_prediction_model.json</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;font-family:var(--mono);color:var(--blue);border-top:1px solid var(--border)">ALERT_STATE_FILE</td><td style="padding:6px 0;font-family:var(--mono);color:var(--muted);border-top:1px solid var(--border)">data/gold_alert_state.json</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;font-family:var(--mono);color:var(--blue);border-top:1px solid var(--border)">LOG_FILE</td><td style="padding:6px 0;font-family:var(--mono);color:var(--muted);border-top:1px solid var(--border)">data/gold_notifier.log</td></tr>
+        <tr><td style="padding:6px 12px 6px 0;font-family:var(--mono);color:var(--blue);border-top:1px solid var(--border)">IMAGE_OUTPUT_PATH</td><td style="padding:6px 0;font-family:var(--mono);color:var(--muted);border-top:1px solid var(--border)">data/gold_update.png</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Scheduling Constants</h3>
+  <div class="card-grid">
+    <div class="card-sm"><div class="label">MORNING_UPDATE_TIME</div><div class="val" style="color:var(--green)">08:00 IST</div></div>
+    <div class="card-sm"><div class="label">AFTERNOON_CHECK_TIME</div><div class="val" style="color:var(--green)">14:00 IST</div></div>
+    <div class="card-sm"><div class="label">PRICE_ALERT_THRESHOLD_22K</div><div class="val" style="color:var(--red)">₹12,500/g</div></div>
+    <div class="card-sm"><div class="label">AFTERNOON_DROP_PCT</div><div class="val" style="color:var(--gold)">0.5%</div></div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════
+       MODULE: fetchers.py
+  ═══════════════════════════════════════════ -->
+  <h2 id="fetchers">fetchers.py <span class="badge badge-blue" style="vertical-align:middle;font-size:12px">src/gold_notifier</span></h2>
+  <p>Live price data from multiple sources with automatic fallback. All HTTP calls use <code>PROXIES</code> from <code>lib.proxy</code>.</p>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">get_gold_price</span>() → <span class="ty">dict | None</span></div>
+    <div class="fn-desc">Fetch live gold price. Tries yfinance (COMEX GC=F) first, falls back to open.er-api, then IBJA. Returns a merged dict with computed INR values.</div>
+    <div class="fn-params">
+      <table><thead><tr><th>Returns</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>price_usd</td><td style="color:var(--gold);font-family:var(--mono)">float</td><td style="color:var(--muted)">COMEX gold price in USD/troy oz</td></tr>
+        <tr><td>price_inr_per_g</td><td style="color:var(--gold);font-family:var(--mono)">float</td><td style="color:var(--muted)">Computed 24K price ₹/gram (COMEX × USD/INR × duty)</td></tr>
+        <tr><td>usd_inr_rate</td><td style="color:var(--gold);font-family:var(--mono)">float</td><td style="color:var(--muted)">Live USD/INR exchange rate</td></tr>
+        <tr><td>change_usd</td><td style="color:var(--gold);font-family:var(--mono)">float</td><td style="color:var(--muted)">Change vs previous close in USD</td></tr>
+        <tr><td>change_pct</td><td style="color:var(--gold);font-family:var(--mono)">float</td><td style="color:var(--muted)">Percentage change vs previous close</td></tr>
+        <tr><td>ibja</td><td style="color:var(--gold);font-family:var(--mono)">dict | None</td><td style="color:var(--muted)">Official IBJA rates {date, 24k, 22k}</td></tr>
+        <tr><td>gr_chennai</td><td style="color:var(--gold);font-family:var(--mono)">dict | None</td><td style="color:var(--muted)">Chennai retail rates injected by main.py</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">get_silver_price</span>() → <span class="ty">dict | None</span></div>
+    <div class="fn-desc">Fetch silver price via yfinance (SI=F futures + SLV/SIVR ETFs). Returns INR price, gold/silver ratio, and duty-adjusted retail price.</div>
+    <div class="returns"><span>Returns</span> <code>price_usd</code>, <code>price_inr_g</code>, <code>gs_ratio</code>, <code>change_pct</code></div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">get_price_history_10d</span>(usd_inr: <span class="ty">float</span>) → <span class="ty">list[dict]</span></div>
+    <div class="fn-desc">Fetch 10 days of Chennai 22K retail price history from goodreturns.in (with Cloudflare bypass via curl_cffi). Falls back to computed COMEX-derived prices.</div>
+    <div class="fn-params">
+      <table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody><tr><td>usd_inr</td><td style="color:var(--gold);font-family:var(--mono)">float</td><td style="color:var(--muted)">Current USD/INR rate for fallback computation</td></tr></tbody></table>
+    </div>
+    <div class="returns"><span>Returns</span> list of <code>{date, 24k, 22k}</code> dicts, most-recent first</div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">_fetch_ibja_rates</span>() → <span class="ty">dict | None</span></div>
+    <div class="fn-desc">Scrape official IBJA (India Bullion &amp; Jewellers Association) daily rates. Returns <code>{date, 24k, 22k, 18k, silver}</code>.</div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">_fetch_goodreturns_history</span>() → <span class="ty">list[dict] | None</span></div>
+    <div class="fn-desc">Internal helper for full goodreturns.in history used by the scheduler for monthly low derivation.</div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════
+       MODULE: analysis.py
+  ═══════════════════════════════════════════ -->
+  <h2 id="analysis">analysis.py <span class="badge badge-blue" style="vertical-align:middle;font-size:12px">src/gold_notifier</span></h2>
+  <p>Technical analysis, geopolitical news sentiment, global macro signals, market regime detection, and best-buy-day computation.</p>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">get_gold_analysis</span>() → <span class="ty">dict | None</span></div>
+    <div class="fn-desc">Compute RSI(14), SMA20/50, MACD(12/26/9), Bollinger Bands(20,2σ), and 7d/30d momentum from 90 days of COMEX GC=F data.</div>
+    <div class="fn-params">
+      <table><thead><tr><th>Returns</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>rsi</td><td style="color:var(--gold);font-family:var(--mono)">float</td><td style="color:var(--muted)">RSI(14) — &lt;30 oversold, &gt;70 overbought</td></tr>
+        <tr><td>macd_val</td><td style="color:var(--gold);font-family:var(--mono)">float</td><td style="color:var(--muted)">MACD line value</td></tr>
+        <tr><td>macd_cross</td><td style="color:var(--gold);font-family:var(--mono)">float</td><td style="color:var(--muted)">MACD − signal (positive = bullish crossover)</td></tr>
+        <tr><td>bb_pos</td><td style="color:var(--gold);font-family:var(--mono)">float</td><td style="color:var(--muted)">Position within Bollinger Bands (0=lower, 1=upper)</td></tr>
+        <tr><td>score</td><td style="color:var(--gold);font-family:var(--mono)">int</td><td style="color:var(--muted)">Composite signal score (−5 to +5)</td></tr>
+        <tr><td>recommendation</td><td style="color:var(--gold);font-family:var(--mono)">str</td><td style="color:var(--muted)">STRONG BUY / BUY / HOLD / SELL / STRONG SELL</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">get_geopolitical_analysis</span>() → <span class="ty">dict | None</span></div>
+    <div class="fn-desc">Fetch recent gold-related news from Yahoo Finance and classify each headline as bullish or bearish using keyword matching. Computes an aggregate geopolitical signal.</div>
+    <div class="fn-params">
+      <table><thead><tr><th>Returns</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>geo_signal</td><td style="color:var(--gold);font-family:var(--mono)">str</td><td style="color:var(--muted)">BULLISH / BEARISH / NEUTRAL</td></tr>
+        <tr><td>bull_count</td><td style="color:var(--gold);font-family:var(--mono)">int</td><td style="color:var(--muted)">Number of bullish headlines</td></tr>
+        <tr><td>bear_count</td><td style="color:var(--gold);font-family:var(--mono)">int</td><td style="color:var(--muted)">Number of bearish headlines</td></tr>
+        <tr><td>headlines</td><td style="color:var(--gold);font-family:var(--mono)">list[str]</td><td style="color:var(--muted)">Top headline snippets</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">get_global_market_signals</span>() → <span class="ty">dict | None</span></div>
+    <div class="fn-desc">Pull 11 macro indicators via yfinance and compute directional signal for each. Indicators: TIP (real yield proxy), DXY, TNX (10Y), IRX (2Y), VIX, S&P500 (^GSPC), Crude Oil (CL=F), Silver (SI=F), Copper (HG=F), EUR/USD, GLD ETF.</div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">get_market_regime</span>(analysis: <span class="ty">dict</span>, global_signals: <span class="ty">dict</span>) → <span class="ty">str</span></div>
+    <div class="fn-desc">Classify the current market regime as <code>RISK_ON</code>, <code>RISK_OFF</code>, or <code>NEUTRAL</code> by combining technical scores with macro signals.</div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">get_best_payment_date</span>() → <span class="ty">dict | None</span></div>
+    <div class="fn-desc">Analyse 5 years of COMEX monthly data to find which day-of-month historically has the lowest gold price. Returns ranked calendar, current-month low tracking, and upcoming low probability.</div>
+    <div class="fn-params">
+      <table><thead><tr><th>Returns</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>best_day</td><td style="color:var(--gold);font-family:var(--mono)">int</td><td style="color:var(--muted)">Day-of-month statistically cheapest to buy</td></tr>
+        <tr><td>top3_days</td><td style="color:var(--gold);font-family:var(--mono)">list[int]</td><td style="color:var(--muted)">Top 3 cheapest days historically</td></tr>
+        <tr><td>current_month_low_inr22k</td><td style="color:var(--gold);font-family:var(--mono)">int</td><td style="color:var(--muted)">Lowest 22K price seen this month (injected by main.py)</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════
+       MODULE: prediction.py
+  ═══════════════════════════════════════════ -->
+  <h2 id="prediction">prediction.py <span class="badge badge-blue" style="vertical-align:middle;font-size:12px">src/gold_notifier</span></h2>
+  <p>A self-learning 21-signal weighted model that adapts over time. Yesterday's prediction is verified against actual prices and signal weights are recomputed to reward accuracy.</p>
+
+  <h3>Default Signal Weights</h3>
+  <div class="weights-grid">
+    <div class="weight-item"><span class="wname">real_yield</span><span class="wval">1.5</span></div>
+    <div class="weight-item"><span class="wname">regime</span><span class="wval">1.4</span></div>
+    <div class="weight-item"><span class="wname">dxy</span><span class="wval">1.3</span></div>
+    <div class="weight-item"><span class="wname">rsi</span><span class="wval">1.2</span></div>
+    <div class="weight-item"><span class="wname">geo</span><span class="wval">1.1</span></div>
+    <div class="weight-item"><span class="wname">bb</span><span class="wval">1.1</span></div>
+    <div class="weight-item"><span class="wname">yields</span><span class="wval">1.1</span></div>
+    <div class="weight-item"><span class="wname">vix</span><span class="wval">1.1</span></div>
+    <div class="weight-item"><span class="wname">etf_flow</span><span class="wval">1.1</span></div>
+    <div class="weight-item"><span class="wname">macd</span><span class="wval">1.0</span></div>
+    <div class="weight-item"><span class="wname">momentum_5d</span><span class="wval">1.0</span></div>
+    <div class="weight-item"><span class="wname">risk_assets</span><span class="wval">1.0</span></div>
+    <div class="weight-item"><span class="wname">yield_curve</span><span class="wval">1.0</span></div>
+    <div class="weight-item"><span class="wname">gold_momentum</span><span class="wval">1.0</span></div>
+    <div class="weight-item"><span class="wname">momentum_3d</span><span class="wval">0.9</span></div>
+    <div class="weight-item"><span class="wname">oil</span><span class="wval">0.9</span></div>
+    <div class="weight-item"><span class="wname">copper</span><span class="wval">0.9</span></div>
+    <div class="weight-item"><span class="wname">seasonality</span><span class="wval">0.8</span></div>
+    <div class="weight-item"><span class="wname">silver_ratio</span><span class="wval">0.8</span></div>
+    <div class="weight-item"><span class="wname">eur_usd</span><span class="wval">0.8</span></div>
+    <div class="weight-item"><span class="wname">dow</span><span class="wval">0.7</span></div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">load_prediction_model</span>() → <span class="ty">dict</span></div>
+    <div class="fn-desc">Load adaptive weights + last 90 prediction entries from <code>data/gold_prediction_model.json</code>. Returns defaults if file is missing.</div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">save_prediction_model</span>(model: <span class="ty">dict</span>, entry: <span class="ty">dict</span>) → <span class="ty">None</span></div>
+    <div class="fn-desc">Append today's prediction entry (with direction, score, signal votes) to the model and persist to disk. Keeps a rolling window of 90 days.</div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">_verify_yesterday_prediction</span>(predictions: <span class="ty">list</span>, price_now_usd: <span class="ty">float</span>) → <span class="ty">list</span></div>
+    <div class="fn-desc">Look up yesterday's prediction entry and fill in <code>actual_direction</code> and <code>correct</code> fields by comparing to today's price.</div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">_recompute_weights</span>(predictions: <span class="ty">list</span>) → <span class="ty">dict</span></div>
+    <div class="fn-desc">Re-weight signals based on recent accuracy. Signals that voted correctly in verified predictions are upweighted; those that were wrong are downweighted.</div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">get_price_prediction</span>(analysis, geo, history, global_signals, weights) → <span class="ty">dict</span></div>
+    <div class="fn-desc">Aggregate all 21 signals into a weighted vote and return today's predicted direction and confidence score.</div>
+    <div class="returns"><span>Returns</span> <code>{direction, score, signal_votes, confidence_pct, rationale}</code></div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">get_weekly_prediction</span>(analysis, geo, usd_inr, global_signals) → <span class="ty">list[dict]</span></div>
+    <div class="fn-desc">Generate a 7-day ATR-based forecast. Returns one dict per day with <code>direction</code>, <code>price_range_inr</code>, and <code>confidence</code>.</div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">get_monthly_low_prediction</span>(analysis, geo, usd_inr, payment, global_signals) → <span class="ty">dict | None</span></div>
+    <div class="fn-desc">Predict the most likely day this month to see the lowest price, using historical seasonal patterns combined with current signals and drift projection.</div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════
+       MODULE: formatter.py
+  ═══════════════════════════════════════════ -->
+  <h2 id="formatter">formatter.py <span class="badge badge-blue" style="vertical-align:middle;font-size:12px">src/gold_notifier</span></h2>
+  <p>Composes the full WhatsApp-formatted text message from all data sources. Uses Unicode emoji, bold (*text*), and structured sections.</p>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">format_message</span>(data, analysis, payment, geo, history, prediction, weekly_prediction, global_signals, monthly_low_pred, silver) → <span class="ty">str</span></div>
+    <div class="fn-desc">Assemble the complete WhatsApp message: live prices (gold 24K/22K + silver), technical signals, geopolitical sentiment, 7-day forecast table, best-buy-day calendar, monthly low prediction, and key market signals.</div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════
+       MODULE: image.py
+  ═══════════════════════════════════════════ -->
+  <h2 id="image">image.py <span class="badge badge-blue" style="vertical-align:middle;font-size:12px">src/gold_notifier</span></h2>
+  <p>Generates a 960px-wide PNG price card using Pillow. Supports dark and light modes. Saved to <code>data/gold_update.png</code>.</p>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">generate_price_image</span>(data, analysis, payment, geo, history, prediction, weekly_prediction, global_signals, monthly_low_pred, silver, dark_mode=True) → <span class="ty">str | None</span></div>
+    <div class="fn-desc">Render the full price-card image and return the saved file path.</div>
+  </div>
+
+  <h3>Image Sections</h3>
+  <div class="card-grid">
+    <div class="card-sm"><div class="label">Header</div><div style="font-size:13px;color:var(--muted);margin-top:4px">Title bar with date and time</div></div>
+    <div class="card-sm"><div class="label">Price Cards</div><div style="font-size:13px;color:var(--muted);margin-top:4px">Live 24K &amp; 22K gold + silver</div></div>
+    <div class="card-sm"><div class="label">Sparkline</div><div style="font-size:13px;color:var(--muted);margin-top:4px">10-day price mini-chart</div></div>
+    <div class="card-sm"><div class="label">Gauge</div><div style="font-size:13px;color:var(--muted);margin-top:4px">Buy/Sell sentiment meter</div></div>
+    <div class="card-sm"><div class="label">10-day Candlestick</div><div style="font-size:13px;color:var(--muted);margin-top:4px">OHLC price history</div></div>
+    <div class="card-sm"><div class="label">7-day Forecast</div><div style="font-size:13px;color:var(--muted);margin-top:4px">Direction chart with ranges</div></div>
+    <div class="card-sm"><div class="label">Best-Day Calendar</div><div style="font-size:13px;color:var(--muted);margin-top:4px">Monthly buy-day heatmap</div></div>
+    <div class="card-sm"><div class="label">Macro Signals</div><div style="font-size:13px;color:var(--muted);margin-top:4px">11 global indicator bars</div></div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════
+       MODULE: scheduler.py
+  ═══════════════════════════════════════════ -->
+  <h2 id="scheduler">scheduler.py <span class="badge badge-blue" style="vertical-align:middle;font-size:12px">src/gold_notifier</span></h2>
+  <p>IST-aware scheduler running in a 30-second polling loop. Market days are Monday–Saturday. Deferred imports from <code>main.py</code> prevent circular dependencies.</p>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">send_morning_briefing</span>() → <span class="ty">None</span></div>
+    <div class="fn-desc">Trigger a full price update at <code>08:00 IST</code> on market days (Mon–Sat). Calls <code>send_price_update()</code>.</div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">send_afternoon_check</span>() → <span class="ty">None</span></div>
+    <div class="fn-desc">Conditional afternoon check at <code>14:00 IST</code>. Sends an update if: (a) significant intraday drop ≥ 0.5%, (b) geopolitical signal changed, or (c) macro regime changed since morning.</div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">check_price_threshold</span>() → <span class="ty">None</span></div>
+    <div class="fn-desc">Alert if 22K price drops below <code>PRICE_ALERT_THRESHOLD_22K</code> (₹12,500/g). Deduplicates alerts per day using <code>data/gold_alert_state.json</code>.</div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">run_scheduler</span>() → <span class="ty">None</span></div>
+    <div class="fn-desc">Run the main scheduler loop (30-second poll). Fires morning briefing, afternoon check, and threshold monitor on their configured IST times every market day.</div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════
+       MODULE: main.py
+  ═══════════════════════════════════════════ -->
+  <h2 id="main">main.py <span class="badge badge-blue" style="vertical-align:middle;font-size:12px">src/gold_notifier</span></h2>
+  <p>The top-level orchestration layer. Calls every module in sequence, injects derived data, and dispatches the WhatsApp message.</p>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">send_price_update</span>(dry_run: <span class="ty">bool</span> = <span class="nu">False</span>) → <span class="ty">None</span></div>
+    <div class="fn-desc">Full execution pipeline — fetches prices, runs analysis, generates prediction, formats message, renders image, and sends via WhatsApp (or prints preview if <code>dry_run=True</code>).</div>
+    <div class="fn-params">
+      <table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody><tr><td>dry_run</td><td style="color:var(--gold);font-family:var(--mono)">bool</td><td style="color:var(--muted)">If True, print message to console and save image without sending WhatsApp</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">send_test_message</span>() → <span class="ty">None</span></div>
+    <div class="fn-desc">Send a plain setup-confirmation message to verify WhatsApp credentials and connectivity.</div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════
+       LIB: proxy.py
+  ═══════════════════════════════════════════ -->
+  <h2 id="proxy">lib/proxy.py</h2>
+  <p>Shared Intel VPN/LAN auto-detection. Imported at module load time — network calls made after importing will automatically use the correct proxy.</p>
+
+  <div class="alert alert-info">
+    <div class="alert-icon">ℹ️</div>
+    <div>At import time, <code>proxy.py</code> probes <code>proxy-dmz.intel.com:912</code> with a 2-second timeout. If reachable, it sets <code>HTTP_PROXY</code> / <code>HTTPS_PROXY</code> env vars and populates the <code>PROXIES</code> dict. If not reachable (home/cloud), all proxy vars are cleared.</div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">_is_on_intel_network</span>(timeout: <span class="ty">float</span> = <span class="nu">2.0</span>) → <span class="ty">bool</span></div>
+    <div class="fn-desc">Return True if <code>proxy-dmz.intel.com:912</code> is reachable via TCP within the timeout.</div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">configure_proxy</span>(https_proxy: <span class="ty">str</span> = <span class="st">""</span>) → <span class="ty">dict[str, str]</span></div>
+    <div class="fn-desc">Resolve effective proxy URL (explicit override → Intel auto-detect → none), apply to process env vars, and return a <code>requests</code>-compatible proxies dict.</div>
+  </div>
+
+  <h4>Module-level export</h4>
+  <pre><code><span class="kw">from</span> lib.proxy <span class="kw">import</span> PROXIES   <span class="cm"># ready-to-use dict, auto-configured at import</span></code></pre>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════
+       LIB: whatsapp.py
+  ═══════════════════════════════════════════ -->
+  <h2 id="whatsapp">lib/whatsapp.py</h2>
+  <p>Green API WhatsApp sender shared by all automations. Credentials are passed as arguments — not hard-coded — so each automation can use its own instance.</p>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">send_message</span>(phone, message, instance, token, api_url, proxies=<span class="nu">None</span>) → <span class="ty">bool</span></div>
+    <div class="fn-desc">Send a plain-text WhatsApp message via Green API <code>sendMessage</code> endpoint.</div>
+    <div class="fn-params">
+      <table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>phone</td><td style="color:var(--gold);font-family:var(--mono)">str</td><td style="color:var(--muted)">Recipient phone (e.g. <code>9190XXXXXXXX@c.us</code>)</td></tr>
+        <tr><td>message</td><td style="color:var(--gold);font-family:var(--mono)">str</td><td style="color:var(--muted)">WhatsApp-formatted text (supports *bold*, _italic_)</td></tr>
+        <tr><td>instance</td><td style="color:var(--gold);font-family:var(--mono)">str</td><td style="color:var(--muted)">Green API instance ID</td></tr>
+        <tr><td>token</td><td style="color:var(--gold);font-family:var(--mono)">str</td><td style="color:var(--muted)">Green API auth token</td></tr>
+        <tr><td>api_url</td><td style="color:var(--gold);font-family:var(--mono)">str</td><td style="color:var(--muted)">Base API URL for the instance region</td></tr>
+        <tr><td>proxies</td><td style="color:var(--gold);font-family:var(--mono)">dict | None</td><td style="color:var(--muted)">Proxy dict from <code>lib.proxy.PROXIES</code></td></tr>
+      </tbody></table>
+    </div>
+    <div class="returns"><span>Returns</span> <code>True</code> if message was delivered (idMessage present)</div>
+  </div>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">send_image</span>(phone, image_path, caption, instance, token, api_url, proxies=<span class="nu">None</span>) → <span class="ty">bool</span></div>
+    <div class="fn-desc">Upload a local image file and send via Green API <code>sendFileByUpload</code>. Falls back gracefully if file doesn't exist.</div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════
+       LIB: logging_setup.py
+  ═══════════════════════════════════════════ -->
+  <h2 id="logging">lib/logging_setup.py</h2>
+  <p>Logger factory shared by all automations. Safe to call multiple times — handlers are not duplicated.</p>
+
+  <div class="fn-block">
+    <div class="fn-sig"><span class="kw">def</span> <span class="fn">get_logger</span>(name: <span class="ty">str</span>, log_file: <span class="ty">str | None</span> = <span class="nu">None</span>, level: <span class="ty">int</span> = logging.INFO) → <span class="ty">logging.Logger</span></div>
+    <div class="fn-desc">Create (or retrieve) a named logger with a <code>StreamHandler</code> (stdout) and an optional <code>FileHandler</code>. Format: <code>[LEVEL] HH:MM:SS — message</code>.</div>
+    <div class="fn-params">
+      <table><thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>name</td><td style="color:var(--gold);font-family:var(--mono)">str</td><td style="color:var(--muted)">Logger name (typically <code>__name__</code>)</td></tr>
+        <tr><td>log_file</td><td style="color:var(--gold);font-family:var(--mono)">str | None</td><td style="color:var(--muted)">Optional path to log file (created if missing)</td></tr>
+        <tr><td>level</td><td style="color:var(--gold);font-family:var(--mono)">int</td><td style="color:var(--muted)">Logging level (default: INFO)</td></tr>
+      </tbody></table>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════
+       ENTRY POINT
+  ═══════════════════════════════════════════ -->
+  <h2 id="script">scripts/gold_notifier.py — CLI Reference</h2>
+
+  <table class="sched">
+    <thead><tr><th>Flag</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td><code>(no flag)</code></td><td>Start the automated scheduler (runs indefinitely, 30s poll)</td></tr>
+      <tr><td><code>--now</code></td><td>Fetch prices and send one update immediately, then exit</td></tr>
+      <tr><td><code>--dry-run</code></td><td>Fetch, format, and save image — do <strong>not</strong> send WhatsApp</td></tr>
+      <tr><td><code>--morning</code></td><td>Manually trigger the morning briefing</td></tr>
+      <tr><td><code>--afternoon</code></td><td>Manually trigger the afternoon conditional check</td></tr>
+      <tr><td><code>--check</code></td><td>Run price-threshold alert check once</td></tr>
+      <tr><td><code>--test</code></td><td>Send a simple WhatsApp test message to verify setup</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════
+       ENV VARS
+  ═══════════════════════════════════════════ -->
+  <h2 id="env">Environment Variables</h2>
+  <p>Copy <code>.env.example</code> to <code>.env</code> and fill in your values. Never commit <code>.env</code>.</p>
+
+  <div class="card">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <thead><tr>
+        <th style="text-align:left;color:var(--muted);padding:4px 16px 8px 0;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Variable</th>
+        <th style="text-align:left;color:var(--muted);padding:4px 16px 8px 0;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Required</th>
+        <th style="text-align:left;color:var(--muted);padding:4px 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.06em">Description</th>
+      </tr></thead>
+      <tbody>
+        <tr><td style="padding:7px 16px 7px 0;font-family:var(--mono);color:var(--blue);border-top:1px solid var(--border)">GOLD_PHONE_NUMBER</td><td style="padding:7px 16px 7px 0;border-top:1px solid var(--border)"><span class="badge badge-red">required</span></td><td style="padding:7px 0;color:var(--muted);border-top:1px solid var(--border)">Recipient phone, WhatsApp format (e.g. <code>919790967892</code>)</td></tr>
+        <tr><td style="padding:7px 16px 7px 0;font-family:var(--mono);color:var(--blue);border-top:1px solid var(--border)">GREEN_API_INSTANCE</td><td style="padding:7px 16px 7px 0;border-top:1px solid var(--border)"><span class="badge badge-red">required</span></td><td style="padding:7px 0;color:var(--muted);border-top:1px solid var(--border)">Green API instance ID</td></tr>
+        <tr><td style="padding:7px 16px 7px 0;font-family:var(--mono);color:var(--blue);border-top:1px solid var(--border)">GREEN_API_TOKEN</td><td style="padding:7px 16px 7px 0;border-top:1px solid var(--border)"><span class="badge badge-red">required</span></td><td style="padding:7px 0;color:var(--muted);border-top:1px solid var(--border)">Green API authentication token</td></tr>
+        <tr><td style="padding:7px 16px 7px 0;font-family:var(--mono);color:var(--blue);border-top:1px solid var(--border)">GREEN_API_URL</td><td style="padding:7px 16px 7px 0;border-top:1px solid var(--border)"><span class="badge badge-gold">optional</span></td><td style="padding:7px 0;color:var(--muted);border-top:1px solid var(--border)">API base URL — defaults to <code>https://7107.api.greenapi.com</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr>
+
+  <!-- ══════════════════════════════════════════
+       SCHEDULE REFERENCE
+  ═══════════════════════════════════════════ -->
+  <h2 id="schedule">Schedule Reference</h2>
+
+  <table class="sched">
+    <thead><tr><th>Time (IST)</th><th>Days</th><th>Trigger</th><th>Condition</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>08:00</strong></td>
+        <td>Mon – Sat</td>
+        <td>Morning briefing</td>
+        <td>Always</td>
+      </tr>
+      <tr>
+        <td><strong>14:00</strong></td>
+        <td>Mon – Sat</td>
+        <td>Afternoon check</td>
+        <td>Intraday drop ≥ 0.5% <em>or</em> regime / geo signal changed</td>
+      </tr>
+      <tr>
+        <td><strong>Every 30 min</strong></td>
+        <td>Mon – Sat</td>
+        <td>Threshold alert</td>
+        <td>22K price drops below ₹12,500/g (one alert per day)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="alert alert-warn">
+    <div class="alert-icon">⚠️</div>
+    <div>Sundays are excluded from all scheduled jobs. The scheduler loop continues running but skips all jobs on <code>weekday() == 6</code>.</div>
+  </div>
+
+  <p style="color:var(--muted);font-size:12px;margin-top:48px">Generated for automations repo · Gold Price Notifier · src/gold_notifier</p>
+
+</main>
+
+</body>
+</html>
