@@ -13,7 +13,7 @@ from datetime import datetime, timezone, timedelta
 
 from .config import (
     MORNING_UPDATE_TIME, AFTERNOON_CHECK_TIME,
-    PRICE_ALERT_THRESHOLD_22K, AFTERNOON_DROP_PCT, ALERT_STATE_FILE,
+    PRICE_ALERT_THRESHOLD_22K, AFTERNOON_DROP_INR, ALERT_STATE_FILE,
 )
 from .fetchers import _fetch_goodreturns_history, get_gold_price
 from .analysis import get_geopolitical_analysis, get_global_market_signals
@@ -104,7 +104,7 @@ def send_morning_briefing(channel: str = "whatsapp") -> None:
 def send_afternoon_check(channel: str = "whatsapp") -> None:
     """
     2:00 PM IST conditional alert — sends only if a trigger fires:
-      1. 22K dropped ≥ AFTERNOON_DROP_PCT% since this morning
+      1. 22K dropped ≥ ₹AFTERNOON_DROP_INR since this morning
       2. Geopolitical escalation (geo_score ≥ 2)
       3. Global macro net_score ≤ -3
     """
@@ -128,10 +128,9 @@ def send_afternoon_check(channel: str = "whatsapp") -> None:
     morning_date = state.get("morning_date")
     if morning_22k and morning_date == today_str:
         drop = morning_22k - curr_22k
-        drop_pct = (drop / morning_22k) * 100 if morning_22k else 0
-        if drop_pct >= AFTERNOON_DROP_PCT:
-            triggers.append(f"📉 Price dropped ₹{drop:,}/g ({drop_pct:.1f}%) since morning")
-            logger.info(f"[AFTERNOON] TRIGGER price drop: {drop_pct:.1f}%  (₹{morning_22k:,} → ₹{curr_22k:,})")
+        if drop >= AFTERNOON_DROP_INR:
+            triggers.append(f"📉 Price dropped ₹{drop:,}/g since morning (₹{morning_22k:,} → ₹{curr_22k:,})")
+            logger.info(f"[AFTERNOON] TRIGGER price drop: ₹{drop:,}  (₹{morning_22k:,} → ₹{curr_22k:,})")
     else:
         logger.info("[AFTERNOON] No morning snapshot for today — skipping drift check.")
 
