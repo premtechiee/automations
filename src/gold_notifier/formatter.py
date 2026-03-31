@@ -88,6 +88,7 @@ def format_message(
     global_signals: dict | None = None,
     monthly_low_pred: dict | None = None,
     silver: dict | None = None,
+    channel: str = "whatsapp",
 ) -> str:
     now   = datetime.now().strftime("%d %b %Y, %I:%M %p")
     today = date.today()
@@ -97,7 +98,11 @@ def format_message(
         return f"₹{round(usd_oz * usd_inr / 31.1035):,}"
 
     if not data:
-        return f"🥇 *Gold Price Update*\n{now}\n⚠️ Could not fetch the price right now. Please try again later."
+        return (
+            f"🥇 *Gold Price Update*\n{now}\n"
+            f"⚠️ Could not fetch the price right now. Please try again later.\n"
+            f"📡 Sent via {channel.capitalize()}"
+        )
 
     usd_inr    = data["usd_inr_rate"]
     ibja       = data.get("ibja")
@@ -329,4 +334,7 @@ def format_message(
                 f"₹{row['24k']:,} / ₹{row['22k']:,}{c}"
             )
 
-    return "\n".join(l for l in lines if l is not None)
+    return "\n".join(l for l in lines if l is not None) + (
+        f"\n{DIV}"
+        f"\n📡 Sent via {channel.capitalize()}  |  {today.strftime('%A, %d %B %Y')}"
+    )

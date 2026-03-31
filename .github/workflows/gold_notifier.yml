@@ -2,8 +2,8 @@ name: Gold Price Notifier
 
 on:
   schedule:
-    # All times UTC (IST = UTC+5:30)
-    - cron: '30 3 * * 1-6'   # 09:00 IST Mon–Sat  → morning briefing
+    # All times UTC (IST = UTC+5:30). Note: GitHub may delay by up to 30-60 min.
+    - cron: '0 5 * * 1-6'    # 10:30 IST Mon–Sat  → morning briefing
     - cron: '30 9 * * 1-6'   # 15:00 IST Mon–Sat  → afternoon drop check
     - cron: '30 5 * * 1-6'   # 11:00 IST Mon–Sat  → mid-morning threshold check
     - cron: '30 7 * * 1-6'   # 13:00 IST Mon–Sat  → midday threshold check
@@ -42,8 +42,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Morning briefing (09:00 IST)
-        if: github.event_name == 'schedule' && github.event.schedule == '30 3 * * 1-6'
+      - name: Morning briefing (10:30 IST)
+        if: github.event_name == 'schedule' && github.event.schedule == '0 5 * * 1-6'
         env:
           GOLD_PHONE_NUMBER:   ${{ secrets.GOLD_PHONE_NUMBER }}
           GREEN_API_INSTANCE:  ${{ secrets.GREEN_API_INSTANCE }}

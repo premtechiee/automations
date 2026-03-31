@@ -9,8 +9,12 @@ environment variables or a .env file at the workspace root.
 import os
 
 # ── WhatsApp / Green API ────────────────────────────────────────────────────
-PHONE_NUMBER       = os.environ.get("GOLD_PHONE_NUMBER",    "919790967892")
-GREEN_API_INSTANCE = os.environ.get("GREEN_API_INSTANCE",   "7107567480")
+PHONE_NUMBER       = os.environ.get("GOLD_PHONE_NUMBER",    "919790967892")# Additional recipients (comma-separated, no spaces). Set via env or extend the default.
+PHONE_NUMBERS: list[str] = [
+    n.strip() for n in
+    os.environ.get("GOLD_PHONE_NUMBERS", f"{PHONE_NUMBER},919566240454").split(",")
+    if n.strip()
+]GREEN_API_INSTANCE = os.environ.get("GREEN_API_INSTANCE",   "7107567480")
 GREEN_API_TOKEN    = os.environ.get("GREEN_API_TOKEN",      "ba5038e7960e42c48335a62e573e0f40652c8a1df6594c67ab")
 GREEN_API_URL      = os.environ.get("GREEN_API_URL",        "https://7107.api.greenapi.com")
 

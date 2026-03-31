@@ -19,7 +19,7 @@ from .fetchers import _fetch_goodreturns_history, get_gold_price
 from .analysis import get_geopolitical_analysis, get_global_market_signals
 from lib.whatsapp import send_message as _send_msg
 from lib import telegram as _tg
-from .config import PHONE_NUMBER, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+from .config import PHONE_NUMBER, PHONE_NUMBERS, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 from lib.proxy import PROXIES
 
 logger = logging.getLogger(__name__)
@@ -77,7 +77,11 @@ def _notify_alert(message: str, channel: str = "whatsapp") -> bool:
     """Send an alert via Telegram or WhatsApp depending on `channel`."""
     if channel == "telegram":
         return _tg.send_message(TELEGRAM_CHAT_ID, message, TELEGRAM_BOT_TOKEN, PROXIES)
-    return _send_msg(PHONE_NUMBER, message, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES)
+    results = [
+        _send_msg(phone, message, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES)
+        for phone in PHONE_NUMBERS
+    ]
+    return any(results)
 
 
 def send_morning_briefing(channel: str = "whatsapp") -> None:
@@ -88,7 +92,7 @@ def send_morning_briefing(channel: str = "whatsapp") -> None:
         logger.info("[MORNING] Sunday — skipping morning briefing.")
         return
     logger.info("[MORNING] Sending morning briefing …")
-    send_price_update(channel=channel)
+    send_price_update(channel=channel, trigger="Morning Update")
     try:
         rows = _fetch_goodreturns_history()
         if rows:
@@ -150,14 +154,16 @@ def send_afternoon_check(channel: str = "whatsapp") -> None:
 
     if triggers:
         trigger_lines = "\n".join(f"  • {t}" for t in triggers)
+        today_label   = now_ist.strftime("%A, %d %B %Y")
         logger.info(f"[AFTERNOON] {len(triggers)} trigger(s) fired — sending update.")
         _notify_alert(
-            f"🔔 *Afternoon Gold Alert*\n\n"
-            f"Market update triggered at 2 PM IST:\n{trigger_lines}\n\n"
+            f"🔔 *Afternoon Gold Alert*\n"
+            f"{today_label}\n\n"
+            f"Market update triggered at 3 PM IST:\n{trigger_lines}\n\n"
             f"Full analysis below ↓",
             channel,
         )
-        send_price_update(channel=channel)
+        send_price_update(channel=channel, trigger="Afternoon Update")
     else:
         logger.info(
             f"[AFTERNOON] No triggers (22K=₹{curr_22k:,}/g) — skipping send."
@@ -176,19 +182,23 @@ def check_price_threshold(channel: str = "whatsapp") -> None:
     if state.get("last_threshold_breach_date") == today_str:
         return
 
+    today_label = _ist_now().strftime("%A, %d %B %Y")
     logger.info(f"[THRESHOLD] ⚠️  22K=₹{curr_22k:,} below ₹{PRICE_ALERT_THRESHOLD_22K:,} — sending IMMEDIATE alert!")
     state["last_threshold_breach_date"] = today_str
     _save_alert_state(state)
     _notify_alert(
-        f"🚨 *IMMEDIATE GOLD PRICE ALERT* 🚨\n\n"
+        f"🚨 *IMMEDIATE GOLD PRICE ALERT* 🚨\n"
+        f"{today_label}\n\n"
         f"🔻 22 Carat gold has fallen BELOW ₹{PRICE_ALERT_THRESHOLD_22K:,}/g!\n\n"
         f"  Current 22K price : ₹{curr_22k:,}/g\n"
         f"  Your alert level  : ₹{PRICE_ALERT_THRESHOLD_22K:,}/g\n\n"
         f"💡 Consider this a potential buying opportunity window.\n"
-        f"📊 Full market analysis follows ↓",
+        f"📊 Full market analysis follows ↓\n"
+        f"──────────────────────────────\n"
+        f"📡 Sent via {channel.capitalize()}",
         channel,
     )
-    send_price_update(channel=channel)
+    send_price_update(channel=channel, trigger="Immediate Alert")
 
 
 def run_scheduler(channel: str = "whatsapp") -> None:

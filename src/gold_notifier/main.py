@@ -8,7 +8,7 @@ import logging
 from datetime import date
 
 from .config import (
-    PHONE_NUMBER, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL,
+    PHONE_NUMBER, PHONE_NUMBERS, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL,
     TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID,
     INDIA_GOLD_DUTY_FACTOR, PREDICTION_LOG_FILE,
 )
@@ -32,32 +32,35 @@ from lib import telegram as _tg
 from lib.proxy import PROXIES
 
 
-def _notify(message: str, img_path: str | None = None, channel: str = "whatsapp") -> None:
+def _notify(message: str, img_path: str | None = None, channel: str = "whatsapp", trigger: str = "Morning Update") -> None:
     """Send via Telegram or WhatsApp depending on `channel`."""
+    from datetime import date as _date
+    _caption = f"🥇 Gold Price Update | {trigger} — {_date.today().strftime('%d %b %Y')}"
     if channel == "telegram":
         if img_path:
-            sent = _tg.send_photo(TELEGRAM_CHAT_ID, img_path, "Gold Price Update", TELEGRAM_BOT_TOKEN, PROXIES)
+            sent = _tg.send_photo(TELEGRAM_CHAT_ID, img_path, _caption, TELEGRAM_BOT_TOKEN, PROXIES)
             if not sent:
                 logger.warning("Telegram photo failed — falling back to text.")
                 _tg.send_message(TELEGRAM_CHAT_ID, message, TELEGRAM_BOT_TOKEN, PROXIES)
         else:
             _tg.send_message(TELEGRAM_CHAT_ID, message, TELEGRAM_BOT_TOKEN, PROXIES)
     else:
-        if img_path:
-            sent = _send_img(
-                PHONE_NUMBER, img_path, "Gold Price Update",
-                GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES,
-            )
-            if not sent:
-                logger.warning("Image send failed — falling back to text message.")
-                _send_msg(PHONE_NUMBER, message, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES)
-        else:
-            _send_msg(PHONE_NUMBER, message, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES)
+        for phone in PHONE_NUMBERS:
+            if img_path:
+                sent = _send_img(
+                    phone, img_path, _caption,
+                    GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES,
+                )
+                if not sent:
+                    logger.warning(f"Image send failed for {phone} — falling back to text.")
+                    _send_msg(phone, message, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES)
+            else:
+                _send_msg(phone, message, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL, PROXIES)
 
 logger = logging.getLogger(__name__)
 
 
-def send_price_update(dry_run: bool = False, channel: str = "whatsapp") -> None:
+def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger: str = "Morning Update") -> None:
     """Fetch all data, run analysis, produce prediction, send update."""
     logger.info("─" * 50)
     logger.info(f"channel={channel}")
@@ -189,6 +192,7 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp") -> None:
         global_signals=global_signals,
         monthly_low_pred=monthly_low_pred,
         silver=silver,
+        channel=channel,
     )
 
     channel_label = channel.capitalize()
@@ -210,14 +214,19 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp") -> None:
             prediction, weekly_prediction, global_signals,
             monthly_low_pred=monthly_low_pred, silver=silver,
         )
-        _notify(message, img_path, channel)
+        _notify(message, img_path, channel, trigger)
 
 
 def send_test_message(channel: str = "whatsapp") -> None:
     """Send a simple test message to verify the configured notification channel."""
+    from datetime import date as _date
     logger.info(f"Sending test message via {channel} …")
+    today_str = _date.today().strftime("%A, %d %B %Y")
     _notify(
-        "🔔 *Gold Price Notifier* – Setup successful!\n"
-        "You will receive gold price updates at scheduled intervals.",
+        f"🔔 *Gold Price Notifier* – Setup successful!\n"
+        f"You will receive gold price updates at scheduled intervals.\n"
+        f"──────────────────────────────\n"
+        f"📡 Sent via {channel.capitalize()}  |  {today_str}",
         channel=channel,
+        trigger="Test",
     )
