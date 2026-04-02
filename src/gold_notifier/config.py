@@ -40,7 +40,7 @@ LOG_FILE            = f"{DATA_DIR}/gold_notifier.log"
 IMAGE_OUTPUT_PATH   = f"{DATA_DIR}/gold_update.png"
 
 # ── IST Scheduling ──────────────────────────────────────────────────────────
-MORNING_UPDATE_TIME       = "09:00"   # IST daily briefing (Mon–Sat)
+MORNING_UPDATE_TIME       = "10:30"   # IST daily briefing (Mon–Sat)
 AFTERNOON_CHECK_TIME      = "15:00"   # IST conditional afternoon check (Mon–Sat)
 PRICE_ALERT_THRESHOLD_22K = 12_500    # ₹/g — immediate alert if 22K falls below this
 AFTERNOON_DROP_INR        = 500       # ₹ absolute intraday drop that triggers afternoon send

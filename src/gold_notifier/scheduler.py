@@ -85,7 +85,7 @@ def _notify_alert(message: str, channel: str = "whatsapp") -> bool:
 
 
 def send_morning_briefing(channel: str = "whatsapp") -> None:
-    """Full 8:00 AM IST morning briefing — skips Sundays."""
+    """Full 10:30 AM IST morning briefing — skips Sundays."""
     from .main import send_price_update
     now_ist = _ist_now()
     if not _is_market_day(now_ist):
@@ -212,7 +212,7 @@ def run_scheduler(channel: str = "whatsapp") -> None:
     logger.info("Gold Price Notifier — Smart IST Scheduler started")
     logger.info(f"  Channel          : {channel}")
     logger.info(f"  Target number    : {PHONE_NUMBER}")
-    logger.info(f"  Morning briefing : {MORNING_UPDATE_TIME} IST  (Mon–Sat)")
+    logger.info(f"  Morning briefing : {MORNING_UPDATE_TIME} IST  (Mon–Sat)  [UTC 05:00]")
     logger.info(f"  Afternoon check  : {AFTERNOON_CHECK_TIME} IST  (Mon–Sat, conditional)")
     logger.info(f"  Threshold guard  : every 10 min — alert if 22K < ₹{PRICE_ALERT_THRESHOLD_22K:,}/g")
     logger.info("=" * 60)
@@ -228,7 +228,7 @@ def run_scheduler(channel: str = "whatsapp") -> None:
             hm        = (now_ist.hour, now_ist.minute)
             tblock    = (today_ist, now_ist.minute // 10)
 
-            if (8,0) <= hm < (8,30) and today_ist != _last_morning_date and _is_market_day(now_ist):
+            if (10,0) <= hm < (10,30) and today_ist != _last_morning_date and _is_market_day(now_ist):
                 logger.info("[SCHEDULER] Window: morning briefing")
                 try:    send_morning_briefing(channel=channel)
                 except Exception as exc: logger.error(f"[SCHEDULER] Morning briefing error: {exc}")
