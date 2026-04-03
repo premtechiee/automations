@@ -3,11 +3,11 @@ name: Gold Price Notifier
 on:
   schedule:
     # All times UTC (IST = UTC+5:30). Note: GitHub may delay by up to 30-60 min.
-    - cron: '0 5 * * 1-6'    # 10:30 IST Mon–Sat  → morning briefing
-    - cron: '30 9 * * 1-6'   # 15:00 IST Mon–Sat  → afternoon drop check
-    - cron: '30 5 * * 1-6'   # 11:00 IST Mon–Sat  → mid-morning threshold check
-    - cron: '30 7 * * 1-6'   # 13:00 IST Mon–Sat  → midday threshold check
-    - cron: '30 11 * * 1-6'  # 17:00 IST Mon–Sat  → evening threshold check
+    - cron: '0 4 * * 1-6'    # 09:30 IST Mon–Sat  → morning briefing
+    - cron: '30 8 * * 1-6'   # 14:00 IST Mon–Sat  → afternoon drop check
+    - cron: '30 4 * * 1-6'   # 10:00 IST Mon–Sat  → mid-morning threshold check
+    - cron: '30 6 * * 1-6'   # 12:00 IST Mon–Sat  → midday threshold check
+    - cron: '30 10 * * 1-6'  # 16:00 IST Mon–Sat  → evening threshold check
 
   # Allow manual trigger from GitHub Actions UI
   workflow_dispatch:

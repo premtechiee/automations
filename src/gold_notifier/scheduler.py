@@ -13,7 +13,7 @@ from datetime import datetime, timezone, timedelta
 
 from .config import (
     MORNING_UPDATE_TIME, AFTERNOON_CHECK_TIME,
-    PRICE_ALERT_THRESHOLD_22K, AFTERNOON_DROP_INR, ALERT_STATE_FILE,
+    PRICE_ALERT_THRESHOLD_22K, AFTERNOON_DROP_INR, ALERT_STATE_FILE, IMAGE_THEME,
 )
 from .fetchers import _fetch_goodreturns_history, get_gold_price
 from .analysis import get_geopolitical_analysis, get_global_market_signals
@@ -84,7 +84,7 @@ def _notify_alert(message: str, channel: str = "whatsapp") -> bool:
     return any(results)
 
 
-def send_morning_briefing(channel: str = "whatsapp") -> None:
+def send_morning_briefing(channel: str = "whatsapp", theme: str = IMAGE_THEME) -> None:
     """Full 10:30 AM IST morning briefing — skips Sundays."""
     from .main import send_price_update
     now_ist = _ist_now()
@@ -92,7 +92,7 @@ def send_morning_briefing(channel: str = "whatsapp") -> None:
         logger.info("[MORNING] Sunday — skipping morning briefing.")
         return
     logger.info("[MORNING] Sending morning briefing …")
-    send_price_update(channel=channel, trigger="Morning Update")
+    send_price_update(channel=channel, trigger="Morning Update", theme=theme)
     try:
         rows = _fetch_goodreturns_history()
         if rows:
@@ -105,7 +105,7 @@ def send_morning_briefing(channel: str = "whatsapp") -> None:
         logger.warning(f"[MORNING] Could not snapshot opening price: {exc}")
 
 
-def send_afternoon_check(channel: str = "whatsapp") -> None:
+def send_afternoon_check(channel: str = "whatsapp", theme: str = IMAGE_THEME) -> None:
     """
     2:00 PM IST conditional alert — sends only if a trigger fires:
       1. 22K dropped ≥ ₹AFTERNOON_DROP_INR since this morning
@@ -163,14 +163,14 @@ def send_afternoon_check(channel: str = "whatsapp") -> None:
             f"Full analysis below ↓",
             channel,
         )
-        send_price_update(channel=channel, trigger="Afternoon Update")
+        send_price_update(channel=channel, trigger="Afternoon Update", theme=theme)
     else:
         logger.info(
             f"[AFTERNOON] No triggers (22K=₹{curr_22k:,}/g) — skipping send."
         )
 
 
-def check_price_threshold(channel: str = "whatsapp") -> None:
+def check_price_threshold(channel: str = "whatsapp", theme: str = IMAGE_THEME) -> None:
     """Immediate alert if 22K < PRICE_ALERT_THRESHOLD_22K (deduplicated per day)."""
     from .main import send_price_update
     curr_22k = _get_quick_price_22k()
@@ -198,10 +198,10 @@ def check_price_threshold(channel: str = "whatsapp") -> None:
         f"📡 Sent via {channel.capitalize()}",
         channel,
     )
-    send_price_update(channel=channel, trigger="Immediate Alert")
+    send_price_update(channel=channel, trigger="Immediate Alert", theme=theme)
 
 
-def run_scheduler(channel: str = "whatsapp") -> None:
+def run_scheduler(channel: str = "whatsapp", theme: str = IMAGE_THEME) -> None:
     """
     IST-aware smart scheduler:
       1) 08:00 IST — morning briefing (Mon–Sat)
@@ -230,18 +230,18 @@ def run_scheduler(channel: str = "whatsapp") -> None:
 
             if (10,0) <= hm < (10,30) and today_ist != _last_morning_date and _is_market_day(now_ist):
                 logger.info("[SCHEDULER] Window: morning briefing")
-                try:    send_morning_briefing(channel=channel)
+                try:    send_morning_briefing(channel=channel, theme=theme)
                 except Exception as exc: logger.error(f"[SCHEDULER] Morning briefing error: {exc}")
                 _last_morning_date = today_ist
 
             if (14,0) <= hm < (14,30) and today_ist != _last_afternoon_date and _is_market_day(now_ist):
                 logger.info("[SCHEDULER] Window: afternoon check")
-                try:    send_afternoon_check(channel=channel)
+                try:    send_afternoon_check(channel=channel, theme=theme)
                 except Exception as exc: logger.error(f"[SCHEDULER] Afternoon check error: {exc}")
                 _last_afternoon_date = today_ist
 
             if _is_market_day(now_ist) and tblock != _last_threshold_block:
-                try:    check_price_threshold(channel=channel)
+                try:    check_price_threshold(channel=channel, theme=theme)
                 except Exception as exc: logger.error(f"[SCHEDULER] Threshold check error: {exc}")
                 _last_threshold_block = tblock
 

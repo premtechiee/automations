@@ -89,6 +89,7 @@ def format_message(
     monthly_low_pred: dict | None = None,
     silver: dict | None = None,
     channel: str = "whatsapp",
+    model_stats: dict | None = None,
 ) -> str:
     now   = datetime.now().strftime("%d %b %Y, %I:%M %p")
     today = date.today()
@@ -196,6 +197,22 @@ def format_message(
     # Today's outlook
     if prediction or analysis or geo:
         lines += [DIV, "📊 *What to Expect Today*"]
+
+        # Model self-accuracy stats
+        if model_stats and model_stats.get("total", 0) >= 3:
+            acc = model_stats.get("acc_14") or model_stats.get("acc_30") or model_stats.get("acc_7")
+            n   = model_stats.get("n_14")   or model_stats.get("n_30")   or model_stats.get("n_7", 0)
+            streak      = model_stats.get("streak", 0)
+            streak_type = model_stats.get("streak_type")
+            if acc is not None:
+                acc_icon = "🟢" if acc >= 70 else ("🟡" if acc >= 55 else "🔴")
+                acc_line = f"  🤖 Model accuracy (last {n} days): {acc_icon} {acc}%"
+                if streak >= 3 and streak_type == "correct":
+                    acc_line += f"  •  🔥 {streak}-day correct streak!"
+                elif streak >= 2 and streak_type == "wrong":
+                    acc_line += f"  •  ⚠️ Missed last {streak} in a row — treat with caution"
+                lines.append(acc_line)
+
         if prediction:
             d     = prediction["direction"]
             conf  = prediction["confidence"]

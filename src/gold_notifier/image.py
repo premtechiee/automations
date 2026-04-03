@@ -1,15 +1,18 @@
 """
 automations/gold_notifier/image.py
 ====================================
-Pillow-based gold price card image generator.
+Advanced dashboard-style gold price image generator.
+Features: candlestick chart, gradient fills, gauge glow, sparklines,
+          segmented tech meters, forecast area chart.
+Data keys are mapped exactly to what each source function returns.
 """
 
 import logging
 import math as _math
 import os
-from datetime import date, datetime, timedelta
+from datetime import datetime
 
-from .config import INDIA_GOLD_DUTY_FACTOR, IMAGE_OUTPUT_PATH
+from .config import INDIA_GOLD_DUTY_FACTOR, IMAGE_OUTPUT_PATH, IMAGE_THEME
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +20,62 @@ logger = logging.getLogger(__name__)
 def _ordinal(n: int) -> str:
     return f"{n}{'th' if 11<=n<=13 else {1:'st',2:'nd',3:'rd'}.get(n%10,'th')}"
 
+
+# ---------------------------------------------------------------------------
+# Drawing helpers
+# ---------------------------------------------------------------------------
+
+def _h_gradient(draw, x0, y0, x1, y1, col_l, col_r, steps=80):
+    sw = max(1, (x1 - x0) // steps)
+    for i in range(steps):
+        t = i / max(1, steps - 1)
+        c = tuple(int(col_l[j] + (col_r[j] - col_l[j]) * t) for j in range(3))
+        sx = x0 + i * sw
+        draw.rectangle([(sx, y0), (min(sx + sw, x1), y1)], fill=c)
+
+
+def _v_gradient(draw, x0, y0, x1, y1, col_t, col_b, steps=60):
+    sh = max(1, (y1 - y0) // steps)
+    for i in range(steps):
+        t = i / max(1, steps - 1)
+        c = tuple(int(col_t[j] + (col_b[j] - col_t[j]) * t) for j in range(3))
+        sy = y0 + i * sh
+        draw.rectangle([(x0, sy), (x1, min(sy + sh, y1))], fill=c)
+
+
+def _rounded_rect(draw, x0, y0, x1, y1, fill, radius=8):
+    draw.rounded_rectangle([(x0, y0), (x1, y1)], radius=radius, fill=fill)
+
+
+def _shadow_rect(draw, x0, y0, x1, y1, fill, radius=8, soff=3, scol=None):
+    if scol is None:
+        scol = tuple(max(0, c - 28) for c in fill)
+    draw.rounded_rectangle([(x0+soff, y0+soff), (x1+soff, y1+soff)], radius=radius, fill=scol)
+    draw.rounded_rectangle([(x0, y0), (x1, y1)], radius=radius, fill=fill)
+
+
+def _sparkline(draw, x0, y0, x1, y1, values, col_up, col_dn, bg=None):
+    """Draw a tiny sparkline chart inside the given bbox."""
+    if not values or len(values) < 2:
+        return
+    if bg:
+        draw.rectangle([(x0, y0), (x1, y1)], fill=bg)
+    mn, mx = min(values), max(values)
+    rng = max(mx - mn, 1)
+    n = len(values)
+    def _sx(i): return int(x0 + i * (x1 - x0) / max(1, n - 1))
+    def _sy(v): return int(y1 - (v - mn) / rng * (y1 - y0))
+    pts = [(_sx(i), _sy(v)) for i, v in enumerate(values)]
+    col = col_up if values[-1] >= values[0] else col_dn
+    if len(pts) >= 2:
+        draw.line(pts, fill=col, width=2)
+    # end dot
+    draw.ellipse([(pts[-1][0]-3, pts[-1][1]-3), (pts[-1][0]+3, pts[-1][1]+3)], fill=col)
+
+
+# ---------------------------------------------------------------------------
+# Main generator
+# ---------------------------------------------------------------------------
 
 def generate_price_image(
     data: dict | None,
@@ -29,510 +88,873 @@ def generate_price_image(
     global_signals: dict | None = None,
     monthly_low_pred: dict | None = None,
     silver: dict | None = None,
-    light_mode: bool = False,
+    theme: str = IMAGE_THEME,
     out_path: str = IMAGE_OUTPUT_PATH,
 ) -> str | None:
-    """
-    Draw a compact gold price card using Pillow and save it as a PNG.
-    Returns the file path on success, None on failure.
-    """
+    """Render a full gold dashboard PNG and return path, or None on failure."""
     try:
-        from PIL import Image, ImageDraw, ImageFont
+        from PIL import Image, ImageDraw, ImageFont, ImageFilter
     except ImportError:
-        logger.warning("Pillow not installed — skipping image generation. Run: pip install pillow")
+        logger.warning("Pillow not installed.")
         return None
 
-    # ── Dark palette ──────────────────────────────────────────────────────
-    BG = (10, 12, 20); BG2 = (16, 19, 32); CARD = (22, 26, 42)
-    CARD2 = (28, 34, 54); CARD3 = (34, 40, 64)
-    GOLD = (255, 200, 50); GOLD_DIM = (180, 140, 30)
-    WHITE = (232, 235, 242); MUTED = (130, 140, 165)
-    GREEN = (55, 195, 105); GREEN_D = (25, 90, 50)
-    RED = (255, 65, 65); RED_D = (100, 20, 20)
-    ORANGE = (255, 150, 35); YELLOW = (250, 210, 45)
-    GREY = (85, 92, 115); DIV = (36, 42, 66)
-    TEAL = (30, 150, 140); BLUE = (60, 120, 210)
-    SILVER_COL = (192, 200, 215)
+    # ── Palette ──────────────────────────────────────────────────────────
+    if theme == "dark":
+        BG      = ( 10,  12,  22)
+        CARD    = ( 20,  25,  42)
+        CARD2   = ( 26,  32,  52)
+        CARD3   = ( 34,  42,  65)
+        INK     = (228, 232, 248)
+        INK2    = (160, 170, 205)
+        INK3    = (100, 112, 152)
+        GLD     = (255, 200,  48)
+        GLD2    = (200, 148,  28)
+        SIL     = (185, 198, 220)
+        BLU     = ( 78, 158, 255)
+        GRN     = ( 46, 196,  98)
+        GRN2    = ( 22, 130,  60)
+        RED     = (240,  68,  68)
+        RED2    = (170,  36,  36)
+        AMB     = (255, 178,  36)
+        MUT     = (110, 120, 155)
+        DIV     = ( 36,  46,  74)
+        SHD     = (  4,   5,  14)
+        HDR_L   = ( 18,  28,  62)
+        HDR_R   = ( 48,  18,  88)
+        CANDLE_UP   = ( 22, 160,  78)
+        CANDLE_DN   = (220,  48,  48)
+        GLOW_COL    = (255, 200,  48, 90)
+    else:
+        BG      = (244, 246, 252)
+        CARD    = (255, 255, 255)
+        CARD2   = (238, 242, 252)
+        CARD3   = (222, 228, 246)
+        INK     = ( 16,  20,  48)
+        INK2    = ( 65,  78, 118)
+        INK3    = (122, 134, 172)
+        GLD     = (148,  98,   0)
+        GLD2    = (188, 145,  35)
+        SIL     = ( 72,  88, 128)
+        BLU     = ( 25,  98, 215)
+        GRN     = ( 18, 140,  62)
+        GRN2    = (  6,  94,  38)
+        RED     = (196,  24,  24)
+        RED2    = (138,  10,  10)
+        AMB     = (178, 112,   0)
+        MUT     = (128, 140, 175)
+        DIV     = (208, 216, 238)
+        SHD     = (178, 184, 210)
+        HDR_L   = ( 12,  38,  98)
+        HDR_R   = ( 68,   8, 118)
+        CANDLE_UP   = ( 18, 140,  62)
+        CANDLE_DN   = (196,  24,  24)
+        GLOW_COL    = (148,  98,   0, 80)
 
-    if light_mode:
-        BG = (255,255,255); BG2 = (245,246,250); CARD = (232,235,245)
-        CARD2 = (218,222,236); CARD3 = (200,206,225)
-        WHITE = (18,20,38); MUTED = (75,85,115); GREY = (110,118,145); DIV = (185,190,210)
-        GOLD = (180,130,0); GOLD_DIM = (140,100,0)
-        GREEN = (25,145,65); GREEN_D = (180,230,200)
-        RED = (200,30,30); RED_D = (245,185,185)
-        ORANGE = (200,100,0); YELLOW = (160,120,0)
-        TEAL = (10,120,110); BLUE = (30,90,180)
+    W   = 1080
+    PAD = 20
+    now = datetime.now()
 
-    W = 960; PAD = 22; HALF = W // 2
-    now_str = datetime.now().strftime("%d %b %Y  •  %I:%M %p")
-
-    def fnt(size, bold=False):
-        candidates = ["C:/Windows/Fonts/segoeui.ttf","C:/Windows/Fonts/arial.ttf",
-                      "C:/Windows/Fonts/DejaVuSans.ttf",
-                      "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
-        bold_cands = ["C:/Windows/Fonts/segoeuib.ttf","C:/Windows/Fonts/arialbd.ttf",
-                      "C:/Windows/Fonts/DejaVuSans-Bold.ttf",
-                      "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"]
-        for p in (bold_cands + candidates if bold else candidates):
+    # ── Fonts ─────────────────────────────────────────────────────────────
+    def _fnt(sz, bold=False):
+        cands = (
+            ["C:/Windows/Fonts/segoeuib.ttf",
+             "C:/Windows/Fonts/seguisb.ttf",
+             "C:/Windows/Fonts/arialbd.ttf",
+             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"]
+            if bold else
+            ["C:/Windows/Fonts/segoeui.ttf",
+             "C:/Windows/Fonts/arial.ttf",
+             "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]
+        )
+        for p in cands:
             if os.path.exists(p):
                 try:
-                    return ImageFont.truetype(p, size)
+                    return ImageFont.truetype(p, sz)
                 except Exception:
                     pass
         return ImageFont.load_default()
 
-    F_TITLE = fnt(30, bold=True); F_H1 = fnt(22, bold=True)
-    F_H2 = fnt(17, bold=True); F_REG = fnt(14); F_SM = fnt(13); F_XSM = fnt(12)
+    Fhero  = _fnt(40, True)
+    Ftitle = _fnt(21, True)
+    Flabel = _fnt(15, True)
+    Fbody  = _fnt(14)
+    Fsmall = _fnt(13)
+    Ftiny  = _fnt(11)
+    Fsec   = _fnt(16, True)
 
-    def th(f): return f.size + 5
+    def _tw(txt, fnt):
+        try:
+            bb = fnt.getbbox(str(txt))
+            return bb[2] - bb[0]
+        except Exception:
+            return len(str(txt)) * max(5, getattr(fnt, "size", 12) // 2)
 
-    def dc(direction):
-        return GREEN if direction == "UP" else (RED if direction == "DOWN" else YELLOW)
+    def _th(fnt):
+        try:
+            return fnt.getbbox("Ag")[3]
+        except Exception:
+            return getattr(fnt, "size", 12) + 2
 
-    def vc(v):
-        return GREEN if v > 0 else (RED if v < 0 else GREY)
+    # ── Extract values ────────────────────────────────────────────────────
+    usd_inr    = (data.get("usd_inr_rate") if data else None) or 84.0
+    ibja       = data.get("ibja")       if data else None
+    gr_ch      = data.get("gr_chennai") if data else None
 
-    def hline(d, y, x0=PAD, x1=W-PAD, col=DIV, width=1):
-        d.line([(x0, y+4), (x1, y+4)], fill=col, width=width)
-        return y + 12
-
-    def sec_hdr(d, y, title, x0=PAD, x1=W-PAD, icon_col=GOLD):
-        bar_h = 32
-        d.rectangle([(x0, y), (x1, y+bar_h)], fill=CARD2)
-        d.rectangle([(x0, y+bar_h-4), (x1, y+bar_h)], fill=icon_col)
-        d.text((x0+10, y+7), title, font=F_H2, fill=icon_col)
-        return y + bar_h + 6
-
-    def badge(d, x, y, txt, bg, fg=None, f=None):
-        if fg is None: fg = BG
-        if f is None:  f  = F_XSM
-        bb = d.textbbox((0,0), txt, font=f)
-        tw, bh = bb[2]-bb[0], bb[3]-bb[1]
-        px, py = 7, 3
-        d.rounded_rectangle([(x,y),(x+tw+px*2,y+bh+py*2)], radius=5, fill=bg)
-        d.text((x+px, y+py), txt, font=f, fill=fg)
-        return int(x + tw + px*2 + 6)
-
-    def hbar(d, x, y, w, h, pct, fg, bg=None):
-        if bg is None: bg = CARD2
-        d.rectangle([(x,y),(x+w,y+h)], fill=bg)
-        filled = max(2, int(w * max(0.0, min(1.0, pct))))
-        d.rectangle([(x,y),(x+filled,y+h)], fill=fg)
-        d.rectangle([(x+filled-1,y),(x+filled+1,y+h)], fill=WHITE)
-
-    def gauge(d, cx, cy, r, score):
-        val = max(0.02, min(0.98, (score+10)/20.0))
-        bb  = [(cx-r,cy-r),(cx+r,cy+r)]
-        d.arc(bb, start=150, end=30, fill=(50,55,80), width=10)
-        for zs,ze,zc in [(150,210,RED_D),(210,270,(80,70,20)),(270,30,GREEN_D)]:
-            d.arc(bb, start=zs, end=ze, fill=zc, width=8)
-        col_end = int(150 + 240*val) % 360
-        col = RED if val < 0.35 else (YELLOW if val < 0.65 else GREEN)
-        d.arc(bb, start=150, end=col_end, fill=col, width=10)
-        needle_pillow = 150 + 240*val
-        ang = _math.radians(-needle_pillow)
-        nr  = r - 16
-        nx  = cx + int(nr * _math.cos(ang)); ny = cy - int(nr * _math.sin(ang))
-        d.line([(cx,cy),(nx,ny)], fill=WHITE, width=3)
-        d.ellipse([(cx-5,cy-5),(cx+5,cy+5)], fill=WHITE)
-        lbl = f"{score:+.1f}"
-        lb = d.textbbox((0,0), lbl, font=F_XSM); lw = lb[2]-lb[0]
-        d.text((cx-lw//2, cy+8), lbl, font=F_XSM, fill=WHITE)
-
-    # ── Extract data ───────────────────────────────────────────────────────
-    usd_inr    = data["usd_inr_rate"]  if data else 84.0
-    ibja       = data.get("ibja")      if data else None
-    gr_chennai = data.get("gr_chennai") if data else None
-    if gr_chennai:
-        p24k, p22k, src = gr_chennai["24k"], gr_chennai["22k"], f"Chennai ({gr_chennai['date']})"
+    if gr_ch:
+        p24k, p22k = gr_ch["24k"], gr_ch["22k"]
+        src_lbl    = f"Chennai Retail  {gr_ch['date']}"
     elif ibja:
-        p24k, p22k, src = ibja["24k"], ibja["22k"], f"IBJA {ibja['date']}"
+        p24k, p22k = ibja["24k"], ibja["22k"]
+        src_lbl    = f"IBJA  {ibja['date']}"
     elif data:
-        p24k = round(data["price_inr_per_g"] * INDIA_GOLD_DUTY_FACTOR)
-        p22k = round(p24k * 22 / 24); src = "Live market estimate"
+        p24k = round(data.get("price_inr_per_g", 0) * INDIA_GOLD_DUTY_FACTOR)
+        p22k = round(p24k * 22 / 24)
+        src_lbl = "Live estimate"
     else:
-        p24k = p22k = 0; src = "N/A"
+        p24k = p22k = 0
+        src_lbl = "N/A"
 
-    chg_val   = round(data["change_inr_g"]) if data and data.get("change_inr_g") is not None else None
-    chg_7d    = analysis.get("chg_7d")  if analysis else None
-    chg_30d   = analysis.get("chg_30d") if analysis else None
-    hist_rows = (history or [])[:10]
-    wk_rows   = (weekly_prediction or [])[:7]
-    votes     = (global_signals or {}).get("votes", {})
+    chg_inr = data.get("change_inr_g") if data else None
+    chg_7d  = (analysis or {}).get("chg_7d")
+    chg_30d = (analysis or {}).get("chg_30d")
 
-    _hdr_deep  = BG2   if not light_mode else (210,215,230)
-    _hdr_strip = CARD2 if not light_mode else (190,196,218)
+    rsi      = (analysis or {}).get("rsi")
+    bb_pos   = (analysis or {}).get("bb_pos")
+    macd_val = (analysis or {}).get("macd_val")
+    macd_cross = (analysis or {}).get("macd_cross")
+    sma20    = (analysis or {}).get("sma20")
+    sma50    = (analysis or {}).get("sma50")
+    a_score  = (analysis or {}).get("score", 0)
+    a_rec    = (analysis or {}).get("recommendation", "")
 
-    H    = max(2200, 72+170+200+160+250+260+320+350+60+PAD*12)
-    img  = Image.new("RGB", (W, H), BG)
-    draw = ImageDraw.Draw(img)
+    geo_signal = (geo or {}).get("geo_signal", "")
+    geo_score  = (geo or {}).get("geo_score", 0)
+    bull_cnt   = (geo or {}).get("bull_count", 0)
+    bear_cnt   = (geo or {}).get("bear_count", 0)
+
+    pred_dir   = (prediction or {}).get("direction", "FLAT")
+    pred_score = float((prediction or {}).get("score", 0))
+    geo_s      = float((geo or {}).get("geo_score", 0))
+    combined   = round(a_score + geo_s + pred_score * 0.3, 1)
+
+    hist_rows  = (history or [])[:10]
+    wk_all     = (weekly_prediction or [])[:7]
+
+    ag_inr_kg  = (silver or {}).get("price_inr_kg") or 0
+    ag_chg     = (silver or {}).get("change_inr_g")
+    gs_ratio   = (silver or {}).get("gs_ratio")
+
+    votes       = (global_signals or {}).get("votes", {})
+    descs       = (global_signals or {}).get("descriptions", {})
+    net_score   = (global_signals or {}).get("net_score", 0)
+    g_outlook   = (global_signals or {}).get("global_outlook", "")
+    dxy_val     = (global_signals or {}).get("dxy_val")
+    vix_val     = (global_signals or {}).get("vix_now")
+    yield_val   = (global_signals or {}).get("yield_now")
+    gs_raw      = (global_signals or {}).get("gold_silver_ratio")
+
+    best_day     = (payment or {}).get("best_day")
+    top3_days    = (payment or {}).get("top3_days", [])
+    win_label    = (payment or {}).get("this_month_window", "")
+    ml_day       = (payment or {}).get("current_month_low_day")
+    ml_price_22k = (payment or {}).get("current_month_low_inr22k")
+    ml_trend     = (payment or {}).get("current_month_trend", "")
+
+    # Sparkline source: last 7 history 22K prices (oldest→newest)
+    hist_22k_spark = [r.get("22k", 0) for r in reversed(hist_rows)][:7]
+
+    # ── Canvas size ───────────────────────────────────────────────────────
+    n_sig    = len(descs)
+    n_hl     = len((geo or {}).get("top_headlines", []))
+
+    H_HDR   = 112
+    H_KPI   = 128
+    H_CHART = 260   # taller for candlestick + axis labels
+    H_GAUGE = 310   # taller for glow + forecast area
+    H_TECH  = 92    # taller for segmented dots
+    H_SIG   = max(0, n_sig * 34 + 54) if n_sig else 0
+    H_BUY   = 106
+    H_GEO   = 84 + max(0, n_hl * 22)
+    H_FTR   = 52
+    SH      = 40    # section header height (slightly taller for gradient)
+    GAP     = 14
+
+    n_secs = 5 + (1 if H_SIG else 0)
+    TOTAL_H = (H_HDR + H_KPI + H_CHART + H_GAUGE + H_TECH + H_SIG + H_BUY + H_GEO
+               + H_FTR + n_secs * SH + GAP * (n_secs + 4) + 40)
+
+    img  = Image.new("RGB", (W, TOTAL_H), BG)
+    drw  = ImageDraw.Draw(img)
     y    = 0
 
-    # ── Header ────────────────────────────────────────────────────────────
-    draw.rectangle([(0,0),(W,68)], fill=_hdr_deep)
-    draw.rectangle([(0,0),(W,4)],  fill=GOLD)
-    draw.rectangle([(0,64),(W,68)],fill=_hdr_strip)
-    draw.text((PAD,12), "🥇  Gold Price Update", font=F_TITLE, fill=GOLD)
-    draw.text((PAD,46), now_str, font=F_SM, fill=MUTED)
-    badge(draw, W-PAD-130, 44, f"USD/INR ₹{usd_inr:.2f}", bg=CARD3, fg=MUTED)
-    draw.text((PAD, 12), f"Source: {src}", font=F_XSM, fill=GREY)
-    y = 72
+    # ── Helper: RGBA alpha-composite overlay ──────────────────────────────
+    def _alpha_overlay(poly_pts, fill_rgba):
+        nonlocal img, drw
+        ov = Image.new("RGBA", (W, TOTAL_H), (0, 0, 0, 0))
+        od = ImageDraw.Draw(ov)
+        od.polygon(poly_pts, fill=fill_rgba)
+        img_rgba = img.convert("RGBA")
+        img_rgba.alpha_composite(ov)
+        img = img_rgba.convert("RGB")
+        drw = ImageDraw.Draw(img)
 
-    # ── Live price cards ──────────────────────────────────────────────────
-    y = sec_hdr(draw, y, "LIVE GOLD PRICE", icon_col=GOLD)
-    card_w = (W - PAD*3) // 2; card_h = 88; card_y = y + 4
-    for ci, (carat, price) in enumerate([("24 Carat", p24k), ("22 Carat", p22k)]):
-        cx0 = PAD + ci*(card_w+PAD)
-        draw.rectangle([(cx0,card_y),(cx0+card_w,card_y+card_h)], fill=CARD)
-        draw.rectangle([(cx0,card_y),(cx0+card_w,card_y+card_h//2)], fill=CARD2)
-        accent = GOLD if ci == 0 else GOLD_DIM
-        draw.rectangle([(cx0,card_y),(cx0+card_w,card_y+3)], fill=accent)
-        draw.text((cx0+12, card_y+8), carat, font=F_SM, fill=MUTED)
-        draw.text((cx0+12, card_y+26), f"₹{price:,}", font=F_H1, fill=WHITE)
-        draw.text((cx0+12, card_y+54), f"/gram", font=F_XSM, fill=MUTED)
-        draw.text((cx0+80, card_y+54), f"8g = ₹{price*8:,}", font=F_XSM, fill=MUTED)
-        if chg_val is not None and ci == 0:
-            chg_col = GREEN if chg_val > 0 else (RED if chg_val < 0 else GREY)
-            sign    = "▲+" if chg_val > 0 else ("▼" if chg_val < 0 else "─")
-            draw.text((cx0+card_w-110, card_y+30), f"{sign}₹{abs(chg_val):,}", font=F_SM, fill=chg_col)
-            draw.text((cx0+card_w-110, card_y+48), "vs yesterday", font=F_XSM, fill=MUTED)
-    y = card_y + card_h + 8
+    # ── Helper: glow circle ──────────────────────────────────────────────
+    def _glow_circle(cx, cy, r_outer, r_inner, col_rgba):
+        """Draw a glowing halo ring using alpha overlay."""
+        nonlocal img, drw
+        ov = Image.new("RGBA", (W, TOTAL_H), (0, 0, 0, 0))
+        od = ImageDraw.Draw(ov)
+        r, g, b, a = col_rgba
+        for radius in range(r_outer, r_inner - 1, -2):
+            alpha = int(a * (r_outer - radius) / max(1, r_outer - r_inner))
+            od.ellipse([(cx - radius, cy - radius), (cx + radius, cy + radius)],
+                       fill=(r, g, b, alpha), outline=None)
+        img_rgba = img.convert("RGBA")
+        img_rgba.alpha_composite(ov)
+        img = img_rgba.convert("RGB")
+        drw = ImageDraw.Draw(img)
 
-    # ── Silver card ────────────────────────────────────────────────────────
-    sc_y = y
-    draw.rectangle([(PAD,sc_y),(W-PAD,sc_y+48)], fill=CARD)
-    draw.rectangle([(PAD,sc_y),(W-PAD,sc_y+24)], fill=CARD2)
-    draw.rectangle([(PAD,sc_y),(PAD+3,sc_y+48)], fill=SILVER_COL)
-    if silver:
-        ag_inr_g = silver["price_inr_g"]; ag_inr_kg = silver["price_inr_kg"]
-        ag_usd = silver["price_usd"]; ag_chg = silver.get("change_inr_g")
-        gs_ratio = silver.get("gs_ratio"); src_tag = silver.get("source","")
-        draw.text((PAD+10,sc_y+6),  "Silver (999 fine)", font=F_SM,  fill=SILVER_COL)
-        draw.text((PAD+10,sc_y+26), f"₹{ag_inr_g:,.2f} /gram",       font=F_H2, fill=WHITE)
-        draw.text((PAD+240,sc_y+30),f"₹{ag_inr_kg:,}/kg",             font=F_XSM, fill=MUTED)
-        src_lbl = f"${ag_usd:.2f}/oz  ({src_tag})"
-        src_bb  = draw.textbbox((0,0), src_lbl, font=F_XSM)
-        draw.text((W-PAD-(src_bb[2]-src_bb[0])-4, sc_y+6), src_lbl, font=F_XSM, fill=MUTED)
-        if ag_chg is not None:
-            s_col  = GREEN if ag_chg > 0 else (RED if ag_chg < 0 else GREY)
-            s_sign = "▲+" if ag_chg > 0 else ("▼" if ag_chg < 0 else "─")
-            draw.text((PAD+380,sc_y+30), f"{s_sign}₹{abs(ag_chg):.2f}/g today", font=F_XSM, fill=s_col)
-        if gs_ratio:
-            if   gs_ratio > 90: rc,rt = RED,        f"G/S {gs_ratio} — gold overvalued"
-            elif gs_ratio < 65: rc,rt = GREEN,      f"G/S {gs_ratio} — gold undervalued"
-            else:               rc,rt = SILVER_COL, f"G/S ratio: {gs_ratio}"
-            badge(draw, W-PAD-210, sc_y+26, rt, bg=CARD3, fg=rc)
+    # ── Helper: section header with gradient ─────────────────────────────
+    def _sec(label):
+        nonlocal y
+        # background gradient (subtle left→right)
+        _h_gradient(drw, PAD, y, W - PAD, y + SH, CARD2, CARD3, steps=60)
+        # rounded frame
+        drw.rounded_rectangle([(PAD, y), (W - PAD, y + SH)], radius=6,
+                               outline=DIV, width=1)
+        # gold left accent bar
+        drw.rounded_rectangle([(PAD, y), (PAD + 5, y + SH)], radius=3, fill=GLD)
+        drw.text((PAD + 14, y + 11), label, font=Fsec, fill=INK)
+        # gold bottom strip
+        drw.rectangle([(PAD, y + SH - 2), (W - PAD, y + SH)], fill=GLD2)
+        y += SH + 8
+
+    # ── Helper: pill ──────────────────────────────────────────────────────
+    def _pill(px, py, txt, bg, fg=None, fnt=None):
+        if fnt is None: fnt = Fsmall
+        if fg  is None: fg  = BG if sum(bg) > 380 else INK
+        tw = _tw(txt, fnt)
+        pw, ph = tw + 18, 22
+        drw.rounded_rectangle([(px, py), (px + pw, py + ph)], radius=6, fill=bg)
+        drw.text((px + 9, py + 4), txt, font=fnt, fill=fg)
+        return pw + 6
+
+    # ── Helper: hbar ─────────────────────────────────────────────────────
+    def _hbar(x0, y0, x1, y1, pct, fg, bg=None):
+        if bg is None: bg = CARD3
+        drw.rounded_rectangle([(x0, y0), (x1, y1)], radius=3, fill=bg)
+        fe = x0 + int(max(0.0, min(1.0, pct)) * (x1 - x0))
+        if fe > x0:
+            drw.rounded_rectangle([(x0, y0), (fe, y1)], radius=3, fill=fg)
+
+    # ── Helper: segmented dot meter ───────────────────────────────────────
+    def _dot_meter(x0, y0, dots=10, filled=5, col_on=None, col_off=None):
+        if col_on  is None: col_on  = GLD
+        if col_off is None: col_off = CARD3
+        d, gap = 8, 4
+        for i in range(dots):
+            cx = x0 + i * (d + gap)
+            c  = col_on if i < filled else col_off
+            drw.ellipse([(cx, y0), (cx + d, y0 + d)], fill=c)
+
+    # ── Helper: vote colour ──────────────────────────────────────────────
+    def _vote_col(v):
+        if   v >= 2:  return GRN2
+        elif v == 1:  return GRN
+        elif v == 0:  return AMB
+        elif v == -1: return RED
+        else:         return RED2
+
+    # =========================================================== #
+    # ① HERO HEADER                                               #
+    # =========================================================== #
+    _h_gradient(drw, 0, 0, W, H_HDR, HDR_L, HDR_R, steps=80)
+    drw.rectangle([(0, H_HDR - 4), (W, H_HDR)], fill=GLD)
+
+    drw.text((PAD, 14), "GOLD PRICE DASHBOARD", font=Fhero, fill=GLD)
+    if os.name == "nt":
+        dt_str = now.strftime("%#d %B %Y  •  %H:%M IST")
     else:
-        draw.text((PAD+10,sc_y+6),  "Silver (999 fine)", font=F_SM, fill=SILVER_COL)
-        draw.text((PAD+10,sc_y+26), "Price data unavailable", font=F_REG, fill=GREY)
-    y = sc_y + 54
+        dt_str = now.strftime("%-d %B %Y  •  %H:%M IST")
+    drw.text((PAD, 62), dt_str, font=Fbody, fill=INK2)
+    drw.text((PAD, 80), f"Source: {src_lbl}", font=Ftiny, fill=MUT)
 
-    # ── Change pills + sparkline ──────────────────────────────────────────
-    px_b = PAD
-    if chg_7d is not None:
-        c7 = float(chg_7d)
-        px_b = badge(draw, px_b, y, f"7d: {'+' if c7>=0 else ''}{c7:.1f}%",
-                     bg=(GREEN if c7>=0 else RED), fg=BG)
-    if chg_30d is not None:
-        c30 = float(chg_30d)
-        px_b = badge(draw, px_b, y, f"30d: {'+' if c30>=0 else ''}{c30:.1f}%",
-                     bg=(GREEN if c30>=0 else RED), fg=BG)
-    if hist_rows:
-        sp_x0,sp_y0 = W-PAD-160, y; sp_w,sp_h = 160, 22
-        sp_prices   = [r["22k"] for r in reversed(hist_rows)]
-        sp_min = min(sp_prices)-100; sp_max = max(sp_prices)+100; sp_rng = max(1,sp_max-sp_min)
-        sp_pts = [
-            (sp_x0 + int(i*sp_w/max(1,len(sp_prices)-1)),
-             sp_y0 + sp_h - int(sp_h*(p-sp_min)/sp_rng))
-            for i,p in enumerate(sp_prices)
-        ]
-        if len(sp_pts) >= 2:
-            draw.line(sp_pts, fill=GOLD_DIM, width=2)
-        for pt in sp_pts:
-            draw.ellipse([(pt[0]-2,pt[1]-2),(pt[0]+2,pt[1]+2)], fill=GOLD)
-        draw.text((sp_x0,sp_y0+sp_h+2), "22K trend (10d)", font=F_XSM, fill=GREY)
-    y += 18
+    if chg_inr is not None:
+        chg_22k = chg_inr * 22 / 24
+        arrow = "▲" if chg_22k >= 0 else "▼"
+        ccol  = GRN if chg_22k >= 0 else RED
+        ctxt  = f"{arrow} ₹{abs(chg_22k):,.0f}/g  22K today"
+        drw.text((W - _tw(ctxt, Ftitle) - PAD, 46), ctxt, font=Ftitle, fill=ccol)
 
-    # ── Strong buy alert ──────────────────────────────────────────────────
-    if (p24k < 12_500) and (chg_30d is not None) and (float(chg_30d) <= -5.0):
-        _c30 = float(chg_30d); _p30 = round(p24k/(1+_c30/100))
-        draw.rectangle([(PAD,y),(W-PAD,y+52)], fill=(110,15,15))
-        draw.rectangle([(PAD,y),(PAD+3,y+52)], fill=RED)
-        draw.text((PAD+10,y+5),  f"🚨  RARE BUY OPPORTUNITY  —  24K ₹{p24k:,}/g  (BELOW ₹12,500!)", font=F_H2, fill=(255,240,60))
-        draw.text((PAD+10,y+30), f"Price is {abs(_c30):.1f}% cheaper than 30 days ago (was ₹{_p30:,}/g)  —  Strong case to BUY", font=F_XSM, fill=(255,200,200))
-        y += 58
-    y = hline(draw, y)
+    y = H_HDR + GAP
 
-    # ── Gauge + today's outlook ───────────────────────────────────────────
-    row_b_y = y
-    y = sec_hdr(draw, y, "PREDICTION SIGNAL GAUGE", x1=HALF-4, icon_col=TEAL)
-    tech_score = (analysis["score"] if analysis else 0.0) + (geo["geo_score"] if geo else 0.0)
-    pred_score = float(prediction.get("score", 0.0)) if prediction else 0.0
-    combined   = round(tech_score + pred_score*0.3, 1)
-    gauge_cx   = HALF//2; gauge_cy = y+44; gauge_r = 48
-    gauge(draw, gauge_cx, gauge_cy, gauge_r, combined)
-    draw.text((PAD, gauge_cy+gauge_r+4), "SELL", font=F_XSM, fill=RED)
-    draw.text((gauge_cx-14, gauge_cy+gauge_r+4), "HOLD", font=F_XSM, fill=YELLOW)
-    draw.text((HALF-PAD-28, gauge_cy+gauge_r+4), "BUY", font=F_XSM, fill=GREEN)
-    if prediction:
-        sig = prediction.get("signal_votes",{}); ups = sum(1 for v in sig.values() if v>0); downs = sum(1 for v in sig.values() if v<0)
-        sv_y = gauge_cy+gauge_r+20
-        draw.text((PAD, sv_y), f"UP signals: {ups}  /  DOWN: {downs}", font=F_XSM, fill=WHITE)
-        hbar(draw, PAD, sv_y+16, HALF-PAD*2, 8, ups/max(1,ups+downs), GREEN, bg=(60,20,20))
-        row_b_gauge_end = sv_y+30
-    else:
-        row_b_gauge_end = gauge_cy+gauge_r+20
+    # =========================================================== #
+    # ② KPI CARDS  (22K hero | 24K | Silver | USD/INR)            #
+    # =========================================================== #
+    gap_c = 10
+    n_c   = 4
+    cw_22k  = (W - 2 * PAD - 3 * gap_c) * 32 // 100
+    cw_rest = (W - 2 * PAD - cw_22k - 3 * gap_c) // 3
+    card_widths = [cw_22k, cw_rest, cw_rest, cw_rest]
 
-    # Right: today's outlook
-    ry = row_b_y; ry = sec_hdr(draw, ry, "TODAY'S OUTLOOK", x0=HALF+4, x1=W-PAD, icon_col=TEAL)
-    rx = HALF+14
-    if prediction:
-        d_val = prediction["direction"]; conf = prediction["confidence"]
-        arr   = "▲" if d_val=="UP" else ("▼" if d_val=="DOWN" else "→")
-        pcol  = dc(d_val)
-        d_eng = {"UP":"Going UP","DOWN":"Going DOWN","FLAT":"Stable"}.get(d_val, d_val)
-        c_eng = {"High":"Very confident","Moderate":"Fairly confident","Low":"Not sure","Uncertain":"Unclear"}.get(conf, str(conf or ""))
-        draw.text((rx,ry), f"{arr}  {d_eng}", font=F_H1, fill=pcol); ry += th(F_H1)+4
-        badge(draw, rx, ry, f" {c_eng} ", bg=pcol, fg=BG, f=F_SM); ry += th(F_SM)+8
-        hbar(draw, rx, ry, W-rx-PAD, 10, (pred_score+10)/20.0, pcol); ry += 16
-        draw.text((rx,ry), f"Score: {pred_score:+.1f}", font=F_XSM, fill=MUTED); ry += th(F_XSM)+4
-        all_r = prediction.get("reasons_up",[]) + prediction.get("reasons_down",[])
-        if all_r:
-            draw.text((rx,ry), f"Why: {str(all_r[0])[:60]}", font=F_XSM, fill=(175,180,210))
-            ry += th(F_XSM)+4
-    if analysis:
-        score2 = analysis["score"]+(geo["geo_score"] if geo else 0)
-        if   score2 >= 5: at,ac = "✔ Good time to buy", GREEN
-        elif score2 >= 2: at,ac = "✔ Okay to buy",      YELLOW
-        elif score2 >= 0: at,ac = "~ Wait for dip",     MUTED
-        else:             at,ac = "✖ Price is high",     RED
-        draw.text((rx,ry), at, font=F_REG, fill=ac); ry += th(F_REG)+2
-        sup = round(analysis["bb_low_usd"]  *usd_inr/31.1035)
-        rec = round(analysis["recovery_usd"]*usd_inr/31.1035)
-        draw.text((rx,ry), f"Support ₹{sup:,}/g  →  Target ₹{rec:,}/g", font=F_XSM, fill=MUTED)
-        ry += th(F_XSM)+2
-
-    y = max(row_b_gauge_end, ry)+4; y = hline(draw, y)
-
-    # ── 10-day candlestick + 7-day forecast (side by side) ────────────────
-    row_d_y = y
-    y  = sec_hdr(draw, y,  "LAST 10 DAYS  — Candlestick  (22K /g)", x1=HALF-4, icon_col=GOLD)
-    ry = row_d_y
-    ry = sec_hdr(draw, ry, "7-DAY PRICE FORECAST  (22K /g)", x0=HALF+4, x1=W-PAD)
-
-    cs_chart_end_y = y
-    if hist_rows:
-        prices_22k = [r["22k"] for r in hist_rows]
-        p_min_h = min(prices_22k)-300; p_max_h = max(prices_22k)+300; p_rng_h = max(1,p_max_h-p_min_h)
-        cs_h = 90; cs_bot = y+cs_h; cs_area = HALF-PAD-4; bw_c = cs_area//max(1,len(hist_rows))
-        for gi in range(4):
-            gp=p_min_h+int(p_rng_h*gi/3); gy=cs_bot-int(cs_h*gi/3)
-            draw.line([(PAD,gy),(HALF-4,gy)], fill=DIV, width=1)
-            draw.text((PAD,gy-11), f"₹{gp:,}", font=F_XSM, fill=GREY)
-        close_pts = []
-        for i,row in enumerate(reversed(hist_rows)):
-            bx_c=PAD+i*bw_c; price=row["22k"]; cx_c=bx_c+bw_c//2
-            body_h=max(4,int(cs_h*(price-p_min_h)/p_rng_h)); by_c=cs_bot-body_h
-            col_c=GREEN if row["chg"]>=0 else RED; body_pad=max(1,bw_c//5)
-            draw.rectangle([(bx_c+body_pad,by_c),(bx_c+bw_c-body_pad,cs_bot)], fill=col_c)
-            draw.line([(cx_c,by_c-max(3,body_h//6)),(cx_c,cs_bot+2)], fill=col_c, width=1)
-            draw.text((bx_c,by_c-15), f"₹{price:,}", font=F_XSM, fill=col_c)
-            close_pts.append((cx_c,by_c))
-        if len(close_pts)>=2: draw.line(close_pts, fill=GOLD_DIM, width=2)
-        for pt in close_pts: draw.ellipse([(pt[0]-3,pt[1]-3),(pt[0]+3,pt[1]+3)], fill=GOLD)
-        cy = cs_bot+6
-        for i,row in enumerate(reversed(hist_rows)):
-            bx_c=PAD+i*bw_c; parts=str(row["date"]).split()
-            draw.text((bx_c+2,cy),    parts[0] if parts else "", font=F_XSM, fill=MUTED)
-            draw.text((bx_c+2,cy+12), parts[1] if len(parts)>1 else "", font=F_XSM, fill=GREY)
-        cy += 28
-        tc = sum(r["chg"] for r in hist_rows); tc22 = round(tc*22/24)
-        chg_col_s = GREEN if tc22>0 else (RED if tc22<0 else GREY)
-        draw.text((PAD,cy), f"Net: {'+' if tc22>=0 else ''}₹{tc22:,}/g  Lo:₹{min(prices_22k):,}  Hi:₹{max(prices_22k):,}", font=F_XSM, fill=chg_col_s)
-        cs_chart_end_y = cy+th(F_XSM)+4
-    else:
-        draw.text((PAD,y), "No history available", font=F_SM, fill=MUTED)
-        cs_chart_end_y = y+th(F_SM)
-
-    fc_chart_end_y = ry
-    if wk_rows:
-        trade_rows = [r for r in wk_rows if not r["is_weekend"]]
-        fc_min  = min(r["low_22k"]  for r in trade_rows)-300 if trade_rows else p22k-500
-        fc_max  = max(r["high_22k"] for r in trade_rows)+300 if trade_rows else p22k+500
-        fc_rng  = max(1,fc_max-fc_min); fc_chart_h=90; fc_ch_bot=ry+fc_chart_h
-        fc_col_w = (W-PAD-(HALF+4))//max(1,len(wk_rows))
-        for gi in range(5):
-            gp=fc_min+int(fc_rng*gi/4); gy=fc_ch_bot-int(fc_chart_h*gi/4)
-            draw.line([(HALF+4,gy),(W-PAD,gy)], fill=DIV, width=1)
-            draw.text((HALF+6,gy-11), f"₹{gp:,}", font=F_XSM, fill=GREY)
-        hi_pts=[]; lo_pts=[]; mid_pts=[]
-        for i,row in enumerate(wk_rows):
-            cx_i=HALF+4+i*fc_col_w+fc_col_w//2
-            if not row["is_weekend"]:
-                lo_pct=(row["low_22k"]-fc_min)/fc_rng; hi_pct=(row["high_22k"]-fc_min)/fc_rng; mid_pct=(row["mid_22k"]-fc_min)/fc_rng
-                lo_pts.append((cx_i,fc_ch_bot-int(fc_chart_h*lo_pct)))
-                hi_pts.append((cx_i,fc_ch_bot-int(fc_chart_h*hi_pct)))
-                mid_pts.append((cx_i,fc_ch_bot-int(fc_chart_h*mid_pct)))
-        net_dir   = "UP" if sum(1 for r in trade_rows if r["direction"]=="UP") > len(trade_rows)//2 else "DOWN"
-        band_fill = GREEN_D if net_dir=="UP" else RED_D
-        line_col  = GREEN   if net_dir=="UP" else RED
-        if len(hi_pts)>=2: draw.polygon(hi_pts+list(reversed(lo_pts)), fill=band_fill)
-        if len(mid_pts)>=2: draw.line(mid_pts, fill=line_col, width=2)
-        mid_idx = 0
-        for i,row in enumerate(wk_rows):
-            cx_i=HALF+4+i*fc_col_w+fc_col_w//2
-            bc=dc(row["direction"]) if not row["is_weekend"] else GREY
-            if not row["is_weekend"] and mid_idx < len(mid_pts):
-                mx,my=mid_pts[mid_idx]
-                draw.ellipse([(mx-7,my-7),(mx+7,my+7)], fill=band_fill)
-                draw.ellipse([(mx-4,my-4),(mx+4,my+4)], fill=bc)
-                draw.text((mx-22,my-22), f"₹{row['mid_22k']:,}", font=F_XSM, fill=bc)
-                mid_idx += 1
-            else:
-                draw.line([(cx_i-5,fc_ch_bot-8),(cx_i+5,fc_ch_bot-18)], fill=GREY, width=2)
-                draw.line([(cx_i-5,fc_ch_bot-18),(cx_i+5,fc_ch_bot-8)], fill=GREY, width=2)
-            lc=GREY if row["is_weekend"] else WHITE
-            draw.text((HALF+4+i*fc_col_w+2,fc_ch_bot+4),  row["date"].strftime("%a"),    font=F_XSM, fill=lc)
-            draw.text((HALF+4+i*fc_col_w+2,fc_ch_bot+18), row["date"].strftime("%d %b"), font=F_XSM, fill=MUTED)
-            if not row["is_weekend"]:
-                arr="▲" if row["direction"]=="UP" else ("▼" if row["direction"]=="DOWN" else "→")
-                draw.text((HALF+4+i*fc_col_w+2,fc_ch_bot+32), arr, font=F_XSM, fill=bc)
-        fy=fc_ch_bot+48; draw.text((HALF+6,fy), "Band = uncertainty range  •  Estimates only", font=F_XSM, fill=GREY)
-        fc_chart_end_y=fy+th(F_XSM)+4
-    else:
-        draw.text((HALF+6,ry), "Forecast unavailable", font=F_SM, fill=MUTED)
-        fc_chart_end_y=ry+th(F_SM)+4
-
-    y = max(fc_chart_end_y, cs_chart_end_y)+4; y = hline(draw, y)
-
-    # ── Best day to buy + historical guide (side by side) ─────────────────
-    row_c_y = y
-    y  = sec_hdr(draw, y,  "BEST DAY TO BUY THIS MONTH", x1=HALF-4, icon_col=TEAL)
-    ry = row_c_y
-    ry = sec_hdr(draw, ry, "HISTORICAL BUY GUIDE", x0=HALF+4, x1=W-PAD, icon_col=TEAL)
-    rx = HALF+14
-
-    if monthly_low_pred:
-        import calendar as _cal
-        mlp=monthly_low_pred; pd_=mlp["predicted_date"]; conf_tag=mlp["confidence"]
-        conf_col=GREEN if conf_tag=="High" else (YELLOW if conf_tag=="Moderate" else ORANGE)
-        draw.text((PAD,y), "Predicted cheapest day:", font=F_SM, fill=MUTED); y+=th(F_SM)+2
-        draw.rectangle([(PAD,y),(HALF-12,y+50)], fill=CARD2)
-        draw.rectangle([(PAD,y),(PAD+4,y+50)], fill=conf_col)
-        draw.text((PAD+10,y+4), f"{_ordinal(mlp['predicted_day'])} {pd_.strftime('%B')}", font=F_H1, fill=WHITE)
-        draw.text((PAD+10,y+32), mlp["predicted_weekday"], font=F_XSM, fill=MUTED)
-        badge(draw, HALF-130, y+16, conf_tag, bg=conf_col, fg=BG); y+=56
-        today_dt=date.today(); month_end_v=_cal.monthrange(today_dt.year,today_dt.month)[1]
-        rem_days=[today_dt+timedelta(days=d+1) for d in range(month_end_v-today_dt.day)]
-        if rem_days:
-            cell_w=min(28,(HALF-PAD*2)//max(1,len(rem_days))); cell_h=22
-            for di,day_d in enumerate(rem_days):
-                dx=PAD+di*cell_w
-                is_predicted=(day_d.day==mlp["predicted_day"])
-                is_runnerup=any(c["day"]==day_d.day for c in mlp.get("top3",[])[1:3])
-                is_wknd=day_d.weekday()>=5
-                if is_predicted: cell_c=conf_col; txt_c=BG
-                elif is_runnerup: cell_c=CARD3;   txt_c=conf_col
-                else: cell_c=CARD if not is_wknd else BG; txt_c=GREY if is_wknd else MUTED
-                draw.rectangle([(dx,y),(dx+cell_w-1,y+cell_h)], fill=cell_c)
-                day_s=str(day_d.day); bb=draw.textbbox((0,0),day_s,font=F_XSM); tw=bb[2]-bb[0]
-                draw.text((dx+(cell_w-tw)//2,y+4), day_s, font=F_XSM, fill=txt_c)
-            y+=cell_h+4
-            draw.text((PAD,y), f"▓ = predicted  ░ = runner-up  {_ordinal(mlp['predicted_day'])} highlighted", font=F_XSM, fill=GREY)
-            y+=th(F_XSM)+2
-        draw.text((PAD,y), f"22K: ₹{mlp['low_22k']:,} – ₹{mlp['high_22k']:,} /g", font=F_SM, fill=WHITE); y+=th(F_SM)+2
-        hbar(draw, PAD, y, HALF-PAD*2, 8, 0.5, GOLD); y+=12
-        draw.text((PAD,y), f"24K: ₹{mlp['low_inr']:,} – ₹{mlp['high_inr']:,} /g", font=F_XSM, fill=MUTED); y+=th(F_XSM)+4
-        if mlp.get("hist_aligns"):
-            badge(draw, PAD, y, "✅ Matches historical cheapest-day pattern", bg=GREEN_D, fg=GREEN); y+=22
-    else:
-        draw.text((PAD,y), "No prediction available", font=F_SM, fill=MUTED); y+=th(F_SM)
-    row_c_left_end = y
-
-    if payment:
-        lo_price=payment.get("current_month_low_price"); lo_date=payment.get("current_month_low_date")
-        if lo_date and (lo_price or payment.get("current_month_low_inr22k")):
-            lo_inr22=payment.get("current_month_low_inr22k") or round((lo_price/31.1035)*usd_inr*INDIA_GOLD_DUTY_FACTOR*22/24)
-            days_ago=(date.today()-lo_date).days
-            d_lbl="today" if days_ago==0 else f"{_ordinal(lo_date.day)} {lo_date.strftime('%b')} ({days_ago}d)"
-            draw.text((rx,ry), f"Month low so far: ₹{lo_inr22:,}/g (22K)", font=F_SM, fill=WHITE); ry+=th(F_SM)+1
-            draw.text((rx,ry), f"Occurred: {d_lbl}", font=F_XSM, fill=MUTED); ry+=th(F_XSM)+2
-            trend=payment.get("current_month_trend","")
-            t_col=GREEN if trend=="falling" else (RED if trend=="rising" else GREY)
-            t_txt={"falling":"↓ Falling — consider buying soon","rising":"↑ Rising — low likely passed","flat":"→ Flat — stable"}.get(trend,"")
-            if t_txt: draw.text((rx,ry), t_txt, font=F_SM, fill=t_col); ry+=th(F_SM)+4
-        bd=payment.get("best_date_this_month")
-        if bd:
-            days_left=(bd-date.today()).days if bd>=date.today() else -1
-            if days_left>=0: when="Today!" if days_left==0 else f"{_ordinal(bd.day)} {bd.strftime('%B')} ({days_left}d away)"
-            else:
-                nd=payment.get("best_date_next_month")
-                when=nd.strftime(f"{_ordinal(nd.day)} %B %Y") if nd else "next month"
-            draw.text((rx,ry), f"Historically cheapest: {_ordinal(payment['best_day'])} each month", font=F_SM, fill=WHITE); ry+=th(F_SM)+1
-            draw.text((rx,ry), f"Next: {when}", font=F_XSM, fill=GOLD); ry+=th(F_XSM)+4
-        mn=payment.get("scheme_month_names",{}); top3s=payment.get("scheme_top3_starts") or []
-        best_sn=payment.get("scheme_best_start_name","")
-        draw.text((rx,ry), "Best month to start gold scheme:", font=F_XSM, fill=MUTED); ry+=th(F_XSM)+2
-        pm=rx
-        for m,p2 in top3s[:3]:
-            pm=badge(draw,pm,ry,f"{mn.get(m,'?')} {'✓' if p2<=0 else '+'+str(p2)+'%'}",
-                     bg=(GREEN if p2<=0 else (YELLOW if p2<=1.5 else ORANGE)),fg=BG)
-        ry+=24
-        cur_extra=next((p2 for m,p2 in top3s if m==date.today().month),None)
-        if cur_extra is not None:
-            cur_m=mn.get(date.today().month,"This month")
-            if   cur_extra<=0.5: nt,nc=f"✔  {cur_m} — great time to start!",GREEN
-            elif cur_extra<=2.0: nt,nc=f"~  {cur_m}: okay (+{cur_extra}% vs ideal)",YELLOW
-            else:                nt,nc=f"✖  {cur_m}: costly (+{cur_extra}%) — prefer {best_sn}",ORANGE
-            draw.text((rx,ry), nt, font=F_XSM, fill=nc); ry+=th(F_XSM)+2
-    else:
-        draw.text((rx,ry), "No data", font=F_SM, fill=MUTED); ry+=th(F_SM)
-
-    y = max(row_c_left_end, ry)+6; y = hline(draw, y)
-
-    # ── World market signals ──────────────────────────────────────────────
-    y = sec_hdr(draw, y, "WORLD MARKET SIGNALS", icon_col=BLUE)
-    mkt_items = [
-        ("real_yield","Real Yields","↓ Good  ↑ Bad"),("dxy","US Dollar","↓ Good  ↑ Bad"),
-        ("yields","Interest Rates","↓ Good  ↑ Bad"),("yield_curve","Yield Curve","Inverted = Fear"),
-        ("vix","Market Fear","↑ Good  ↓ Bad"),("risk_assets","Stock Markets","↓ Good  ↑ Bad"),
-        ("oil","Oil Prices","↑ Inflationary"),("copper","Copper (Economy)","↓ Fear = Gold UP"),
-        ("etf_flow","GLD ETF Flow","↑ Inst. Buying"),("gold_momentum","Gold Momentum","5-day trend"),
+    kpis = [
+        ("22K GOLD",   f"₹{p22k:,}",              "/g",  GLD,  True),
+        ("24K GOLD",   f"₹{p24k:,}",              "/g",  GLD2, False),
+        ("SILVER 999", f"₹{ag_inr_kg:,.0f}" if ag_inr_kg else "—", "/kg", SIL, False),
+        ("USD / INR",  f"₹{usd_inr:.2f}",          "",    BLU,  False),
     ]
-    bar_label_w=145; bar_w=W-PAD*2-bar_label_w-95
-    for key,label,hint in mkt_items:
-        v=votes.get(key,0); col=vc(v); pct=0.8 if v>0 else (0.2 if v<0 else 0.5)
-        draw.rectangle([(PAD,y),(W-PAD,y+28)], fill=CARD)
-        draw.rectangle([(PAD,y),(PAD+3,y+28)], fill=col)
-        draw.text((PAD+8,y+7), label, font=F_XSM, fill=WHITE)
-        bx0=PAD+bar_label_w; hbar(draw,bx0,y+9,bar_w,10,pct,col)
-        impact_txt="GOOD ▲" if v>0 else ("BAD ▼" if v<0 else "NEUTRAL →")
-        badge(draw, W-PAD-90, y+6, impact_txt, bg=col, fg=BG)
-        draw.text((bx0,y+22), hint, font=F_XSM, fill=GREY); y+=32
 
-    if global_signals:
-        net=global_signals.get("net_score",0); raw_=global_signals.get("global_outlook","")
-        nkey=raw_[:2]
-        net_map={"🟢":("Bullish for Gold",GREEN),"🟡":("Slightly Bullish",YELLOW),
-                 "⚪":("Mixed / Neutral",GREY),"🟠":("Slightly Bearish",ORANGE),"🔴":("Bearish for Gold",RED)}
-        ntxt,ncol=net_map.get(nkey,(raw_ or "Unknown",GREY))
-        draw.text((PAD,y+2), "Overall →", font=F_SM, fill=MUTED)
-        ex=badge(draw,PAD+80,y,f" {ntxt} ",bg=ncol,fg=BG,f=F_SM)
-        hbar(draw,ex+4,y+4,W-ex-PAD-10,10,(float(net)+5)/10.0,ncol); y+=22
-    y += 6
+    for idx, (lbl, val, unit, acc, is_hero) in enumerate(kpis):
+        cx0 = PAD + sum(card_widths[:idx]) + idx * gap_c
+        cx1 = cx0 + card_widths[idx]
+        cy0, cy1 = y, y + H_KPI
+        _shadow_rect(drw, cx0, cy0, cx1, cy1, CARD, radius=10, soff=4, scol=SHD)
+        strip_h = 7 if is_hero else 5
+        drw.rounded_rectangle([(cx0, cy0), (cx1, cy0 + strip_h)], radius=3, fill=acc)
 
-    # ── Footer ─────────────────────────────────────────────────────────────
-    y += 6
-    draw.rectangle([(0,y),(W,y+30)], fill=_hdr_deep)
-    draw.rectangle([(0,y),(W,y+2)],  fill=GOLD_DIM)
-    draw.text((PAD,y+8), "⚠️ For personal reference only — not financial advice.", font=F_XSM, fill=GREY)
-    draw.text((W-PAD-250,y+8), "Gold Price Notifier  •  Auto-generated", font=F_XSM, fill=GREY)
-    y += 32
+        val_font = _fnt(24, True) if is_hero else Ftitle
+        lbl_font = Fsmall if is_hero else Ftiny
+        drw.text((cx0 + 12, cy0 + 13), lbl, font=lbl_font,
+                 fill=GLD if is_hero else INK3)
+        drw.text((cx0 + 12, cy0 + (34 if is_hero else 30)), val, font=val_font, fill=INK)
+        if unit:
+            drw.text((cx0 + 14 + _tw(val, val_font), cy0 + (44 if is_hero else 40)),
+                     unit, font=Ftiny, fill=INK2)
 
-    final_h = min(y+14, H)
-    img     = img.crop((0, 0, W, final_h))
-    os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
-    img.save(out_path, "PNG", optimize=True)
-    logger.info(f"Price image saved → {out_path}  ({W}×{final_h}px)")
+        # sub-lines
+        if idx == 0:    # 22K hero
+            if chg_inr is not None:
+                chg_22k = chg_inr * 22 / 24
+                arr = "▲" if chg_22k >= 0 else "▼"
+                col = GRN if chg_22k >= 0 else RED
+                drw.text((cx0 + 12, cy0 + 78), f"{arr} ₹{abs(chg_22k):,.0f}/g today",
+                         font=Fsmall, fill=col)
+            if chg_7d is not None:
+                drw.text((cx0 + 12, cy0 + 96),
+                         f"7d: {chg_7d:+.2f}%     30d: {chg_30d:+.2f}%" if chg_30d
+                         else f"7d: {chg_7d:+.2f}%",
+                         font=Ftiny, fill=INK2)
+            helper = f"8g=₹{p22k * 8:,}  •  10g=₹{p22k * 10:,}"
+            drw.text((cx0 + 12, cy0 + 110), helper, font=Ftiny, fill=MUT)
+            # sparkline (bottom strip)
+            if len(hist_22k_spark) >= 2:
+                _sparkline(drw, cx0 + 12, cy0 + H_KPI - 20,
+                           cx1 - 12, cy0 + H_KPI - 6,
+                           hist_22k_spark, GRN, RED, bg=CARD2)
+        elif idx == 1:  # 24K
+            if chg_30d is not None:
+                drw.text((cx0 + 12, cy0 + 72), f"30d: {chg_30d:+.2f}%", font=Fsmall, fill=INK2)
+            if len(hist_22k_spark) >= 2:
+                spark_24k = [r.get("24k", 0) for r in reversed(hist_rows)][:7]
+                _sparkline(drw, cx0 + 12, cy0 + H_KPI - 20,
+                           cx1 - 12, cy0 + H_KPI - 6,
+                           spark_24k, GRN, RED, bg=CARD2)
+        elif idx == 2 and gs_ratio:
+            gs_col = RED if gs_ratio > 90 else (GRN if gs_ratio < 65 else INK2)
+            drw.text((cx0 + 12, cy0 + 72), f"G/S ratio: {gs_ratio:.0f}", font=Fsmall, fill=gs_col)
+            if ag_chg is not None:
+                drw.text((cx0 + 12, cy0 + 90), f"Δ ₹{ag_chg:+.2f}/g", font=Ftiny, fill=INK2)
+        elif idx == 3 and dxy_val:
+            drw.text((cx0 + 12, cy0 + 72), f"DXY: {dxy_val:.1f}", font=Fsmall, fill=INK2)
+            if vix_val:
+                drw.text((cx0 + 12, cy0 + 90), f"VIX: {vix_val:.1f}", font=Ftiny, fill=INK2)
+
+    y += H_KPI + GAP
+
+    # =========================================================== #
+    # ③ 10-DAY PRICE TREND — CANDLESTICK CHART                    #
+    # =========================================================== #
+    if len(hist_rows) >= 2:
+        _sec("10-DAY 22K GOLD PRICE TREND")
+        chart_h  = H_CHART - 8
+        split_x  = PAD + int((W - 2 * PAD) * 0.70)
+
+        drw.rounded_rectangle([(PAD, y), (split_x, y + chart_h)], radius=10, fill=CARD)
+        # subtle inner gradient tint
+        _h_gradient(drw, PAD + 2, y + 2, split_x - 2, y + chart_h - 2,
+                    CARD, CARD2, steps=40)
+
+        # build price series (oldest→newest)
+        closings_22k = [r.get("22k", 0) for r in reversed(hist_rows)]
+        closings_24k = [r.get("24k", 0) for r in reversed(hist_rows)]
+        dates_lbl    = [str(r.get("date", ""))[-5:] for r in reversed(hist_rows)]
+        n_bars = len(closings_22k)
+
+        cmin = min(closings_22k); cmax = max(closings_22k)
+        rng  = max(cmax - cmin, 1)
+
+        lpad, rpad, tpad, bpad = 56, 10, 20, 30
+        ax0 = PAD + lpad; ax1 = split_x - rpad
+        ay0 = y  + tpad;  ay1 = y + chart_h - bpad
+
+        def _cx(i):
+            return int(ax0 + (i + 0.5) * (ax1 - ax0) / max(1, n_bars))
+        def _cy(p):
+            return int(ay1 - (p - cmin) / rng * (ay1 - ay0))
+
+        bar_w = max(4, (ax1 - ax0) // max(1, n_bars) - 4)
+
+        # ── Grid lines + price axis labels (right side) ──────────────────
+        for gp in [0.0, 0.25, 0.5, 0.75, 1.0]:
+            gy = int(ay1 - gp * (ay1 - ay0))
+            drw.line([(ax0, gy), (ax1, gy)], fill=DIV, width=1)
+            pv = cmin + gp * rng
+            lbl_str = f"₹{pv:,.0f}"
+            drw.text((PAD + 2, gy - 8), lbl_str, font=Ftiny, fill=MUT)
+
+        # ── Gradient area fill under line (RGBA composite) ───────────────
+        area_pts = [(ax0, ay1)]
+        for i, cl in enumerate(closings_22k):
+            area_pts.append((_cx(i), _cy(cl)))
+        area_pts.append((ax1, ay1))
+        area_rgba = (CANDLE_UP[0], CANDLE_UP[1], CANDLE_UP[2], 35)
+        _alpha_overlay(area_pts, area_rgba)
+
+        # ── Candlestick bars ─────────────────────────────────────────────
+        for i, cl in enumerate(closings_22k):
+            px = _cx(i)
+            prev = closings_22k[i - 1] if i > 0 else cl
+            is_up = cl >= prev
+            op = prev if i > 0 else cl
+            hi = max(cl, op) * 1.0025
+            lo = min(cl, op) * 0.9975
+            body_col = CANDLE_UP if is_up else CANDLE_DN
+            # wick
+            drw.line([(px, _cy(hi)), (px, _cy(lo))], fill=body_col, width=2)
+            # body
+            by0 = min(_cy(cl), _cy(op))
+            by1 = max(_cy(cl), _cy(op))
+            body_h = max(2, by1 - by0)
+            drw.rounded_rectangle([(px - bar_w // 2, by0), (px + bar_w // 2, by0 + body_h)],
+                                   radius=2, fill=body_col)
+            # date label every other
+            if i % 2 == 0:
+                dl = dates_lbl[i] if i < len(dates_lbl) else ""
+                drw.text((px - len(dl) * 3, ay1 + 4), dl, font=Ftiny, fill=INK3)
+
+        # ── Gold trend overlay line ───────────────────────────────────────
+        trend_pts = [(_cx(i), _cy(cl)) for i, cl in enumerate(closings_22k)]
+        if len(trend_pts) >= 2:
+            drw.line(trend_pts, fill=GLD2, width=2)
+
+        # ── Current price annotation ──────────────────────────────────────
+        last_px, last_py = _cx(n_bars - 1), _cy(closings_22k[-1])
+        price_lbl = f"₹{closings_22k[-1]:,}"
+        lbl_w = _tw(price_lbl, Ftiny) + 10
+        drw.rounded_rectangle([(last_px - 2, last_py - 16), (last_px + lbl_w, last_py - 2)],
+                               radius=3, fill=GLD)
+        drw.text((last_px + 4, last_py - 15), price_lbl, font=Ftiny,
+                 fill=BG if sum(GLD) > 380 else INK)
+
+        # ── Stats panel (right of chart) ──────────────────────────────────
+        drw.rounded_rectangle([(split_x + 6, y), (W - PAD, y + chart_h)], radius=10, fill=CARD)
+        # header strip
+        _h_gradient(drw, split_x + 6, y, W - PAD, y + 32, GLD, GLD2, steps=30)
+        drw.rounded_rectangle([(split_x + 6, y), (W - PAD, y + 32)], radius=8, outline=GLD, width=0)
+        spx = split_x + 16
+        drw.text((spx, y + 9), "COMEX", font=Flabel, fill=BG if sum(GLD) > 380 else INK)
+
+        sy = y + 38
+        price_usd = (analysis or {}).get("price_now_usd")
+        if price_usd:
+            drw.text((spx, sy), f"${price_usd:,.1f}/oz", font=Fbody, fill=INK); sy += 22
+
+        for stat_lbl, val, col in [
+            ("7d Chg",  f"{chg_7d:+.2f}%" if chg_7d  is not None else "—",
+             GRN if chg_7d  and chg_7d  > 0 else (RED if chg_7d  and chg_7d  < 0 else INK2)),
+            ("30d Chg", f"{chg_30d:+.2f}%" if chg_30d is not None else "—",
+             GRN if chg_30d and chg_30d > 0 else (RED if chg_30d and chg_30d < 0 else INK2)),
+        ]:
+            drw.text((spx, sy), stat_lbl, font=Ftiny, fill=INK3); sy += 14
+            drw.text((spx, sy), val,       font=Fbody, fill=col);  sy += 20
+
+        sy += 4
+        drw.line([(spx, sy), (W - PAD - 10, sy)], fill=DIV, width=1); sy += 8
+
+        drw.text((spx, sy), "22K vs yesterday", font=Ftiny, fill=INK3); sy += 14
+        if closings_22k and len(closings_22k) >= 2:
+            delta_1d   = closings_22k[-1] - closings_22k[-2]
+            dcol       = GRN if delta_1d >= 0 else RED
+            darrow     = "▲" if delta_1d >= 0 else "▼"
+            drw.text((spx, sy), f"{darrow} ₹{abs(delta_1d):,}/g", font=Fbody, fill=dcol); sy += 22
+
+        if closings_22k:
+            drw.text((spx, sy), "22K multiples", font=Ftiny, fill=INK3); sy += 14
+            drw.text((spx, sy), f"8g  = ₹{closings_22k[-1] * 8:,}",  font=Ftiny, fill=INK2); sy += 14
+            drw.text((spx, sy), f"10g = ₹{closings_22k[-1] * 10:,}", font=Ftiny, fill=INK2); sy += 16
+
+        # mini sparkline in stats panel
+        if len(hist_22k_spark) >= 2:
+            sy += 4
+            drw.text((spx, sy), "10d trend", font=Ftiny, fill=INK3); sy += 14
+            _sparkline(drw, spx, sy, W - PAD - 12, sy + 28,
+                       hist_22k_spark, GRN, RED, bg=CARD2)
+
+        y += chart_h + GAP
+
+    # =========================================================== #
+    # ④ SIGNAL GAUGE  +  7-DAY FORECAST                           #
+    # =========================================================== #
+    _sec("PREDICTION SIGNAL GAUGE")
+    ga_top = y
+
+    GCX = PAD + (W // 2 - PAD) // 2
+    GCY = y + 158
+    GR  = 108
+
+    def _gauge(score):
+        t  = max(-1.0, min(1.0, score / 10))
+        nd = 180 + t * 82      # PIL arc angle: 180=left, 360=right
+
+        zones = [(180, 222, RED2), (222, 252, RED), (252, 278, CARD3),
+                 (278, 308, GRN),  (308, 360, GRN2)]
+        for sa, ea, col in zones:
+            drw.arc([(GCX - GR, GCY - GR), (GCX + GR, GCY + GR)],
+                    start=sa, end=ea, fill=col, width=24)
+        # outer ring
+        drw.arc([(GCX - GR - 4, GCY - GR - 4), (GCX + GR + 4, GCY + GR + 4)],
+                start=180, end=360, fill=DIV, width=2)
+
+        # ticks
+        for deg in range(180, 361, 20):
+            r2 = _math.radians(deg)
+            x1 = GCX + (GR + 4) * _math.cos(r2); y1 = GCY + (GR + 4) * _math.sin(r2)
+            x2 = GCX + (GR - 24) * _math.cos(r2); y2 = GCY + (GR - 24) * _math.sin(r2)
+            drw.line([(x1, y1), (x2, y2)], fill=INK3, width=1)
+
+        # ── Glow around hub (concentric alpha rings) ──────────────────────
+        _glow_circle(GCX, GCY, r_outer=30, r_inner=10, col_rgba=GLOW_COL)
+
+        # ── Needle with glow layering ─────────────────────────────────────
+        nr  = _math.radians(nd)
+        nx  = GCX + (GR - 20) * _math.cos(nr)
+        ny2 = GCY + (GR - 20) * _math.sin(nr)
+        # shadow needle
+        drw.line([(GCX, GCY), (nx, ny2)], fill=SHD, width=7)
+        # glow needle (wide dim)
+        drw.line([(GCX, GCY), (nx, ny2)], fill=GLD2, width=5)
+        # bright needle (thin, on top)
+        drw.line([(GCX, GCY), (nx, ny2)], fill=GLD, width=2)
+        # hub
+        drw.ellipse([(GCX - 10, GCY - 10), (GCX + 10, GCY + 10)], fill=GLD)
+        drw.ellipse([(GCX - 4,  GCY - 4),  (GCX + 4,  GCY + 4)],  fill=INK)
+
+        drw.text((GCX - 20, GCY - GR - 22), "SELL", font=Ftiny, fill=RED)
+        drw.text((GCX + GR - 14, GCY + 12), "BUY",  font=Ftiny, fill=GRN)
+
+        s_txt = f"Score: {score:+.1f}"
+        drw.text((GCX - _tw(s_txt, Flabel) // 2, GCY + 16), s_txt, font=Flabel, fill=INK)
+
+        if   score >= 7:   ver, vc = "STRONG BUY",  GRN2
+        elif score >= 3:   ver, vc = "BUY",          GRN
+        elif score <= -7:  ver, vc = "STRONG SELL",  RED2
+        elif score <= -3:  ver, vc = "SELL",          RED
+        else:              ver, vc = "NEUTRAL",       AMB
+        drw.text((GCX - _tw(ver, Ftitle) // 2, GCY + 40), ver, font=Ftitle, fill=vc)
+
+    _gauge(combined)
+
+    # --- 7-day forecast panel ---
+    fx0 = W // 2 + 6
+    fy0 = ga_top
+    fy1 = ga_top + H_GAUGE - GAP
+    _shadow_rect(drw, fx0, fy0, W - PAD, fy1, CARD, radius=8, soff=3, scol=SHD)
+    # header strip
+    _h_gradient(drw, fx0, fy0, W - PAD, fy0 + 32, GLD, GLD2, steps=30)
+    drw.text((fx0 + 12, fy0 + 9), "7-DAY PRICE FORECAST", font=Flabel,
+             fill=BG if sum(GLD) > 380 else INK)
+
+    wry = fy0 + 38
+    drw.text((fx0 + 12,  wry), "Day", font=Ftiny, fill=INK3)
+    drw.text((fx0 + 68,  wry), "Dir", font=Ftiny, fill=INK3)
+    drw.text((fx0 + 114, wry), "22K mid (₹/g)", font=Ftiny, fill=GLD)
+    drw.text((fx0 + 255, wry), "22K range",           font=Ftiny, fill=INK3)
+    wry += 18
+    drw.line([(fx0 + 10, wry), (W - PAD - 8, wry)], fill=DIV, width=1)
+    wry += 6
+
+    forecast_mids = []
+    forecast_los  = []
+    forecast_his  = []
+    forecast_dirs = []
+
+    for row in wk_all[:7]:
+        is_wknd = row.get("is_weekend", False)
+        wd       = str(row.get("weekday", ""))[:3]
+        dirn     = str(row.get("direction", "FLAT")).upper()
+        mid_22k  = row.get("mid_22k") or round((row.get("mid_inr",  0) or 0) * 22 / 24)
+        lo_22k   = row.get("low_22k") or round((row.get("low_inr",  mid_22k) or mid_22k) * 22 / 24)
+        hi_22k   = row.get("high_22k") or round((row.get("high_inr", mid_22k) or mid_22k) * 22 / 24)
+
+        if not is_wknd and mid_22k:
+            forecast_mids.append(mid_22k)
+            forecast_los.append(lo_22k)
+            forecast_his.append(hi_22k)
+            forecast_dirs.append(dirn)
+
+        if wry < fy1 - 60:
+            if is_wknd:
+                drw.rectangle([(fx0 + 8, wry - 2), (W - PAD - 6, wry + 22)], fill=CARD2)
+                drw.text((fx0 + 12, wry + 2), wd, font=Fsmall, fill=INK3)
+                drw.text((fx0 + 68, wry + 2), "Weekend", font=Fsmall, fill=MUT)
+            else:
+                pcol = GRN if "UP" in dirn else (RED if "DOWN" in dirn else AMB)
+                arr  = "▲" if "UP" in dirn else ("▼" if "DOWN" in dirn else "—")
+                drw.text((fx0 + 12, wry + 2), wd, font=Fsmall, fill=INK)
+                _pill(fx0 + 58, wry, f"{arr} {dirn}", pcol, fnt=Ftiny)
+                mid_txt   = f"₹{mid_22k:,}"
+                range_txt = f"₹{lo_22k:,} – ₹{hi_22k:,}"
+                drw.text((fx0 + 114, wry + 2), mid_txt,   font=Fsmall, fill=GLD)
+                drw.text((fx0 + 255, wry + 4), range_txt, font=Ftiny,  fill=INK2)
+            wry += 26
+
+    # ── Forecast area mini-chart ──────────────────────────────────────────
+    if len(forecast_mids) >= 2:
+        wry += 8
+        drw.line([(fx0 + 10, wry), (W - PAD - 8, wry)], fill=DIV, width=1); wry += 6
+        drw.text((fx0 + 12, wry), "Forecast band", font=Ftiny, fill=INK3); wry += 14
+        fc_x0 = fx0 + 10; fc_x1 = W - PAD - 10
+        fc_y0 = wry;       fc_y1 = min(wry + 42, fy1 - 8)
+        if fc_y1 - fc_y0 >= 16:
+            drw.rectangle([(fc_x0, fc_y0), (fc_x1, fc_y1)], fill=CARD2)
+            f_all = forecast_los + forecast_his
+            f_mn  = min(f_all); f_mx = max(f_all); f_rng = max(f_mx - f_mn, 1)
+            n_f   = len(forecast_mids)
+            def _fx(i): return int(fc_x0 + i * (fc_x1 - fc_x0) / max(1, n_f - 1))
+            def _fy(v): return int(fc_y1 - (v - f_mn) / f_rng * (fc_y1 - fc_y0))
+            # confidence band (alpha)
+            band_top = [(_fx(i), _fy(forecast_his[i])) for i in range(n_f)]
+            band_bot = [(_fx(i), _fy(forecast_los[i])) for i in range(n_f)]
+            band_pts = band_top + list(reversed(band_bot))
+            _alpha_overlay(band_pts, (CANDLE_UP[0], CANDLE_UP[1], CANDLE_UP[2], 55))
+            # mid line + coloured dots
+            mid_pts = [(_fx(i), _fy(forecast_mids[i])) for i in range(n_f)]
+            if len(mid_pts) >= 2:
+                drw.line(mid_pts, fill=GLD, width=2)
+            for i, (fx, fy) in enumerate(mid_pts):
+                dcol = GRN if "UP" in forecast_dirs[i] else (RED if "DOWN" in forecast_dirs[i] else AMB)
+                drw.ellipse([(fx - 4, fy - 4), (fx + 4, fy + 4)], fill=dcol, outline=CARD, width=1)
+
+    # Macro outlook
+    if g_outlook:
+        outlook_clean = (g_outlook.replace("🟢", "").replace("🔴", "")
+                         .replace("🟡", "").replace("⚪", "").replace("🟠", "").strip())
+        y_ol = fy1 - 16
+        drw.text((fx0 + 12, y_ol), f"Macro: {outlook_clean}"[:44], font=Ftiny, fill=INK2)
+
+    y = ga_top + H_GAUGE
+
+    # =========================================================== #
+    # ⑤ TECHNICAL INDICATORS ROW — SEGMENTED DOT METERS           #
+    # =========================================================== #
+    _sec("TECHNICAL INDICATORS")
+    drw.rounded_rectangle([(PAD, y), (W - PAD, y + H_TECH)], radius=8, fill=CARD)
+    # subtle header gradient inside card
+    _h_gradient(drw, PAD + 2, y + 2, W - PAD - 2, y + 28, CARD, CARD2, steps=40)
+
+    cols  = 5
+    cw_ti = (W - 2 * PAD - 20) // cols
+    ti_items = [
+        ("RSI (14)",    f"{rsi:.1f}" if rsi is not None else "—",
+         GRN if rsi and rsi < 45 else (RED if rsi and rsi > 70 else AMB),
+         (rsi or 50) / 100 if rsi else 0.5, 10),
+        ("MACD",        f"{macd_val:+.2f}" if macd_val is not None else "—",
+         GRN if macd_cross and macd_cross > 0 else RED,
+         0.5 + (macd_cross or 0) / 20, 10),
+        ("BB Position", f"{bb_pos * 100:.0f}%" if bb_pos is not None else "—",
+         GRN if bb_pos and bb_pos < 0.3 else (RED if bb_pos and bb_pos > 0.7 else AMB),
+         bb_pos or 0.5, 10),
+        ("Tech Score",  f"{a_score:+d}",
+         GRN if a_score >= 2 else (RED if a_score <= -2 else AMB),
+         max(0.0, min(1.0, (a_score + 8) / 16)), 10),
+        ("Macro Net",   f"{net_score:+d}",
+         GRN if net_score >= 2 else (RED if net_score <= -2 else AMB),
+         max(0.0, min(1.0, (net_score + 10) / 20)), 10),
+    ]
+
+    for ci, (lbl, val, vcol, pct, n_dots) in enumerate(ti_items):
+        tx = PAD + 10 + ci * cw_ti
+        drw.text((tx, y + 8),  lbl, font=Ftiny,  fill=INK3)
+        drw.text((tx, y + 24), val, font=Flabel, fill=vcol)
+        filled = max(0, min(n_dots, round(pct * n_dots)))
+        _dot_meter(tx, y + H_TECH - 20, dots=n_dots, filled=filled,
+                   col_on=vcol, col_off=CARD3)
+        # percentage text beneath dots
+        drw.text((tx + n_dots * 12 + 4, y + H_TECH - 20), f"{int(pct*100)}%",
+                 font=Ftiny, fill=INK3)
+        if ci < cols - 1:
+            drw.line([(tx + cw_ti - 6, y + 10), (tx + cw_ti - 6, y + H_TECH - 10)],
+                    fill=DIV, width=1)
+
+    sma_txt = ""
+    if sma20 and sma50 and (analysis or {}).get("price_now_usd"):
+        p = (analysis or {}).get("price_now_usd", 0)
+        sma_txt = f"SMA20: ${sma20:,.0f}  SMA50: ${sma50:,.0f}  Price: ${p:,.0f}"
+        drw.text((PAD + 12, y + H_TECH - 5), sma_txt, font=Ftiny, fill=MUT)
+
+    y += H_TECH + GAP
+
+    # =========================================================== #
+    # ⑥ WORLD MACRO SIGNALS TABLE                                 #
+    # =========================================================== #
+    if descs:
+        _sec("WORLD MACRO SIGNALS")
+        row_h        = 34
+        n_rows_show  = min(len(descs), 12)
+        t_h          = n_rows_show * row_h + 6
+
+        COL_NAME = 175
+        COL_VAL  = 80
+        COL_PILL = 100
+        COL_BAR  = W - 2 * PAD - COL_NAME - COL_VAL - COL_PILL - 10
+
+        drw.rectangle([(PAD, y), (W - PAD, y + 22)], fill=CARD3)
+        drw.text((PAD + 30,              y + 4), "Indicator", font=Ftiny, fill=INK3)
+        drw.text((PAD + COL_NAME,        y + 4), "Signal",    font=Ftiny, fill=INK3)
+        drw.text((W - PAD - COL_PILL - COL_VAL + 4, y + 4), "Value",  font=Ftiny, fill=INK3)
+        drw.text((W - PAD - COL_PILL + 8,           y + 4), "Rating", font=Ftiny, fill=INK3)
+        y += 22
+
+        SIGNAL_LABELS = {
+            "real_yield":    ("Real Yield",   "tip_val"),
+            "dxy":           ("DXY (Dollar)", "dxy_val"),
+            "yields":        ("10Y Yield",    "yield_now"),
+            "yield_curve":   ("Yield Curve",  "yield_curve_spread"),
+            "vix":           ("VIX",          "vix_now"),
+            "risk_assets":   ("S&P 500 1d",   "sp500_1d"),
+            "oil":           ("Oil 5d%",      "oil_5d"),
+            "silver_ratio":  ("Gold/Silver",  "gold_silver_ratio"),
+            "copper":        ("Copper 5d%",   "copper_5d"),
+            "eur_usd":       ("EUR/USD",      "eurusd_val"),
+            "etf_flow":      ("GLD ETF",      "gld_5d"),
+            "gold_momentum": ("Gold 5d%",     "gold_5d"),
+        }
+
+        for ri, (key, desc_txt) in enumerate(descs.items()):
+            if ri >= n_rows_show: break
+            ry     = y + ri * row_h
+            row_bg = CARD if ri % 2 == 0 else CARD2
+            drw.rectangle([(PAD, ry), (W - PAD, ry + row_h - 2)], fill=row_bg)
+
+            vote = votes.get(key, 0)
+            vc   = _vote_col(vote)
+
+            drw.ellipse([(PAD + 8, ry + 11), (PAD + 20, ry + 23)], fill=vc)
+
+            disp_name = SIGNAL_LABELS.get(key, (key.replace("_", " ").title(), ""))[0]
+            drw.text((PAD + 26, ry + 10), disp_name[:22], font=Fsmall, fill=INK)
+
+            raw_key = SIGNAL_LABELS.get(key, ("", ""))[1]
+            raw_v   = (global_signals or {}).get(raw_key)
+            val_txt = ""
+            if raw_v is not None:
+                if isinstance(raw_v, float):
+                    val_txt = f"{raw_v:.2f}" if abs(raw_v) < 100 else f"{raw_v:.0f}"
+                else:
+                    val_txt = str(raw_v)
+            vx = W - PAD - COL_PILL - COL_VAL + 4
+            drw.text((vx, ry + 10), val_txt[:10], font=Fsmall, fill=INK2)
+
+            bx0  = PAD + COL_NAME
+            bx1  = W - PAD - COL_PILL - COL_VAL - 8
+            norm = max(0.0, min(1.0, (vote + 2) / 4))
+            _hbar(bx0, ry + 13, bx1, ry + 21, norm, vc)
+
+            vote_lbl = {2: "BULLISH", 1: "MILD ▲", 0: "NEUTRAL",
+                        -1: "MILD ▼", -2: "BEARISH"}.get(vote, str(vote))
+            _pill(W - PAD - COL_PILL + 2, ry + 6, vote_lbl, vc, fnt=Ftiny)
+
+        y += t_h + GAP
+
+    # =========================================================== #
+    # ⑦ BUYING GUIDE                                              #
+    # =========================================================== #
+    _sec("BUYING GUIDE")
+    drw.rounded_rectangle([(PAD, y), (W - PAD, y + H_BUY)], radius=8, fill=CARD)
+
+    cw3 = (W - 2 * PAD - 20) // 3
+    cx1s = PAD + 12
+    drw.text((cx1s, y + 8), "Best Day to Buy", font=Ftiny, fill=INK3)
+    if best_day:
+        drw.text((cx1s, y + 24), f"📅 {_ordinal(best_day)} of month", font=Flabel, fill=GLD)
+        if win_label:
+            drw.text((cx1s, y + 48), f"Window: {win_label}", font=Ftiny, fill=INK2)
+        if top3_days:
+            drw.text((cx1s, y + 62),
+                     f"Top 3: {', '.join(_ordinal(d) for d in top3_days)}", font=Ftiny, fill=MUT)
+
+    drw.line([(PAD + cw3 + 6, y + 8), (PAD + cw3 + 6, y + H_BUY - 8)], fill=DIV, width=1)
+
+    cx2s = PAD + cw3 + 18
+    drw.text((cx2s, y + 8), "This Month Low (22K)", font=Ftiny, fill=INK3)
+    if ml_day:
+        drw.text((cx2s, y + 24), f"📉 {_ordinal(ml_day)}", font=Flabel, fill=GRN)
+        if ml_price_22k:
+            drw.text((cx2s, y + 48), f"₹{ml_price_22k:,}/g", font=Fbody, fill=INK2)
+        if ml_trend:
+            tcol = GRN if ml_trend == "falling" else (RED if ml_trend == "rising" else INK2)
+            drw.text((cx2s, y + 68), f"Trend: {ml_trend}", font=Ftiny, fill=tcol)
+    else:
+        drw.text((cx2s, y + 24), "Calculating...", font=Fbody, fill=MUT)
+
+    drw.line([(PAD + cw3 * 2 + 10, y + 8), (PAD + cw3 * 2 + 10, y + H_BUY - 8)], fill=DIV, width=1)
+
+    cx3s = PAD + cw3 * 2 + 22
+    drw.text((cx3s, y + 8), "Today's Recommendation", font=Ftiny, fill=INK3)
+    if a_rec:
+        rec_clean = (a_rec.replace("🟢", "").replace("🔴", "")
+                    .replace("🟡", "").replace("⚪", "").replace("🟠", "").strip())
+        rcol  = GRN if "BUY" in a_rec.upper() else (RED if any(w in a_rec.upper() for w in ("AVOID", "WAIT")) else AMB)
+        lines = rec_clean.split(" – ")
+        drw.text((cx3s, y + 24), lines[0][:22], font=Flabel, fill=rcol)
+        if len(lines) > 1:
+            drw.text((cx3s, y + 46), lines[1][:30], font=Ftiny, fill=INK2)
+    drw.text((cx3s, y + 72), f"Prediction: {pred_dir}  ({pred_score:+.1f})", font=Ftiny, fill=INK2)
+
+    y += H_BUY + GAP
+
+    # =========================================================== #
+    # ⑧ GEO / NEWS SENTIMENT                                      #
+    # =========================================================== #
+    _sec("GEOPOLITICAL SENTIMENT")
+    drw.rounded_rectangle([(PAD, y), (W - PAD, y + H_GEO)], radius=8, fill=CARD)
+
+    geo_clean = (geo_signal.replace("🔴", "").replace("🟠", "")
+                .replace("🟡", "").replace("🟢", "").strip())
+    gcol      = GRN if geo_score < 0 else (RED if geo_score >= 2 else AMB)
+    drw.text((PAD + 12, y + 8),  geo_clean[:50], font=Flabel, fill=gcol)
+
+    ppx = PAD + 12
+    ppx += _pill(ppx, y + 32, f"▲ {bull_cnt} bullish", GRN2)
+    ppx += _pill(ppx, y + 32, f"▼ {bear_cnt} bearish", RED2)
+
+    headlines = (geo or {}).get("top_headlines", [])
+    hly = y + 60
+    for title, bc, brc in headlines[:n_hl]:
+        hcol = GRN2 if bc > brc else (RED2 if brc > bc else MUT)
+        drw.text((PAD + 12, hly), f"• {title[:90]}", font=Ftiny, fill=hcol)
+        hly += 20
+
+    y += H_GEO + GAP
+
+    # =========================================================== #
+    # ⑨ FOOTER                                                    #
+    # =========================================================== #
+    fy = TOTAL_H - H_FTR
+    _h_gradient(drw, 0, fy, W, TOTAL_H, HDR_R, HDR_L, steps=60)
+    drw.rectangle([(0, fy), (W, fy + 3)], fill=GLD)
+    drw.text((PAD, fy + 16),
+             "Data: COMEX/MCX  •  INR rates include 15.5% duty+GST  •  Not financial advice",
+             font=Ftiny, fill=INK2)
+    if os.name == "nt":
+        ts = now.strftime("Generated %#d %B %Y  %H:%M IST")
+    else:
+        ts = now.strftime("Generated %-d %B %Y  %H:%M IST")
+    drw.text((W - PAD - _tw(ts, Ftiny), fy + 16), ts, font=Ftiny, fill=INK3)
+
+    # ── Save ──────────────────────────────────────────────────────────────
+    final_h = min(TOTAL_H, y + H_FTR + 8)
+    img = img.crop((0, 0, W, final_h))
+    img.save(out_path, format="PNG", optimize=True)
+    logger.info("Image saved → %s  (%dx%d)", out_path, W, final_h)
     return out_path

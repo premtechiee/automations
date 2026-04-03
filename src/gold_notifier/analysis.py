@@ -17,16 +17,37 @@ logger = logging.getLogger(__name__)
 
 # ── Geopolitical keyword sets ──────────────────────────────────────────────
 _BULLISH_WORDS = [
-    "war","conflict","attack","strike","missile","invasion","nuclear",
-    "sanctions","crisis","tension","geopolit","inflation","recession",
-    "crash","collapse","uncertainty","fear","tariff","trade war",
-    "rate cut","fed cut","dovish","weak dollar","dollar falls",
-    "bank failure","default","debt ceiling","escalat",
+    # Conflict / Risk
+    "war", "conflict", "attack", "strike", "missile", "invasion", "nuclear",
+    "sanctions", "crisis", "tension", "geopolit", "escalat", "coup",
+    "explosion", "airstrike", "warship", "troops", "ambush",
+    # Economic risk
+    "inflation", "stagflation", "recession", "crash", "collapse",
+    "uncertainty", "fear", "panic", "bank failure", "default", "debt ceiling",
+    "credit crunch", "contagion", "systemic risk",
+    # Trade / Dollar
+    "tariff", "trade war", "trade deficit", "de-dollarization",
+    "dollar falls", "dollar weakness", "weak dollar", "currency debasement",
+    "central bank buying", "reserve accumulation",
+    # Fed / Rates
+    "rate cut", "fed cut", "dovish", "easing", "stimulus", "qe",
+    "negative rates", "rate pause",
 ]
 _BEARISH_WORDS = [
-    "ceasefire","peace deal","truce","agreement signed","recovery",
-    "rate hike","hawkish","strong dollar","dollar rises","fed hike",
-    "growth","surplus","calm","stabilize","de-escalat",
+    # Peace / Calm
+    "ceasefire", "peace deal", "truce", "agreement signed", "de-escalat",
+    "stabilize", "calm", "diplomatic",
+    # Economic strength
+    "recovery", "growth", "surplus", "strong jobs", "beats expectations",
+    "strong gdp", "soft landing",
+    # Fed / Rates
+    "rate hike", "hawkish", "fed hike", "higher for longer",
+    "tightening", "rate rises",
+    # Dollar strength
+    "strong dollar", "dollar rises", "dollar rally", "dollar strengthens",
+    # Trade deals
+    "trade deal", "trade truce", "tariff relief", "tariff exemption",
+    "trade agreement",
 ]
 
 
@@ -140,17 +161,31 @@ def get_gold_analysis() -> dict | None:
 # ── Geopolitical news ──────────────────────────────────────────────────────
 
 def get_geopolitical_analysis() -> dict | None:
-    """Score gold-related Yahoo Finance news headlines for bullish/bearish sentiment."""
+    """
+    Score gold-relevant news headlines for bullish/bearish sentiment.
+    Fetches from multiple tickers for broader coverage, de-duplicates headlines.
+    """
     try:
-        news_items = yf.Ticker("GC=F").news or yf.Ticker("IAU").news or []
+        # Cast a wider net: gold futures, gold ETFs, bonds (TLT), macro (SPY), DXY
+        _NEWS_TICKERS = ["GC=F", "GLD", "IAU", "TLT", "SPY", "DX-Y.NYB"]
+        seen_titles: set = set()
+        all_items: list  = []
+        for sym in _NEWS_TICKERS:
+            try:
+                items = yf.Ticker(sym).news or []
+                for item in items[:15]:
+                    title = (item.get("content") or {}).get("title") or item.get("title", "")
+                    if title and title not in seen_titles:
+                        seen_titles.add(title)
+                        all_items.append(title)
+            except Exception:
+                pass
+
         bull_count = bear_count = 0
         top_headlines = []
 
-        for item in news_items[:20]:
-            title = (item.get("content") or {}).get("title") or item.get("title", "")
-            if not title:
-                continue
-            t = title.lower()
+        for title in all_items:
+            t    = title.lower()
             bull = sum(1 for w in _BULLISH_WORDS if w in t)
             bear = sum(1 for w in _BEARISH_WORDS if w in t)
             bull_count += bull
@@ -162,10 +197,10 @@ def get_geopolitical_analysis() -> dict | None:
         top_headlines = top_headlines[:5]
         net = bull_count - bear_count
 
-        if   net >= 4: geo_signal, geo_impact, geo_score = "🔴 HIGH RISK – Strong safe-haven demand",         "War/conflict news intensifying → gold demand rising fast.",     2
-        elif net >= 2: geo_signal, geo_impact, geo_score = "🟠 ELEVATED – Geopolitical tensions active",     "Ongoing tensions actively supporting gold prices.",              1
-        elif net >= 0: geo_signal, geo_impact, geo_score = "🟡 MODERATE – Mixed macro signals",              "No dominant catalyst. Price driven mainly by technicals.",       0
-        else:          geo_signal, geo_impact, geo_score = "🟢 CALM – Risk-off sentiment easing",            "Peace/stabilisation news may reduce gold's safe-haven premium.", -1
+        if   net >= 5: geo_signal, geo_impact, geo_score = "🔴 HIGH RISK – Strong safe-haven demand",         "War/conflict/tariff news intensifying → gold demand rising fast.",     2
+        elif net >= 2: geo_signal, geo_impact, geo_score = "🟠 ELEVATED – Geopolitical tensions active",     "Ongoing tensions/macro risks actively supporting gold prices.",          1
+        elif net >= 0: geo_signal, geo_impact, geo_score = "🟡 MODERATE – Mixed macro signals",              "No dominant catalyst. Price driven mainly by technicals.",               0
+        else:          geo_signal, geo_impact, geo_score = "🟢 CALM – Risk-off sentiment easing",            "Peace/stabilisation/deal news may reduce gold's safe-haven premium.",  -1
 
         return {
             "geo_signal":    geo_signal,
@@ -174,7 +209,7 @@ def get_geopolitical_analysis() -> dict | None:
             "bull_count":    bull_count,
             "bear_count":    bear_count,
             "top_headlines": top_headlines,
-            "total_news":    len(news_items),
+            "total_news":    len(all_items),
         }
     except Exception as exc:
         logger.warning(f"Geopolitical analysis failed: {exc}")

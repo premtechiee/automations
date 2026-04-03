@@ -39,6 +39,11 @@ ALERT_STATE_FILE    = f"{DATA_DIR}/gold_alert_state.json"
 LOG_FILE            = f"{DATA_DIR}/gold_notifier.log"
 IMAGE_OUTPUT_PATH   = f"{DATA_DIR}/gold_update.png"
 
+# ── Image theme ──────────────────────────────────────────────────────────────
+# Set GOLD_IMAGE_THEME=dark in your .env or GitHub secret to switch to dark mode.
+# Supported values: "light" (default) | "dark"
+IMAGE_THEME = os.environ.get("GOLD_IMAGE_THEME", "light").strip().lower()
+
 # ── IST Scheduling ──────────────────────────────────────────────────────────
 MORNING_UPDATE_TIME       = "10:30"   # IST daily briefing (Mon–Sat)
 AFTERNOON_CHECK_TIME      = "15:00"   # IST conditional afternoon check (Mon–Sat)

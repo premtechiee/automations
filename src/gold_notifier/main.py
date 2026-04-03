@@ -10,7 +10,7 @@ from datetime import date
 from .config import (
     PHONE_NUMBER, PHONE_NUMBERS, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL,
     TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID,
-    INDIA_GOLD_DUTY_FACTOR, PREDICTION_LOG_FILE,
+    INDIA_GOLD_DUTY_FACTOR, PREDICTION_LOG_FILE, IMAGE_THEME,
 )
 from .fetchers import (
     get_gold_price, get_silver_price, get_price_history_10d,
@@ -21,9 +21,10 @@ from .analysis import (
     get_global_market_signals, get_best_payment_date,
 )
 from .prediction import (
-    load_prediction_model, save_prediction_model,
-    _verify_yesterday_prediction, _recompute_weights,
+    load_prediction_model, save_prediction_model, save_weekly_forecast,
+    _verify_past_predictions, _verify_weekly_forecasts, _recompute_weights,
     get_price_prediction, get_weekly_prediction, get_monthly_low_prediction,
+    get_model_accuracy_stats,
 )
 from .formatter import format_message
 from .image import generate_price_image
@@ -60,7 +61,7 @@ def _notify(message: str, img_path: str | None = None, channel: str = "whatsapp"
 logger = logging.getLogger(__name__)
 
 
-def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger: str = "Morning Update") -> None:
+def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger: str = "Morning Update", theme: str = IMAGE_THEME) -> None:
     """Fetch all data, run analysis, produce prediction, send update."""
     logger.info("─" * 50)
     logger.info(f"channel={channel}")
@@ -87,8 +88,11 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
     model = load_prediction_model()
     price_now_usd = data["price_usd"] if data else 0.0
     if price_now_usd > 0:
-        model["predictions"] = _verify_yesterday_prediction(model["predictions"], price_now_usd)
-        model["weights"]     = _recompute_weights(model["predictions"])
+        model["predictions"], _ph_usd, _ph_inr = _verify_past_predictions(model["predictions"])
+        _verify_weekly_forecasts(model, _ph_inr)
+        model["weights"]  = _recompute_weights(model["predictions"])
+        model["accuracy"] = get_model_accuracy_stats(model["predictions"])
+        logger.info(f"Model accuracy: {model['accuracy']}")
 
     logger.info("Fetching geopolitical news …")
     geo = get_geopolitical_analysis()
@@ -165,6 +169,12 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
         weights=model["weights"],
     )
 
+    logger.info("Generating 7-day price forecast …")
+    weekly_prediction = get_weekly_prediction(analysis, geo, usd_inr, global_signals)
+    if weekly_prediction:
+        logger.info(f"7-day forecast: {[r['direction'] for r in weekly_prediction]}")
+        save_weekly_forecast(model, weekly_prediction, date.today().isoformat())
+
     if data and price_now_usd > 0:
         save_prediction_model(model, {
             "date":             date.today().isoformat(),
@@ -175,11 +185,6 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
             "actual_direction": None,
             "correct":          None,
         })
-
-    logger.info("Generating 7-day price forecast …")
-    weekly_prediction = get_weekly_prediction(analysis, geo, usd_inr, global_signals)
-    if weekly_prediction:
-        logger.info(f"7-day forecast: {[r['direction'] for r in weekly_prediction]}")
 
     logger.info("Predicting lowest-price day this month …")
     monthly_low_pred = get_monthly_low_prediction(
@@ -193,6 +198,7 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
         monthly_low_pred=monthly_low_pred,
         silver=silver,
         channel=channel,
+        model_stats=model.get("accuracy"),
     )
 
     channel_label = channel.capitalize()
@@ -206,13 +212,15 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
             data, analysis, payment, geo, history,
             prediction, weekly_prediction, global_signals,
             monthly_low_pred=monthly_low_pred, silver=silver,
+            theme=theme,
         )
-        print("Image saved as data/gold_update.png")
+        print(f"Image saved as data/gold_update.png  (theme={theme})")
     else:
         img_path = generate_price_image(
             data, analysis, payment, geo, history,
             prediction, weekly_prediction, global_signals,
             monthly_low_pred=monthly_low_pred, silver=silver,
+            theme=theme,
         )
         _notify(message, img_path, channel, trigger)
 

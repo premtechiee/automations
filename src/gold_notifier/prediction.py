@@ -30,20 +30,25 @@ _DEFAULT_WEIGHTS: dict = {
 # ── Model persistence ──────────────────────────────────────────────────────
 
 def load_prediction_model() -> dict:
-    """Load adaptive signal weights + prediction history from disk."""
+    """Load adaptive signal weights, prediction history, weekly forecasts and accuracy from disk."""
     try:
         if os.path.exists(PREDICTION_LOG_FILE):
             with open(PREDICTION_LOG_FILE, "r", encoding="utf-8") as fh:
                 data = json.load(fh)
             weights = {**_DEFAULT_WEIGHTS, **data.get("weights", {})}
-            return {"weights": weights, "predictions": data.get("predictions", [])}
+            return {
+                "weights":          weights,
+                "predictions":      data.get("predictions", []),
+                "weekly_forecasts": data.get("weekly_forecasts", []),
+                "accuracy":         data.get("accuracy", {}),
+            }
     except Exception as exc:
         logger.warning(f"Prediction model load failed: {exc}")
-    return {"weights": dict(_DEFAULT_WEIGHTS), "predictions": []}
+    return {"weights": dict(_DEFAULT_WEIGHTS), "predictions": [], "weekly_forecasts": [], "accuracy": {}}
 
 
 def save_prediction_model(model: dict, entry: dict) -> None:
-    """Append today's prediction entry and persist model weights to disk."""
+    """Append today's prediction entry and persist weights, forecasts and accuracy to disk."""
     from datetime import datetime
     try:
         preds = [p for p in model["predictions"] if p.get("date") != entry["date"]]
@@ -52,8 +57,13 @@ def save_prediction_model(model: dict, entry: dict) -> None:
         os.makedirs(os.path.dirname(PREDICTION_LOG_FILE) or ".", exist_ok=True)
         with open(PREDICTION_LOG_FILE, "w", encoding="utf-8") as fh:
             json.dump(
-                {"weights": model["weights"], "predictions": preds,
-                 "last_updated": datetime.now().isoformat()},
+                {
+                    "weights":          model["weights"],
+                    "predictions":      preds,
+                    "weekly_forecasts": model.get("weekly_forecasts", []),
+                    "accuracy":         model.get("accuracy", {}),
+                    "last_updated":     datetime.now().isoformat(),
+                },
                 fh, indent=2, default=str,
             )
         logger.info(f"Model saved ({len(preds)} entries).")
@@ -61,49 +71,239 @@ def save_prediction_model(model: dict, entry: dict) -> None:
         logger.warning(f"Prediction model save failed: {exc}")
 
 
-def _verify_yesterday_prediction(predictions: list, price_now_usd: float) -> list:
-    """Mark the most recent unverified prediction as correct/incorrect."""
-    today_str = date.today().isoformat()
-    for p in reversed(predictions[-10:]):
-        if p.get("actual_direction") is None and p.get("date", "") < today_str:
-            saved = p.get("price_usd", 0)
-            if saved > 0:
-                pct = (price_now_usd - saved) / saved * 100
-                if   pct >  0.15: actual = "UP"
-                elif pct < -0.15: actual = "DOWN"
-                else:             actual = "FLAT"
-                p["actual_direction"] = actual
-                p["correct"]          = (p["direction"] == actual)
-                logger.info(
-                    f"Self-check [{p['date']}]: Predicted {p['direction']} → Actual {actual} "
-                    f"{'✅' if p['correct'] else '❌'}  (Δ{pct:+.2f}%)"
-                )
-            break
-    return predictions
+def save_weekly_forecast(model: dict, weekly_rows: list, generated_date: str) -> None:
+    """Persist the weekly forecast rows into the model for future accuracy verification."""
+    forecasts = model.get("weekly_forecasts", [])
+    forecasts = [f for f in forecasts if f.get("generated_date") != generated_date]
+    rows_to_save = []
+    for row in weekly_rows:
+        if not row.get("is_weekend"):
+            d = row["date"]
+            rows_to_save.append({
+                "date":             d.isoformat() if hasattr(d, "isoformat") else str(d),
+                "direction":        row["direction"],
+                "mid_inr":          row["mid_inr"],
+                "low_inr":          row["low_inr"],
+                "high_inr":         row["high_inr"],
+                "actual_inr":       None,
+                "actual_direction": None,
+                "in_range":         None,
+                "dir_correct":      None,
+            })
+    forecasts.append({"generated_date": generated_date, "rows": rows_to_save})
+    model["weekly_forecasts"] = forecasts[-12:]   # keep last 12 weekly forecasts
+
+
+def _fetch_price_history() -> tuple[dict, dict]:
+    """
+    Fetch 90-day COMEX gold price history once for all verification tasks.
+    Returns ({date_str→usd_close}, {date_str→inr_per_g}).
+    """
+    price_usd: dict = {}
+    price_inr: dict = {}
+    try:
+        gc  = yf.Ticker("GC=F").history(period="90d")
+        fx  = yf.Ticker("USDINR=X").history(period="90d")
+        fx_d: dict = {}
+        if fx is not None:
+            for dt, row in fx.iterrows():
+                fx_d[dt.date().isoformat()] = float(row["Close"])
+        if gc is not None and len(gc) >= 2:
+            for dt, row in gc.iterrows():
+                d_str    = dt.date().isoformat()
+                usd      = float(row["Close"])
+                inr_rate = 84.0
+                for offset in range(5):
+                    c = (dt.date() + timedelta(days=offset)).isoformat()
+                    if c in fx_d:
+                        inr_rate = fx_d[c]; break
+                price_usd[d_str] = usd
+                price_inr[d_str] = round(usd * inr_rate / 31.1035 * INDIA_GOLD_DUTY_FACTOR)
+        logger.info(f"Price history loaded: {len(price_usd)} trading days")
+    except Exception as exc:
+        logger.warning(f"Price history fetch failed: {exc}")
+    return price_usd, price_inr
+
+
+def _verify_past_predictions(predictions: list) -> tuple[list, dict, dict]:
+    """
+    Verify ALL unverified past daily predictions using 90-day COMEX history.
+    Old code only checked the single most-recent unverified entry; this catches
+    any predictions missed due to downtime, weekends or errors.
+    Logs a post-mortem of which signals were most misleading on wrong calls.
+    Returns (updated_predictions, price_hist_usd, price_hist_inr).
+    """
+    today_str  = date.today().isoformat()
+    unverified = [
+        p for p in predictions
+        if p.get("actual_direction") is None and p.get("date", "") < today_str
+    ]
+    price_usd, price_inr = _fetch_price_history()
+    if not unverified:
+        return predictions, price_usd, price_inr
+
+    verified_count = 0
+    wrong_signals: dict[str, int] = {}
+
+    for p in unverified:
+        pred_date   = p.get("date", "")
+        saved_price = p.get("price_usd", 0)
+        if saved_price <= 0:
+            continue
+        try:
+            from datetime import datetime as _dt
+            pred_dt = _dt.strptime(pred_date, "%Y-%m-%d").date()
+        except ValueError:
+            continue
+        # Find the next trading-day close after the prediction date
+        actual_price: float | None = None
+        for offset in range(1, 8):
+            candidate = (pred_dt + timedelta(days=offset)).isoformat()
+            if candidate in price_usd:
+                actual_price = price_usd[candidate]; break
+        if actual_price is None:
+            continue
+
+        pct = (actual_price - saved_price) / saved_price * 100
+        if   pct >  0.15: actual = "UP"
+        elif pct < -0.15: actual = "DOWN"
+        else:             actual = "FLAT"
+        p["actual_direction"] = actual
+        p["correct"]          = (p["direction"] == actual)
+        verified_count += 1
+        status = "✅" if p["correct"] else "❌"
+        logger.info(
+            f"Self-check [{pred_date}]: Predicted {p['direction']} → Actual {actual} "
+            f"{status}  (Δ{pct:+.2f}%)"
+        )
+        # Post-mortem: track which signals voted the wrong direction
+        if not p["correct"]:
+            actual_up = (actual == "UP")
+            for sig, vote in (p.get("signal_votes") or {}).items():
+                if vote != 0 and (vote > 0) != actual_up:
+                    wrong_signals[sig] = wrong_signals.get(sig, 0) + 1
+
+    if verified_count:
+        logger.info(f"Verified {verified_count} prediction(s).")
+    if wrong_signals:
+        misleaders = sorted(wrong_signals.items(), key=lambda x: -x[1])[:5]
+        logger.info("Signals that misled: " + ", ".join(f"{s}({c}×)" for s, c in misleaders))
+
+    return predictions, price_usd, price_inr
+
+
+def _verify_weekly_forecasts(model: dict, price_inr: dict) -> None:
+    """
+    For each saved weekly-forecast row whose date has passed, compare the actual
+    INR price to the predicted range and check if the direction was correct.
+    Summarises direction and range accuracy across all past forecasts.
+    """
+    today_str      = date.today().isoformat()
+    verified_count = 0
+    for forecast in model.get("weekly_forecasts", []):
+        for row in forecast.get("rows", []):
+            row_date = row.get("date", "")
+            if row_date >= today_str or row.get("in_range") is not None:
+                continue
+            actual_inr = price_inr.get(row_date)
+            if actual_inr is None:
+                continue
+            row["actual_inr"] = actual_inr
+            row["in_range"]   = (row["low_inr"] <= actual_inr <= row["high_inr"])
+            # Direction check vs the previous trading day
+            try:
+                from datetime import datetime as _dt3
+                row_dt = _dt3.strptime(row_date, "%Y-%m-%d").date()
+            except ValueError:
+                continue
+            prev_inr: float | None = None
+            for offset in range(1, 6):
+                prev_d = (row_dt - timedelta(days=offset)).isoformat()
+                prev_inr = price_inr.get(prev_d)
+                if prev_inr:
+                    break
+            if prev_inr:
+                diff_pct = (actual_inr - prev_inr) / prev_inr * 100
+                if   diff_pct >  0.15: row["actual_direction"] = "UP"
+                elif diff_pct < -0.15: row["actual_direction"] = "DOWN"
+                else:                  row["actual_direction"] = "FLAT"
+                row["dir_correct"] = (row["direction"] == row["actual_direction"])
+            verified_count += 1
+
+    if verified_count:
+        all_rows = [r for f in model.get("weekly_forecasts", []) for r in f.get("rows", [])]
+        dir_rows = [r for r in all_rows if r.get("dir_correct") is not None]
+        rng_rows = [r for r in all_rows if r.get("in_range")   is not None]
+        if dir_rows:
+            dir_acc = round(sum(1 for r in dir_rows if r["dir_correct"]) / len(dir_rows) * 100, 1)
+            logger.info(f"Weekly forecast direction accuracy: {dir_acc}% ({len(dir_rows)} rows)")
+        if rng_rows:
+            rng_acc = round(sum(1 for r in rng_rows if r["in_range"]) / len(rng_rows) * 100, 1)
+            logger.info(f"Weekly forecast range accuracy: {rng_acc}% ({len(rng_rows)} rows)")
 
 
 def _recompute_weights(predictions: list) -> dict:
-    """Recalculate per-signal accuracy weights from the last 30 verified predictions."""
+    """
+    Recalculate per-signal accuracy weights with exponential recency bias.
+    Decay factor 0.93/step means recent wrong calls penalise a signal much more
+    than mistakes from 30+ trading days ago.  Uses up to 60 verified predictions
+    (was 30) and a lower minimum of 1.5 weighted points (was 5 raw counts).
+    """
     weights  = dict(_DEFAULT_WEIGHTS)
-    verified = [p for p in predictions if p.get("correct") is not None][-30:]
-    if len(verified) < 5:
+    verified = [p for p in predictions if p.get("correct") is not None][-60:]
+    if len(verified) < 3:
         return weights
+    n       = len(verified)
+    recency = [0.93 ** (n - 1 - i) for i in range(n)]   # most-recent weight = 1.0
     for sig in _DEFAULT_WEIGHTS:
-        correct = incorrect = 0
-        for p in verified:
+        w_correct = w_wrong = 0.0
+        for i, p in enumerate(verified):
             vote = (p.get("signal_votes") or {}).get(sig, 0)
             if vote == 0:
                 continue
             actual_up = (p.get("actual_direction") == "UP")
+            rw = recency[i]
             if (vote > 0) == actual_up:
-                correct += 1
+                w_correct += rw
             else:
-                incorrect += 1
-        total = correct + incorrect
-        if total >= 5:
-            acc = correct / total
-            weights[sig] = round(max(0.3, min(2.5, 0.3 + acc * 2.2)), 3)
+                w_wrong   += rw
+        total = w_correct + w_wrong
+        if total >= 1.5:   # ~2 recent data points minimum (was 5 raw counts)
+            acc = w_correct / total
+            # acc=0 → 0.20, acc=0.50 → 1.35, acc=1.0 → 2.50
+            weights[sig] = round(max(0.20, min(2.50, 0.20 + acc * 2.30)), 3)
     return weights
+
+
+def get_model_accuracy_stats(predictions: list) -> dict:
+    """Compute rolling accuracy for 7d / 14d / 30d windows and the current streak."""
+    verified = [p for p in predictions if p.get("correct") is not None]
+
+    def _acc(window: int) -> tuple:
+        sub = verified[-window:]
+        if not sub:
+            return None, 0
+        return round(sum(1 for p in sub if p["correct"]) / len(sub) * 100, 1), len(sub)
+
+    acc_7,  n_7  = _acc(7)
+    acc_14, n_14 = _acc(14)
+    acc_30, n_30 = _acc(30)
+    streak = 0
+    streak_type: str | None = None
+    if verified:
+        streak_type = "correct" if verified[-1]["correct"] else "wrong"
+        for p in reversed(verified):
+            if (p["correct"] and streak_type == "correct") or (not p["correct"] and streak_type == "wrong"):
+                streak += 1
+            else:
+                break
+    return {
+        "acc_7":  acc_7,  "n_7":  n_7,
+        "acc_14": acc_14, "n_14": n_14,
+        "acc_30": acc_30, "n_30": n_30,
+        "total":  len(verified),
+        "streak": streak, "streak_type": streak_type,
+    }
 
 
 # ── Today's prediction ─────────────────────────────────────────────────────
@@ -236,12 +436,25 @@ def get_weekly_prediction(
     usd_inr: float,
     global_signals: dict | None = None,
 ) -> list[dict] | None:
-    """ATR-based 7-calendar-day gold price projection."""
+    """
+    Improved 7-calendar-day gold price forecast.
+
+    Key improvements over the old ATR-linear approach:
+    - Signals normalised to [-1, +1] before mixing (prevents macro net_score dominating)
+    - Regime-aware drift: market_regime drift_factor (0.6 – 1.6×) applied
+    - Momentum decay: short-term tech signals fade by ~22 %/trading-day; macro is persistent
+    - Signal mix shifts: day-1 is 60 % tech / 40 % macro; day-5+ is 20 % tech / 80 % macro
+    - Mean-reversion pull from RSI extremes, weighted more heavily on later days
+    - Expanding confidence interval (0.42 → 1.30 ATR) captures growing uncertainty
+    - Day-of-week seasonality adjusted (Monday gap, Friday profit-taking)
+    """
+    from .analysis import get_market_regime
     try:
         hist = yf.Ticker("GC=F").history(period="30d")
         if hist is None or len(hist) < 10:
             return None
 
+        # 14-day ATR
         tr_vals = [
             max(float(hist["High"].iloc[i]) - float(hist["Low"].iloc[i]),
                 abs(float(hist["High"].iloc[i]) - float(hist["Close"].iloc[i-1])),
@@ -251,38 +464,112 @@ def get_weekly_prediction(
         atr_usd       = sum(tr_vals[-14:]) / min(14, len(tr_vals))
         price_now_usd = float(hist["Close"].iloc[-1])
 
-        base_score    = (
-            (analysis["score"]               if analysis       else 0) +
-            (geo["geo_score"]                if geo            else 0) +
-            (global_signals.get("net_score", 0) if global_signals else 0)
-        )
-        raw_drift     = atr_usd * (base_score / 20.0)
-        daily_drift   = max(-atr_usd * 0.4, min(atr_usd * 0.4, raw_drift))
-        dow_mult      = {0: 0.95, 1: 1.0, 2: 1.05, 3: 1.05, 4: 0.90, 5: 0.0, 6: 0.0}
+        # ── Normalise component scores to [-1, +1] ────────────────────
+        # Technical score: range is approx -8..+8 (RSI±2, SMA±1, SMA50±1, 7d±1, MACD±1, BB±2)
+        tech_norm = max(-1.0, min(1.0, (analysis["score"] if analysis else 0) / 7.0))
 
-        def inr_per_g(usd_oz):
+        # Geo score: range -1..+2 → normalise around 0
+        geo_norm  = max(-1.0, min(1.0, (geo["geo_score"] if geo else 0) / 2.0))
+
+        # Macro score: sum of up to 12 vote signals each ±2 → practical range ±12
+        macro_raw  = global_signals.get("net_score", 0) if global_signals else 0
+        macro_norm = max(-1.0, min(1.0, macro_raw / 10.0))
+
+        # Gold 5d momentum vote (±2 max) → normalise
+        gold_mom_norm = 0.0
+        if global_signals:
+            gold_mom_norm = max(-1.0, min(1.0,
+                global_signals.get("votes", {}).get("gold_momentum", 0) / 2.0))
+
+        # ── Regime multiplier ─────────────────────────────────────────
+        # RISK_OFF_HIGH → drift_factor=1.6 (amplify bullish bias)
+        # RISK_ON_HIGH  → drift_factor=0.6 (dampen / flip bearish)
+        regime_info  = get_market_regime(global_signals, analysis)
+        drift_factor = regime_info.get("drift_factor", 1.0)
+
+        # ── Mean-reversion component ──────────────────────────────────
+        # Extreme RSI creates increasing pressure back toward the mean
+        mean_rev = 0.0
+        if analysis:
+            rsi = analysis["rsi"]
+            if   rsi > 72: mean_rev = -(rsi - 72) / 28.0   # negative → DOWN pressure
+            elif rsi < 28: mean_rev =  (28 - rsi) / 28.0   # positive → UP pressure
+
+        # ── Projection per day ────────────────────────────────────────
+        # Max daily drift capped at 0.28 × ATR (realistic; old was 0.40)
+        max_drift_usd = atr_usd * 0.28
+        # Day-of-week seasonality: Friday profit-taking, Monday gap risk
+        dow_adj = {0: 0.88, 1: 1.00, 2: 1.05, 3: 1.00, 4: 0.80, 5: 0.0, 6: 0.0}
+
+        def inr_per_g(usd_oz: float) -> int:
             return round(usd_oz * usd_inr / 31.1035 * INDIA_GOLD_DUTY_FACTOR)
 
         today_dt  = date.today()
-        rows      = []
+        rows: list = []
         proj_usd  = price_now_usd
+        t         = 0  # trading-day counter
 
         for offset in range(1, 8):
-            day       = today_dt + timedelta(days=offset)
-            dow       = day.weekday()
+            day        = today_dt + timedelta(days=offset)
+            dow        = day.weekday()
             is_weekend = dow >= 5
-            day_drift  = daily_drift * dow_mult.get(dow, 1.0)
-            proj_usd  += day_drift
-            half_range = atr_usd * 0.55
 
+            if is_weekend:
+                # Market closed — carry price forward with wider CI for the gap
+                ci_half = atr_usd * min(1.30, 0.42 + 0.09 * max(t, 1))
+                mid_inr = inr_per_g(proj_usd)
+                rows.append({
+                    "date":       day,
+                    "weekday":    day.strftime("%a"),
+                    "direction":  "FLAT",
+                    "emoji":      "⚪",
+                    "mid_inr":    mid_inr,
+                    "low_inr":    inr_per_g(proj_usd - ci_half),
+                    "high_inr":   inr_per_g(proj_usd + ci_half),
+                    "mid_22k":    round(mid_inr * 22 / 24),
+                    "low_22k":    round(inr_per_g(proj_usd - ci_half) * 22 / 24),
+                    "high_22k":   round(inr_per_g(proj_usd + ci_half) * 22 / 24),
+                    "is_weekend": True,
+                })
+                continue
+
+            t += 1  # only count trading days for decay
+
+            # Momentum decay: 22 % per trading day (half-life ≈ 3 trading days)
+            mom_decay = 0.78 ** (t - 1)   # t=1→1.0  t=2→0.78  t=3→0.61  t=4→0.47
+
+            # Signal mix shifts from tech-heavy (day 1) to macro-heavy (day 5+)
+            tech_w  = max(0.20, 0.60 - 0.10 * (t - 1))
+            macro_w = min(0.80, 0.40 + 0.10 * (t - 1))
+
+            # Mean-reversion weight grows with distance from today
+            rev_w = min(0.35, 0.07 * t)
+
+            # Composite directional signal for this trading day
+            signal = (
+                tech_w  * tech_norm     * mom_decay +
+                macro_w * macro_norm                +
+                0.10    * geo_norm                  +
+                0.08    * gold_mom_norm * mom_decay +
+                rev_w   * mean_rev
+            )
+            signal = max(-1.0, min(1.0, signal))
+
+            # Apply DOW seasonality + regime multiplier
+            day_drift = signal * max_drift_usd * drift_factor * dow_adj.get(dow, 1.0)
+            proj_usd += day_drift
+
+            # Expanding confidence interval (random-walk uncertainty grows with √t)
+            ci_half  = atr_usd * min(1.30, 0.42 + 0.09 * t)
             mid_inr  = inr_per_g(proj_usd)
-            high_inr = inr_per_g(proj_usd + half_range)
-            low_inr  = inr_per_g(proj_usd - half_range)
+            high_inr = inr_per_g(proj_usd + ci_half)
+            low_inr  = inr_per_g(proj_usd - ci_half)
 
-            threshold = atr_usd * 0.08
-            if   day_drift > threshold:  direction, day_emoji = "UP",   "🟢"
-            elif day_drift < -threshold: direction, day_emoji = "DOWN", "🔴"
-            else:                        direction, day_emoji = "FLAT", "⚪"
+            # Direction: threshold = 5 % of ATR to avoid trivial FLAT labels
+            thr = atr_usd * 0.05
+            if   day_drift > thr:  direction, day_emoji = "UP",   "🟢"
+            elif day_drift < -thr: direction, day_emoji = "DOWN", "🔴"
+            else:                  direction, day_emoji = "FLAT", "⚪"
 
             rows.append({
                 "date":       day,
