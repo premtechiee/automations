@@ -428,6 +428,87 @@ def get_price_prediction(
     }
 
 
+def _compute_forecast_bias(model: dict) -> tuple[float, float]:
+    """
+    Scan all verified weekly forecast rows to compute two adaptive corrections:
+
+    1. **price_bias_pct** – average (actual − predicted) / predicted × 100.
+       If we consistently predicted too high, this is negative → we'll shift
+       all future forecasts down by this percentage.
+
+    2. **ci_scale** – ratio of actual |error| to predicted CI half-width.
+       If our confidence intervals have been too narrow (most actuals outside
+       the range), this > 1 and we'll widen CIs; if too wide, < 1 and we narrow.
+       Clamped to [0.60, 2.20].
+
+    Returns (price_bias_pct, ci_scale).  Both default to (0.0, 1.0) when
+    there is insufficient history.
+    """
+    all_rows = [
+        r for f in model.get("weekly_forecasts", [])
+        for r in f.get("rows", [])
+        if r.get("actual_inr") and r.get("mid_inr")
+    ]
+    # Only use the last 60 verified rows (≈ 4 weeks of trading days)
+    all_rows = all_rows[-60:]
+    if len(all_rows) < 4:
+        return 0.0, 1.0
+
+    errors_pct: list[float] = []
+    ci_ratios:  list[float] = []
+
+    for r in all_rows:
+        actual  = r["actual_inr"]
+        mid     = r["mid_inr"]
+        lo      = r.get("low_inr",  mid)
+        hi      = r.get("high_inr", mid)
+        ci_half = max(1, (hi - lo) / 2)
+
+        err_pct  = (actual - mid) / mid * 100
+        errors_pct.append(err_pct)
+
+        # How wide did the CI need to be to capture the actual?
+        needed = abs(actual - mid)
+        ci_ratios.append(needed / ci_half)
+
+    price_bias_pct = sum(errors_pct) / len(errors_pct)
+    # Dampen: don't over-correct on sparse data; max meaningful bias ±3 %
+    price_bias_pct = max(-3.0, min(3.0, price_bias_pct))
+
+    # Median CI ratio (robust to outliers) — use 75th-pctile so most actuals fit
+    ci_ratios_sorted = sorted(ci_ratios)
+    p75_idx = int(len(ci_ratios_sorted) * 0.75)
+    ci_scale = ci_ratios_sorted[min(p75_idx, len(ci_ratios_sorted) - 1)]
+    ci_scale = max(0.60, min(2.20, ci_scale))
+
+    logger.info(
+        f"Forecast self-calibration: bias={price_bias_pct:+.2f}%  "
+        f"CI_scale={ci_scale:.2f}  from {len(all_rows)} verified rows"
+    )
+    return price_bias_pct, ci_scale
+
+
+def _compute_realized_vol(hist) -> float:
+    """
+    Compute 10-day realized volatility (annualised, as a fraction) from
+    log daily returns.  Returns 0.15 (15 % p.a.) as a safe default.
+    """
+    try:
+        import math as _m
+        closes = [float(hist["Close"].iloc[i]) for i in range(len(hist))]
+        if len(closes) < 5:
+            return 0.15
+        log_rets = [_m.log(closes[i] / closes[i - 1]) for i in range(max(1, len(closes) - 10), len(closes))]
+        if not log_rets:
+            return 0.15
+        mean_r   = sum(log_rets) / len(log_rets)
+        variance = sum((r - mean_r) ** 2 for r in log_rets) / len(log_rets)
+        daily_vol = _m.sqrt(variance)
+        return daily_vol * _m.sqrt(252)   # annualised
+    except Exception:
+        return 0.15
+
+
 # ── 7-day forecast ─────────────────────────────────────────────────────────
 
 def get_weekly_prediction(
@@ -435,26 +516,52 @@ def get_weekly_prediction(
     geo: dict | None,
     usd_inr: float,
     global_signals: dict | None = None,
+    model: dict | None = None,
 ) -> list[dict] | None:
     """
-    Improved 7-calendar-day gold price forecast.
+    Self-learning 7-calendar-day gold price forecast.
 
-    Key improvements over the old ATR-linear approach:
-    - Signals normalised to [-1, +1] before mixing (prevents macro net_score dominating)
-    - Regime-aware drift: market_regime drift_factor (0.6 – 1.6×) applied
-    - Momentum decay: short-term tech signals fade by ~22 %/trading-day; macro is persistent
-    - Signal mix shifts: day-1 is 60 % tech / 40 % macro; day-5+ is 20 % tech / 80 % macro
-    - Mean-reversion pull from RSI extremes, weighted more heavily on later days
-    - Expanding confidence interval (0.42 → 1.30 ATR) captures growing uncertainty
-    - Day-of-week seasonality adjusted (Monday gap, Friday profit-taking)
+    Enhancements over previous version:
+    ─────────────────────────────────
+    1. **Bias correction** – compares past weekly forecast mid-prices to
+       actual prices and applies a percentage offset to remove systematic
+       over/under-estimation.
+
+    2. **Adaptive confidence intervals** – measures how often actuals fell
+       inside our predicted range in the past, then scales CIs so ~75 % of
+       future actuals will be captured.
+
+    3. **Realised volatility blend** – blends 14-day ATR with 10-day
+       realised vol so the CI expands during high-vol regimes and
+       contracts during calm ones.
+
+    4. **Per-signal weight injection** – if model weights are provided,
+       the normalised macro/tech/geo scores are re-scaled by their learned
+       accuracy weights before being mixed.
+
+    5. **Trending vs Ranging regime gate** – mean-reversion pull is only
+       applied when RSI is extreme *and* the market is not in a strong
+       trending regime (prevents conflicting signals).
+
+    6. **Price-path anchoring** – instead of pure drift accumulation, each
+       day's projection is anchored 20 % toward the bias-corrected starting
+       price to prevent unchecked drift over 5 + days.
+
+    7. **Corner cases** – handles None analysis/geo/global_signals,
+       insufficient history, extreme ATR, usd_inr outliers (<50 or >120),
+       and the case where every day is a weekend.
     """
     from .analysis import get_market_regime
     try:
         hist = yf.Ticker("GC=F").history(period="30d")
         if hist is None or len(hist) < 10:
+            logger.warning("Weekly prediction: insufficient COMEX history")
             return None
 
-        # 14-day ATR
+        # ── Guard: usd_inr sanity ────────────────────────────────────
+        safe_usd_inr = max(60.0, min(120.0, float(usd_inr or 84.0)))
+
+        # ── Volatility: blend ATR and realised vol ────────────────────
         tr_vals = [
             max(float(hist["High"].iloc[i]) - float(hist["Low"].iloc[i]),
                 abs(float(hist["High"].iloc[i]) - float(hist["Close"].iloc[i-1])),
@@ -464,65 +571,88 @@ def get_weekly_prediction(
         atr_usd       = sum(tr_vals[-14:]) / min(14, len(tr_vals))
         price_now_usd = float(hist["Close"].iloc[-1])
 
+        # Sanity-guard on ATR (should not exceed 5 % of price)
+        atr_usd = min(atr_usd, price_now_usd * 0.05)
+
+        # Realised vol → daily dollar equivalent
+        rv_annual = _compute_realized_vol(hist)
+        rv_daily  = rv_annual / (252 ** 0.5) * price_now_usd   # $/oz per day
+        # Blended volatility: 60 % ATR + 40 % realized
+        vol_usd = atr_usd * 0.60 + rv_daily * 0.40
+
+        # ── Pull bias + CI scale from past forecast errors ────────────
+        price_bias_pct, ci_scale = (0.0, 1.0)
+        if model:
+            price_bias_pct, ci_scale = _compute_forecast_bias(model)
+
+        # Starting price adjusted for systematic bias
+        # e.g. if we always predicted 1.5 % too high, shift start down
+        anchor_usd = price_now_usd * (1.0 + price_bias_pct / 100.0)
+
         # ── Normalise component scores to [-1, +1] ────────────────────
-        # Technical score: range is approx -8..+8 (RSI±2, SMA±1, SMA50±1, 7d±1, MACD±1, BB±2)
-        tech_norm = max(-1.0, min(1.0, (analysis["score"] if analysis else 0) / 7.0))
+        raw_tech   = (analysis or {}).get("score", 0)
+        tech_norm  = max(-1.0, min(1.0, raw_tech / 7.0))
 
-        # Geo score: range -1..+2 → normalise around 0
-        geo_norm  = max(-1.0, min(1.0, (geo["geo_score"] if geo else 0) / 2.0))
+        geo_norm   = max(-1.0, min(1.0, ((geo or {}).get("geo_score", 0)) / 2.0))
 
-        # Macro score: sum of up to 12 vote signals each ±2 → practical range ±12
-        macro_raw  = global_signals.get("net_score", 0) if global_signals else 0
+        macro_raw  = (global_signals or {}).get("net_score", 0)
         macro_norm = max(-1.0, min(1.0, macro_raw / 10.0))
 
-        # Gold 5d momentum vote (±2 max) → normalise
-        gold_mom_norm = 0.0
-        if global_signals:
-            gold_mom_norm = max(-1.0, min(1.0,
-                global_signals.get("votes", {}).get("gold_momentum", 0) / 2.0))
+        gold_mom   = (global_signals or {}).get("votes", {}).get("gold_momentum", 0)
+        mom_norm   = max(-1.0, min(1.0, gold_mom / 2.0))
+
+        # Apply learned signal accuracy weights if available
+        W = (model or {}).get("weights", _DEFAULT_WEIGHTS)
+        # Weight each normalised score by its learned accuracy (clamped to avoid dominance)
+        w_tech  = min(2.0, W.get("regime",   1.4)) / 2.0   # proxy for overall tech weight
+        w_macro = min(2.0, W.get("dxy",      1.3)) / 2.0   # macro anchor: DXY accuracy
+        w_geo   = min(2.0, W.get("geo",      1.1)) / 2.0
+        w_mom   = min(2.0, W.get("gold_momentum", 1.0)) / 2.0
 
         # ── Regime multiplier ─────────────────────────────────────────
-        # RISK_OFF_HIGH → drift_factor=1.6 (amplify bullish bias)
-        # RISK_ON_HIGH  → drift_factor=0.6 (dampen / flip bearish)
         regime_info  = get_market_regime(global_signals, analysis)
         drift_factor = regime_info.get("drift_factor", 1.0)
+        is_trending  = drift_factor >= 1.4 or drift_factor <= 0.7
 
-        # ── Mean-reversion component ──────────────────────────────────
-        # Extreme RSI creates increasing pressure back toward the mean
+        # ── Mean-reversion: only when not in strong trending regime ───
         mean_rev = 0.0
-        if analysis:
-            rsi = analysis["rsi"]
-            if   rsi > 72: mean_rev = -(rsi - 72) / 28.0   # negative → DOWN pressure
-            elif rsi < 28: mean_rev =  (28 - rsi) / 28.0   # positive → UP pressure
+        rsi = (analysis or {}).get("rsi", 50.0)
+        if not is_trending:
+            if   rsi > 72: mean_rev = -(rsi - 72) / 28.0
+            elif rsi < 28: mean_rev =  (28 - rsi) / 28.0
 
-        # ── Projection per day ────────────────────────────────────────
-        # Max daily drift capped at 0.28 × ATR (realistic; old was 0.40)
-        max_drift_usd = atr_usd * 0.28
-        # Day-of-week seasonality: Friday profit-taking, Monday gap risk
-        dow_adj = {0: 0.88, 1: 1.00, 2: 1.05, 3: 1.00, 4: 0.80, 5: 0.0, 6: 0.0}
+        # ── Day-of-week seasonality ───────────────────────────────────
+        # Fraction of max_drift applied (0 = market closed)
+        dow_adj = {0: 0.85, 1: 1.00, 2: 1.05, 3: 1.00, 4: 0.75, 5: 0.0, 6: 0.0}
+
+        # Max daily drift: 0.25 × vol (realistic; old was 0.28 × ATR)
+        max_drift_usd = vol_usd * 0.25
 
         def inr_per_g(usd_oz: float) -> int:
-            return round(usd_oz * usd_inr / 31.1035 * INDIA_GOLD_DUTY_FACTOR)
+            return round(max(0.0, usd_oz) * safe_usd_inr / 31.1035 * INDIA_GOLD_DUTY_FACTOR)
 
-        today_dt  = date.today()
-        rows: list = []
-        proj_usd  = price_now_usd
-        t         = 0  # trading-day counter
+        today_dt = date.today()
+        rows:    list = []
+        proj_usd = anchor_usd
+        t        = 0   # trading-day counter
 
         for offset in range(1, 8):
             day        = today_dt + timedelta(days=offset)
             dow        = day.weekday()
             is_weekend = dow >= 5
 
+            # Expanding CI half-width (√t uncertainty growth), scaled by ci_scale
+            ci_multiplier = min(1.40, 0.45 + 0.10 * max(t, 1))
+            ci_half       = vol_usd * ci_multiplier * ci_scale
+
             if is_weekend:
-                # Market closed — carry price forward with wider CI for the gap
-                ci_half = atr_usd * min(1.30, 0.42 + 0.09 * max(t, 1))
                 mid_inr = inr_per_g(proj_usd)
                 rows.append({
                     "date":       day,
                     "weekday":    day.strftime("%a"),
                     "direction":  "FLAT",
                     "emoji":      "⚪",
+                    "confidence": "N/A",
                     "mid_inr":    mid_inr,
                     "low_inr":    inr_per_g(proj_usd - ci_half),
                     "high_inr":   inr_per_g(proj_usd + ci_half),
@@ -533,49 +663,56 @@ def get_weekly_prediction(
                 })
                 continue
 
-            t += 1  # only count trading days for decay
+            t += 1  # trading-day counter
 
-            # Momentum decay: 22 % per trading day (half-life ≈ 3 trading days)
-            mom_decay = 0.78 ** (t - 1)   # t=1→1.0  t=2→0.78  t=3→0.61  t=4→0.47
+            # Momentum decay: 20 % per trading day (half-life ≈ 3 days)
+            mom_decay = 0.80 ** (t - 1)
 
-            # Signal mix shifts from tech-heavy (day 1) to macro-heavy (day 5+)
-            tech_w  = max(0.20, 0.60 - 0.10 * (t - 1))
-            macro_w = min(0.80, 0.40 + 0.10 * (t - 1))
+            # Signal mix: tech-heavy early, macro-heavy later
+            tech_w  = max(0.15, 0.55 - 0.10 * (t - 1))
+            macro_w = min(0.75, 0.35 + 0.10 * (t - 1))
+            rev_w   = min(0.30, 0.06 * t)   # mean-reversion grows with time
 
-            # Mean-reversion weight grows with distance from today
-            rev_w = min(0.35, 0.07 * t)
-
-            # Composite directional signal for this trading day
+            # Composite directional signal
             signal = (
-                tech_w  * tech_norm     * mom_decay +
-                macro_w * macro_norm                +
-                0.10    * geo_norm                  +
-                0.08    * gold_mom_norm * mom_decay +
+                tech_w  * tech_norm  * w_tech  * mom_decay +
+                macro_w * macro_norm * w_macro             +
+                0.10    * geo_norm   * w_geo               +
+                0.08    * mom_norm   * w_mom   * mom_decay +
                 rev_w   * mean_rev
             )
             signal = max(-1.0, min(1.0, signal))
 
-            # Apply DOW seasonality + regime multiplier
+            # Day drift with DOW seasonality and regime multiplier
             day_drift = signal * max_drift_usd * drift_factor * dow_adj.get(dow, 1.0)
-            proj_usd += day_drift
 
-            # Expanding confidence interval (random-walk uncertainty grows with √t)
-            ci_half  = atr_usd * min(1.30, 0.42 + 0.09 * t)
-            mid_inr  = inr_per_g(proj_usd)
-            high_inr = inr_per_g(proj_usd + ci_half)
-            low_inr  = inr_per_g(proj_usd - ci_half)
+            # Price-path anchoring: 20% pull back toward anchor each day
+            # This prevents runaway-drift on day 5+ long forecasts
+            anchor_pull = (anchor_usd - proj_usd) * 0.20
+            proj_usd    = proj_usd + day_drift + anchor_pull
 
-            # Direction: threshold = 5 % of ATR to avoid trivial FLAT labels
-            thr = atr_usd * 0.05
+            # Direction determination
+            thr = vol_usd * 0.04   # ≈ 4 % of daily vol
             if   day_drift > thr:  direction, day_emoji = "UP",   "🟢"
             elif day_drift < -thr: direction, day_emoji = "DOWN", "🔴"
             else:                  direction, day_emoji = "FLAT", "⚪"
+
+            # Confidence label based on signal strength + regime
+            sig_abs   = abs(signal)
+            if   sig_abs >= 0.60 and drift_factor >= 1.2: conf_lbl = "High"
+            elif sig_abs >= 0.30:                          conf_lbl = "Moderate"
+            else:                                          conf_lbl = "Low"
+
+            mid_inr  = inr_per_g(proj_usd)
+            high_inr = inr_per_g(proj_usd + ci_half)
+            low_inr  = inr_per_g(proj_usd - ci_half)
 
             rows.append({
                 "date":       day,
                 "weekday":    day.strftime("%a"),
                 "direction":  direction,
                 "emoji":      day_emoji,
+                "confidence": conf_lbl,
                 "mid_inr":    mid_inr,
                 "low_inr":    low_inr,
                 "high_inr":   high_inr,
@@ -584,7 +721,18 @@ def get_weekly_prediction(
                 "high_22k":   round(high_inr * 22 / 24),
                 "is_weekend": is_weekend,
             })
+
+        if not rows:
+            logger.warning("Weekly prediction: all 7 days are weekends?")
+            return None
+
+        logger.info(
+            f"Weekly forecast: bias_corr={price_bias_pct:+.2f}%  "
+            f"CI_scale={ci_scale:.2f}  vol_usd={vol_usd:.1f}  "
+            f"drift_factor={drift_factor:.2f}"
+        )
         return rows
+
     except Exception as exc:
         logger.warning(f"Weekly prediction failed: {exc}")
         return None

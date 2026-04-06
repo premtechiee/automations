@@ -411,3 +411,125 @@ def get_price_history_10d(usd_inr: float) -> list[dict]:
     except Exception as exc:
         logger.warning(f"Price history fetch failed: {exc}")
         return []
+
+
+# ── GRT Jewellers gold rates ────────────────────────────────────────────────
+
+def _fetch_grt_offers() -> list[dict]:
+    """
+    Scrape GRT /offers/ page for current promotions.
+    Returns list of {section, title, desc} dicts (up to 8 entries).
+    """
+    try:
+        from curl_cffi import requests as _cr
+    except ImportError:
+        return []
+    try:
+        r = _cr.get(
+            "https://www.grtjewels.com/offers/",
+            impersonate="chrome110", proxies=PROXIES, timeout=15,
+        )
+        if r.status_code != 200:
+            logger.warning(f"GRT offers: HTTP {r.status_code}")
+            return []
+
+        text = _html.unescape(r.text)
+        # strip noise
+        text = _re.sub(r'<script[^>]*>.*?</script>', '', text, flags=_re.DOTALL | _re.IGNORECASE)
+        text = _re.sub(r'<style[^>]*>.*?</style>',  '', text, flags=_re.DOTALL | _re.IGNORECASE)
+
+        tag_strip   = _re.compile(r'<[^>]+>')
+        token_pat   = _re.compile(r'<(h3|h4|p)(?:\s[^>]*)?>',  _re.IGNORECASE)
+        close_pat   = _re.compile(r'</(h3|h4|p)>',              _re.IGNORECASE)
+
+        offers: list[dict] = []
+        current_section    = ""
+        pos                = 0
+
+        while pos < len(text) and len(offers) < 8:
+            m = token_pat.search(text, pos)
+            if not m:
+                break
+            tag         = m.group(1).lower()
+            start_inner = m.end()
+            cm          = close_pat.search(text, start_inner)
+            if not cm:
+                pos = start_inner
+                continue
+            inner = tag_strip.sub('', text[start_inner:cm.start()]).strip()
+            pos   = cm.end()
+
+            if not inner:
+                continue
+            if tag == 'h3':
+                current_section = inner[:50]
+            elif tag == 'h4':
+                # look for a following <p> within the next ~800 chars
+                next_p = _re.search(
+                    r'<p[^>]*>(.*?)</p>', text[pos:pos + 800],
+                    _re.DOTALL | _re.IGNORECASE,
+                )
+                desc = ""
+                if next_p:
+                    desc = tag_strip.sub('', _html.unescape(next_p.group(1))).strip()
+                offers.append({
+                    "section": current_section,
+                    "title":   inner[:60],
+                    "desc":    desc[:80],
+                })
+
+        logger.info(f"GRT offers: {len(offers)} found")
+        return offers
+    except Exception as exc:
+        logger.warning(f"GRT offers fetch failed: {exc}")
+        return []
+
+
+def fetch_grt_gold_rates() -> dict | None:
+    """
+    Scrape GRT Jewellers homepage for today's 22K gold rate per gram.
+    24K is derived as 22K × 24/22.
+    Returns {22k, 24k, source, date} or None on failure.
+    """
+    try:
+        from curl_cffi import requests as _cr
+    except ImportError:
+        logger.warning("curl_cffi unavailable; GRT gold rate scraping skipped")
+        return None
+    try:
+        r = _cr.get(
+            "https://www.grtjewels.com/",
+            impersonate="chrome110", proxies=PROXIES, timeout=15,
+        )
+        if r.status_code != 200:
+            logger.warning(f"GRT: HTTP {r.status_code}")
+            return None
+        text = _html.unescape(r.text)
+        # Matches: "GOLD 22 KT/1g - ₹ 13670" (₹ = U+20B9)
+        m22 = _re.search(
+            r'GOLD\s+22\s*KT/1g\s*[-\u2013\u2014]\s*[\u20b9\u0040&#₹]\s*([\d,]+)',
+            text, _re.IGNORECASE,
+        )
+        if not m22:
+            # broader fallback pattern
+            m22 = _re.search(r'22\s*KT/1g\s*[-\u2013\u2014\s]*[\u20b9₹]\s*([\d,]+)', text)
+        if not m22:
+            logger.warning("GRT: could not parse 22K rate from page")
+            return None
+        rate_22k = int(m22.group(1).replace(",", ""))
+        if not (8_000 <= rate_22k <= 30_000):
+            logger.warning(f"GRT: parsed rate ₹{rate_22k} looks implausible — skipping")
+            return None
+        rate_24k = round(rate_22k * 24 / 22)
+        offers   = _fetch_grt_offers()
+        logger.info(f"GRT Jewellers: 22K=₹{rate_22k:,}/g  24K(est)=₹{rate_24k:,}/g  offers={len(offers)}")
+        return {
+            "22k":    rate_22k,
+            "24k":    rate_24k,
+            "offers": offers,
+            "source": "GRT Jewellers",
+            "date":   date.today().strftime("%d %b %Y"),
+        }
+    except Exception as exc:
+        logger.warning(f"GRT gold rate fetch failed: {exc}")
+        return None

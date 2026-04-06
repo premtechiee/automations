@@ -14,7 +14,7 @@ from .config import (
 )
 from .fetchers import (
     get_gold_price, get_silver_price, get_price_history_10d,
-    _fetch_goodreturns_history,
+    _fetch_goodreturns_history, fetch_grt_gold_rates,
 )
 from .analysis import (
     get_gold_analysis, get_geopolitical_analysis,
@@ -83,6 +83,11 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
             f"Silver: ${silver['price_usd']:.3f}/oz  ₹{silver['price_inr_g']:.2f}/g  "
             f"G/S ratio={silver.get('gs_ratio', '?')}"
         )
+
+    logger.info("Fetching GRT Jewellers gold rates …")
+    grt = fetch_grt_gold_rates()
+    if grt:
+        logger.info(f"GRT: 22K=₹{grt['22k']:,}/g  24K(est)=₹{grt['24k']:,}/g")
 
     logger.info("Loading prediction model …")
     model = load_prediction_model()
@@ -170,7 +175,7 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
     )
 
     logger.info("Generating 7-day price forecast …")
-    weekly_prediction = get_weekly_prediction(analysis, geo, usd_inr, global_signals)
+    weekly_prediction = get_weekly_prediction(analysis, geo, usd_inr, global_signals, model=model)
     if weekly_prediction:
         logger.info(f"7-day forecast: {[r['direction'] for r in weekly_prediction]}")
         save_weekly_forecast(model, weekly_prediction, date.today().isoformat())
@@ -212,6 +217,7 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
             data, analysis, payment, geo, history,
             prediction, weekly_prediction, global_signals,
             monthly_low_pred=monthly_low_pred, silver=silver,
+            grt=grt,
             theme=theme,
         )
         print(f"Image saved as data/gold_update.png  (theme={theme})")
@@ -220,6 +226,7 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
             data, analysis, payment, geo, history,
             prediction, weekly_prediction, global_signals,
             monthly_low_pred=monthly_low_pred, silver=silver,
+            grt=grt,
             theme=theme,
         )
         _notify(message, img_path, channel, trigger)
