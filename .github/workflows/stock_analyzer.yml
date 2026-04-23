@@ -1,0 +1,84 @@
+name: Stock Analyzer
+
+on:
+  schedule:
+    # IST = UTC+5:30. Indian markets: Mon–Fri 09:15–15:30 IST.
+    # GitHub may delay scheduled runs by 30–60 min under load.
+    - cron: '0 4 * * 1-5'    # 09:30 IST Mon–Fri → market-open briefing + predictions
+    - cron: '30 8 * * 1-5'   # 14:00 IST Mon–Fri → mid-session trend/hold update
+
+  # Manual trigger from GitHub Actions UI
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Command to run'
+        required: true
+        default: '--dry-run'
+        type: choice
+        options:
+          - '--morning'
+          - '--afternoon'
+          - '--now'
+          - '--dry-run'
+          - '--test'
+
+jobs:
+  run-analyzer:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # needed to commit the report snapshot
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Morning briefing (09:30 IST market open)
+        if: github.event_name == 'schedule' && github.event.schedule == '0 4 * * 1-5'
+        env:
+          GOLD_PHONE_NUMBER:   ${{ secrets.GOLD_PHONE_NUMBER }}
+          GREEN_API_INSTANCE:  ${{ secrets.GREEN_API_INSTANCE }}
+          GREEN_API_TOKEN:     ${{ secrets.GREEN_API_TOKEN }}
+          TELEGRAM_BOT_TOKEN:  ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:    ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/stock_analyzer.py --morning --channel whatsapp
+
+      - name: Mid-session check (14:00 IST)
+        if: github.event_name == 'schedule' && github.event.schedule == '30 8 * * 1-5'
+        env:
+          GOLD_PHONE_NUMBER:   ${{ secrets.GOLD_PHONE_NUMBER }}
+          GREEN_API_INSTANCE:  ${{ secrets.GREEN_API_INSTANCE }}
+          GREEN_API_TOKEN:     ${{ secrets.GREEN_API_TOKEN }}
+          TELEGRAM_BOT_TOKEN:  ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:    ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/stock_analyzer.py --afternoon --channel whatsapp
+
+      - name: Manual run
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GOLD_PHONE_NUMBER:   ${{ secrets.GOLD_PHONE_NUMBER }}
+          GREEN_API_INSTANCE:  ${{ secrets.GREEN_API_INSTANCE }}
+          GREEN_API_TOKEN:     ${{ secrets.GREEN_API_TOKEN }}
+          TELEGRAM_BOT_TOKEN:  ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:    ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/stock_analyzer.py ${{ github.event.inputs.command }} --channel whatsapp
+
+      - name: Commit report snapshot
+        if: github.event_name == 'schedule'
+        continue-on-error: true
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/stock_reports/ || true
+          if ! git diff --quiet --staged; then
+            git commit -m "chore: stock report snapshot [skip ci]"
+            git push
+          fi
