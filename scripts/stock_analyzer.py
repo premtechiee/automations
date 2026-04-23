@@ -70,10 +70,12 @@ def _build_parser() -> argparse.ArgumentParser:
                    help="Skip PDF generation (image + console only).")
     ex = p.add_mutually_exclusive_group()
     ex.add_argument("--now",       action="store_true", help="Run analysis and send report.")
+    ex.add_argument("--preopen",   action="store_true",
+                    help="Pre-open briefing (08:00 IST) — US close + swing picks for today.")
     ex.add_argument("--morning",   action="store_true",
-                    help="Market-open briefing (09:30 IST) — prediction + buy/sell with stop-loss.")
+                    help="Market-open confirmation (09:30 IST) — validate trades after first 15 min.")
     ex.add_argument("--afternoon", action="store_true",
-                    help="Mid-session check (14:00 IST) — trend update + hold/sell guidance.")
+                    help="Mid-session update (14:00 IST) — trend update + hold/sell guidance.")
     ex.add_argument("--dry-run",   action="store_true", help="Run analysis, print to console, do NOT send.")
     ex.add_argument("--test",      action="store_true", help="Send a test ping only.")
     return p
@@ -100,12 +102,25 @@ def main() -> None:
     elif args.dry_run:
         run_report(dry_run=True,  channel=args.channel, theme=args.theme,
                    watchlist_path=args.watchlist, make_pdf=not args.no_pdf)
+    elif args.preopen:
+        os.environ["STOCK_SESSION"]       = "preopen"
+        os.environ["STOCK_SESSION_LABEL"] = (
+            "🌅 PRE-OPEN BRIEF (08:00 IST) — US Market Close + Today's Swing Picks"
+        )
+        run_report(dry_run=False, channel=args.channel, theme=args.theme,
+                   watchlist_path=args.watchlist, make_pdf=not args.no_pdf)
     elif args.morning:
-        os.environ["STOCK_SESSION_LABEL"] = "🔔 Market Open (09:30 IST) — Today's Picks, Predictions & Stop-Loss"
+        os.environ["STOCK_SESSION"]       = "morning"
+        os.environ["STOCK_SESSION_LABEL"] = (
+            "🔔 MARKET OPEN CONFIRMATION (09:30 IST) — Validated Trades After First 15 min"
+        )
         run_report(dry_run=False, channel=args.channel, theme=args.theme,
                    watchlist_path=args.watchlist, make_pdf=not args.no_pdf)
     elif args.afternoon:
-        os.environ["STOCK_SESSION_LABEL"] = "🕒 Mid-Session Check (14:00 IST) — Trend Update & Hold / Sell Call"
+        os.environ["STOCK_SESSION"]       = "afternoon"
+        os.environ["STOCK_SESSION_LABEL"] = (
+            "🕒 MID-SESSION UPDATE (14:00 IST) — Market Trend & Active Trade Calls"
+        )
         run_report(dry_run=False, channel=args.channel, theme=args.theme,
                    watchlist_path=args.watchlist, make_pdf=not args.no_pdf)
     else:

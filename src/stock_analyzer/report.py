@@ -289,6 +289,22 @@ def build_text_summary(buckets: dict, mfs: list[dict], prior: dict,
         lines.append("  ·  ".join(bits))
         lines.append("")
 
+    # ── Pre-open opening prediction (used most prominently at 08:00 IST) ──
+    _session = (os.environ.get("STOCK_SESSION") or "").lower()
+    opening = (macro or {}).get("opening") or {}
+    if opening and _session in ("preopen", "", "morning"):
+        arrow = {"GAP-UP": "🟢↑", "MILD GAP-UP": "🟢↗",
+                 "GAP-DOWN": "🔴↓", "MILD GAP-DOWN": "🔴↘",
+                 "FLAT OPEN": "⚪→"}.get(opening["direction"], "⚪")
+        lines.append(
+            f"*🔮 Nifty Opening Prediction (09:15 IST):* "
+            f"{arrow} *{opening['direction']}* "
+            f"({opening['gap_pct']}, {opening['confidence']}% confidence)"
+        )
+        if opening.get("notes"):
+            lines.append(f"_Why:_ {opening['notes'][0]}")
+        lines.append("")
+
     # ── Prediction block (top buy picks across intraday + swing) ──────────
     preds: list[dict] = []
     for key in ("intraday", "swing"):
@@ -324,6 +340,12 @@ def build_text_summary(buckets: dict, mfs: list[dict], prior: dict,
               ("📈 Short-Term (2–15 days)",    "swing"),
               ("🏦 Long-Term Hold",  "holding"),
               ("⚠️ Avoid / Sell",    "sell")]
+    # At 08:00 pre-open, swing is the headline (intraday can only act at 09:15)
+    if _session == "preopen":
+        labels = [("📈 *SWING PICKS FOR TODAY* (2–15 days)", "swing"),
+                  ("🔥 Same-Day Setups (act after 09:15)",   "intraday"),
+                  ("🏦 Long-Term Hold",                      "holding"),
+                  ("⚠️ Avoid / Sell",                        "sell")]
     for title, key in labels:
         picks = buckets.get(key, [])
         if not picks:

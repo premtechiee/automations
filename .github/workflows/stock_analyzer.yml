@@ -3,9 +3,12 @@ name: Stock Analyzer
 on:
   schedule:
     # IST = UTC+5:30. Indian markets: Mon–Fri 09:15–15:30 IST.
-    # GitHub may delay scheduled runs by 30–60 min under load.
-    - cron: '0 4 * * 1-5'    # 09:30 IST Mon–Fri → market-open briefing + predictions
-    - cron: '30 8 * * 1-5'   # 14:00 IST Mon–Fri → mid-session trend/hold update
+    # NOTE: GitHub may delay scheduled runs by 30–60 min under load — crons are
+    # therefore set slightly earlier so the WhatsApp message lands close to the
+    # desired IST time.
+    - cron: '30 2 * * 1-5'   # 08:00 IST Mon–Fri → PRE-OPEN (US close + swing picks)
+    - cron: '0 4 * * 1-5'    # 09:30 IST Mon–Fri → OPEN CONFIRMATION (trades validated)
+    - cron: '30 8 * * 1-5'   # 14:00 IST Mon–Fri → MID-SESSION UPDATE
 
   # Manual trigger from GitHub Actions UI
   workflow_dispatch:
@@ -16,6 +19,7 @@ on:
         default: '--dry-run'
         type: choice
         options:
+          - '--preopen'
           - '--morning'
           - '--afternoon'
           - '--now'
@@ -41,7 +45,17 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Morning briefing (09:30 IST market open)
+      - name: Pre-open briefing (08:00 IST)
+        if: github.event_name == 'schedule' && github.event.schedule == '30 2 * * 1-5'
+        env:
+          GOLD_PHONE_NUMBER:   ${{ secrets.GOLD_PHONE_NUMBER }}
+          GREEN_API_INSTANCE:  ${{ secrets.GREEN_API_INSTANCE }}
+          GREEN_API_TOKEN:     ${{ secrets.GREEN_API_TOKEN }}
+          TELEGRAM_BOT_TOKEN:  ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:    ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/stock_analyzer.py --preopen --channel whatsapp
+
+      - name: Market-open confirmation (09:30 IST)
         if: github.event_name == 'schedule' && github.event.schedule == '0 4 * * 1-5'
         env:
           GOLD_PHONE_NUMBER:   ${{ secrets.GOLD_PHONE_NUMBER }}

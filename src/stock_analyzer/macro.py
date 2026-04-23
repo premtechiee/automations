@@ -228,4 +228,70 @@ def build_macro_context(headlines: list[str]) -> dict[str, Any]:
         "bias":       bias,       # integer typically -5..+5
         "regime":     regime,
         "reasons":    reasons,
+        "opening":    _predict_india_open(snap, geo, bias),
+    }
+
+
+# ── Pre-open prediction for Indian market (from US overnight + Asian futures) ──
+
+def _predict_india_open(snap: dict, geo: dict, bias: int) -> dict[str, Any]:
+    """
+    Predict Nifty's opening gap direction using overnight US close + Asian cues.
+    Runs at 08:00 IST (market opens 09:15).
+    """
+    spy = (snap.get("SPY")  or {}).get("chg_pct", 0) or 0
+    qqq = (snap.get("QQQ")  or {}).get("chg_pct", 0) or 0
+    dji = (snap.get("DJI")  or {}).get("chg_pct", 0) or 0
+    vix = (snap.get("VIX")  or {}).get("last")
+    nif = (snap.get("NIFTY") or {}).get("chg_pct", 0) or 0
+
+    us_avg = (spy + qqq + dji) / 3.0
+    score  = 0
+    notes: list[str] = []
+
+    if us_avg >= 1.0:
+        score += 2; notes.append(f"US closed strong (avg {us_avg:+.1f}%)")
+    elif us_avg >= 0.3:
+        score += 1; notes.append(f"US closed firm ({us_avg:+.1f}%)")
+    elif us_avg <= -1.0:
+        score -= 2; notes.append(f"US closed weak ({us_avg:+.1f}%)")
+    elif us_avg <= -0.3:
+        score -= 1; notes.append(f"US closed soft ({us_avg:+.1f}%)")
+
+    if vix is not None:
+        if vix >= 25:
+            score -= 1; notes.append(f"VIX elevated ({vix:.0f}) — risk-off tone")
+        elif vix < 15:
+            score += 1; notes.append(f"VIX calm ({vix:.0f}) — risk-on tone")
+
+    # Geopolitics / war overlay
+    lvl = geo.get("level", 50)
+    if lvl >= 65:
+        score -= 2; notes.append("Geopolitical stress flagged in overnight news")
+    elif lvl <= 35:
+        score += 1; notes.append("Geopolitical mood improving overnight")
+
+    # Gap size expectation (rough % of Nifty previous close)
+    if score >= 3:
+        direction, gap_pct = "GAP-UP", "+0.6% to +1.2%"
+    elif score == 2:
+        direction, gap_pct = "MILD GAP-UP", "+0.2% to +0.6%"
+    elif score <= -3:
+        direction, gap_pct = "GAP-DOWN", "−0.6% to −1.2%"
+    elif score == -2:
+        direction, gap_pct = "MILD GAP-DOWN", "−0.2% to −0.6%"
+    else:
+        direction, gap_pct = "FLAT OPEN", "±0.2%"
+
+    # Confidence rises with magnitude of overlap between US & geo cues
+    confidence = min(90, 50 + abs(score) * 10)
+
+    return {
+        "direction":    direction,
+        "gap_pct":      gap_pct,
+        "confidence":   confidence,
+        "us_avg_pct":   round(us_avg, 2),
+        "nifty_prev":   round(nif, 2),
+        "vix":          vix,
+        "notes":        notes,
     }

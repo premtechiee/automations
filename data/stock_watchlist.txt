@@ -1,0 +1,28 @@
+# Stock watchlist — one NSE symbol per line.
+# Lines starting with '#' are comments. Blank lines ignored.
+# Bare tickers (no dot) are auto-suffixed with ".NS" for NSE.
+# Examples:
+#   TATAPOWER          → TATAPOWER.NS
+#   HDFCBANK.NS        (explicit)
+#   RELIANCE.BO        (BSE — use .BO suffix)
+#
+# Stocks listed here are ALWAYS analysed in full, even if the
+# top-performers filter trims the NIFTY 100 universe.
+# Order matters: watchlist symbols appear first in the report.
+
+# ── Your personal picks ────────────────────────────────────────────────────
+TATAPOWER
+IRFC
+SUZLON
+IREDA
+BHEL
+
+# ── Mid / small cap ideas ──────────────────────────────────────────────────
+KPITTECH
+POLYCAB
+PERSISTENT
+
+# ── High-yield dividend plays ──────────────────────────────────────────────
+ITC
+POWERGRID
+COALINDIA
