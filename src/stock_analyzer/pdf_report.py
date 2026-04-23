@@ -68,7 +68,7 @@ def _colour_pct(v):
 
 def _stock_bucket_table(title: str, picks: list[dict], recommendation: str):
     header = ["Stock", "Sector", "Price ₹", "Today", "1 Mo", "3 Mo", "Momentum",
-              "Finances", "Trend", "News", "Score", "Buy At", "Exit", "Target", "Risk:Reward"]
+              "Finances", "Trend", "News", "Score", "Buy At", "Exit", "Target", "Profit% / Hold"]
     data = [header]
     style = [
         ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1E6BD8")),
@@ -87,9 +87,14 @@ def _stock_bucket_table(title: str, picks: list[dict], recommendation: str):
     for i, p in enumerate(picks, start=1):
         t = p["tech"]; lv = p["levels"]
         sym = p["symbol"].replace(".NS", "")
-        risk = lv["entry"] - lv["sl"]
-        reward = lv["target"] - lv["entry"]
-        rr = (reward / risk) if risk > 0 else 0
+        profit_pct = lv.get("expected_profit_pct", 0)
+        hold_days  = lv.get("est_hold_days", 0)
+        if hold_days == 0:
+            hold_txt = "intraday"
+        elif hold_days >= 252:
+            hold_txt = "1y+"
+        else:
+            hold_txt = f"{hold_days}d"
         data.append([
             sym,
             (p["sector"] or "—")[:14],
@@ -105,7 +110,7 @@ def _stock_bucket_table(title: str, picks: list[dict], recommendation: str):
             _fmt_num(lv["entry"]),
             _fmt_num(lv["sl"]),
             _fmt_num(lv["target"]),
-            f"1:{rr:.1f}",
+            f"{profit_pct:+.1f}% / {hold_txt}",
         ])
         # cell-level colours for % cells
         for col_idx, v in [(3, t["chg_1d_pct"]), (4, t["chg_1m_pct"]), (5, t["chg_3m_pct"])]:
@@ -198,7 +203,13 @@ def _per_stock_detail_row(p: dict, ss):
         f"<font color='#C83240'>Exit if drops to ₹{lv['sl']:,.2f}</font> &nbsp; "
         f"<font color='#148C5A'>Profit Target ₹{lv['target']:,.2f}</font> &nbsp; "
         f"Score <b>{p['bucket_score']:.0f}/100</b><br/>"
-        f"<i>{rationale}</i>"
+        f"<b>Expected profit:</b> {lv.get('expected_profit_pct', 0):+.2f}% "
+        f"(risk {lv.get('risk_pct', 0):.2f}%, R:R 1:{lv.get('rr', 0):.1f}) &nbsp;|&nbsp; "
+        f"<b>Hold:</b> {lv.get('hold_hint','')}<br/>"
+        f"<b>When to buy:</b> {lv.get('buy_window','')}<br/>"
+        + (f"<b>5-day range:</b> ₹{lv['forecast_5d'][0]:,.2f} – ₹{lv['forecast_5d'][1]:,.2f}<br/>"
+           if lv.get('forecast_5d') else "")
+        + f"<i>{rationale}</i>"
     )
     return Paragraph(body, ss["body"])
 
@@ -306,6 +317,22 @@ def _add_macro_section(story: list, macro: dict, ss) -> None:
         story.append(Spacer(1, 3))
         for r in macro["reasons"][:4]:
             story.append(Paragraph(f"→ {r}", ss["cell"]))
+
+    # ── Nifty opening prediction (09:15 IST) ────────────────────────────
+    opening = macro.get("opening") or {}
+    if opening.get("direction"):
+        arrow = {"UP": "↑", "DOWN": "↓", "FLAT": "→"}.get(opening["direction"], "→")
+        op_colour = ("#148C5A" if opening["direction"] == "UP"
+                     else "#C83240" if opening["direction"] == "DOWN" else "#888")
+        story.append(Spacer(1, 4))
+        story.append(Paragraph(
+            f"<b>🔮 Nifty Opening Prediction (09:15 IST):</b> "
+            f"<font color='{op_colour}'><b>{arrow} {opening['direction']}</b></font> "
+            f"({opening.get('gap_pct', '—')}, "
+            f"{opening.get('confidence', 0)}% confidence)",
+            ss["body"]))
+        for note in (opening.get("notes") or [])[:3]:
+            story.append(Paragraph(f"• {note}", ss["cell"]))
     story.append(Spacer(1, 8))
 
 

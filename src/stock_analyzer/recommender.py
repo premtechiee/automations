@@ -158,12 +158,51 @@ def _levels(s: dict, horizon: str) -> dict:
         if horizon in ("intraday", "swing"):
             target = min(tgt_atr, resistance * 0.998)
 
+    # ── Forecast metrics (expected profit, risk, hold duration) ──────────
+    expected_profit_pct = (target - price) / price * 100 if price else 0.0
+    risk_pct            = (price - sl) / price * 100 if price else 0.0
+    rr                  = (target - price) / (price - sl) if (price - sl) > 0 else 0.0
+
+    # Hold-duration estimate = distance-to-target / typical daily move (ATR)
+    daily_move = max(atr_r * 0.6, price * 0.003)
+    est_days   = max(1, int(round((target - price) / daily_move))) if price else 1
+    if horizon == "intraday":
+        est_days  = 0
+        hold_hint = "Same trading day — exit by 3:20 PM"
+    elif horizon == "swing":
+        est_days  = min(est_days, 15)
+        hold_hint = f"~{est_days} trading days (max 15)"
+    else:
+        est_days  = 252
+        hold_hint = "6–12 months+ ; review quarterly"
+
+    if horizon == "intraday":
+        buy_window = "After 09:30 IST on dip to entry — avoid first 15-min chaos"
+    elif horizon == "swing":
+        buy_window = "Stagger: 50% now, 50% on pullback toward support"
+    else:
+        buy_window = "Accumulate on any 3–5% dip; SIP-style monthly adds"
+
+    # Near-term forecast bands (ATR-based, 1/3/5 trading-day expectation)
+    band_1d = (price - atr_r,       price + atr_r)
+    band_3d = (price - atr_r * 1.7, price + atr_r * 1.7)
+    band_5d = (price - atr_r * 2.2, price + atr_r * 2.2)
+
     return {
-        "entry":      round(price, 2),
-        "sl":         round(sl, 2),
-        "target":     round(target, 2),
-        "support":    round(support, 2)    if support    else None,
-        "resistance": round(resistance, 2) if resistance else None,
+        "entry":               round(price, 2),
+        "sl":                  round(sl, 2),
+        "target":              round(target, 2),
+        "support":             round(support, 2)    if support    else None,
+        "resistance":          round(resistance, 2) if resistance else None,
+        "expected_profit_pct": round(expected_profit_pct, 2),
+        "risk_pct":            round(risk_pct, 2),
+        "rr":                  round(rr, 2),
+        "est_hold_days":       est_days,
+        "hold_hint":           hold_hint,
+        "buy_window":          buy_window,
+        "forecast_1d":         [round(band_1d[0], 2), round(band_1d[1], 2)],
+        "forecast_3d":         [round(band_3d[0], 2), round(band_3d[1], 2)],
+        "forecast_5d":         [round(band_5d[0], 2), round(band_5d[1], 2)],
     }
 
 

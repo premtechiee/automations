@@ -187,7 +187,8 @@ def run_report(dry_run: bool = False, channel: str = "whatsapp",
     advice = expert_advice(buckets, macro, prior, weights=_load_weights())
 
     image   = build_report_image(buckets, mfs, prior,
-                                 out_path=IMAGE_OUTPUT_PATH, theme=theme)
+                                 out_path=IMAGE_OUTPUT_PATH, theme=theme,
+                                 macro=macro)
     caption = build_text_summary(buckets, mfs, prior, macro=macro)
     caption = f"{advice}\n\n{caption}"
     _label  = os.environ.get("STOCK_SESSION_LABEL", "").strip()

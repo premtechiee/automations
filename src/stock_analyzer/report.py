@@ -145,8 +145,117 @@ def _draw_table(draw, pal, x0, y0, w, title: str, headers: list[str], rows: list
 
 # ── Top-level renderer ──────────────────────────────────────────────────────
 
+def _draw_prediction_panel(draw, pal, x0, y0, w, buckets: dict, macro: dict | None) -> int:
+    """Draw Nifty opening-prediction banner + Today's Top Predictions table.
+    Returns the new y-offset after the panel."""
+    opening = (macro or {}).get("opening") or {}
+
+    # Gather top predictions (same-day + short-term)
+    preds: list[tuple[str, dict]] = []
+    for key, tag in [("intraday", "SAME-DAY"), ("swing", "SHORT-TERM")]:
+        for p in buckets.get(key, [])[:3]:
+            if p.get("predict"):
+                preds.append((tag, p))
+
+    if not opening.get("direction") and not preds:
+        return y0  # nothing to draw
+
+    f_title = _font(20, True)
+    f_body  = _font(15, True)
+    f_cell  = _font(14)
+    f_small = _font(12)
+
+    dir_colour = {
+        "UP":       pal["green"],
+        "DOWN":     pal["red"],
+        "SIDEWAYS": pal["muted"],
+        "FLAT":     pal["muted"],
+    }
+    arrow = {"UP": "↑", "DOWN": "↓", "SIDEWAYS": "→", "FLAT": "→"}
+
+    # Compute height
+    banner_h = 64 if opening.get("direction") else 0
+    row_h    = 28
+    table_h  = (40 + row_h * len(preds) + 16) if preds else 0
+    total_h  = 10 + banner_h + (8 if banner_h and table_h else 0) + table_h + 10
+
+    _panel(draw, x0, y0, x0 + w, y0 + total_h, pal["panel"], pal["border"])
+
+    cy = y0 + 10
+
+    # ── Opening banner ───────────────────────────────────────────────────
+    if opening.get("direction"):
+        d = opening["direction"]
+        op_c = dir_colour.get(d, pal["text"])
+        _cell(draw, "🔮 Nifty Opening Prediction (09:15 IST)",
+              x0 + 14, cy + 4, f_title, pal["accent"])
+        _cell(draw,
+              f"{arrow.get(d, '→')}  {d}   ({opening.get('gap_pct','—')}, "
+              f"{opening.get('confidence', 0)}% confidence)",
+              x0 + 14, cy + 32, f_body, op_c)
+        note = (opening.get("notes") or [""])[0]
+        if note:
+            _cell(draw, note[:120], x0 + 14, cy + 52, f_small, pal["muted"])
+        cy += banner_h + 8
+
+    # ── Predictions table ────────────────────────────────────────────────
+    if preds:
+        _cell(draw, "🔮 Today's Top Predictions", x0 + 14, cy + 2, f_title, pal["accent"])
+        cy += 34
+
+        headers = ["Stock", "Horizon", "Direction", "Confidence",
+                   "Buy At", "Stop-Loss", "Target", "Expected Profit"]
+        col_w   = [1.4, 1.6, 1.4, 1.3, 1.3, 1.3, 1.3, 1.8]
+        total_wt = sum(col_w)
+        inner_w = w - 28
+        cx = x0 + 14
+        col_xs = []
+        for wt in col_w:
+            col_xs.append(cx)
+            cx += int(inner_w * wt / total_wt)
+
+        # header
+        for i, h in enumerate(headers):
+            _cell(draw, h, col_xs[i], cy, _font(13, True), pal["muted"])
+        draw.line([(x0 + 12, cy + 22), (x0 + w - 12, cy + 22)],
+                  fill=pal["border"], width=1)
+        cy += 26
+
+        for r_idx, (tag, p) in enumerate(preds):
+            if r_idx % 2 == 0:
+                draw.rectangle([(x0 + 6, cy - 2), (x0 + w - 6, cy + row_h - 4)],
+                               fill=pal["panel2"])
+            pr  = p["predict"]
+            lv  = p["levels"]
+            sym = p["symbol"].replace(".NS", "")
+            d   = pr["direction"]
+            ep  = lv.get("expected_profit_pct", 0)
+            row = [
+                sym,
+                tag,
+                f"{arrow.get(d, '?')} {d}",
+                f"{pr['confidence']}%",
+                _fmt_num(lv["entry"]),
+                _fmt_num(lv["sl"]),
+                _fmt_num(lv["target"]),
+                f"{ep:+.2f}%",
+            ]
+            for i, val in enumerate(row):
+                colour = pal["text"]
+                if i == 2:
+                    colour = dir_colour.get(d, pal["text"])
+                elif i == 5:
+                    colour = pal["red"]
+                elif i == 6 or i == 7:
+                    colour = pal["green"] if ep >= 0 else pal["red"]
+                _cell(draw, val, col_xs[i], cy + 4, f_cell, colour)
+            cy += row_h
+
+    return y0 + total_h + 14
+
+
 def build_report_image(buckets: dict, mfs: list[dict], prior: dict, out_path: str | None = None,
-                        theme: str | None = None) -> str:
+                        theme: str | None = None, macro: dict | None = None) -> str:
     theme = (theme or IMAGE_THEME).lower()
     pal = _palette(theme)
     out_path = out_path or IMAGE_OUTPUT_PATH
@@ -165,6 +274,9 @@ def build_report_image(buckets: dict, mfs: list[dict], prior: dict, out_path: st
     _cell(draw, ts, 40, 80, _font(15), pal["muted"])
 
     y = 140
+
+    # ── Nifty opening prediction banner + Today's Top Predictions ──────────
+    y = _draw_prediction_panel(draw, pal, 24, y, W - 48, buckets, macro)
 
     # ── Stock buckets ───────────────────────────────────────────────────────
     stock_headers = ["Stock", "Sector", "Price", "Today", "1 Month", "Momentum", "Score", "Buy At", "Exit If Drops", "Profit Target"]
@@ -305,6 +417,15 @@ def build_text_summary(buckets: dict, mfs: list[dict], prior: dict,
             lines.append(f"_Why:_ {opening['notes'][0]}")
         lines.append("")
 
+        # Pre-open action plan for market open
+        if _session == "preopen":
+            lines.append("*🎯 Plan for 09:15 Market Open:*")
+            lines.append("  1. Wait for 09:15–09:30 volatility to settle")
+            lines.append("  2. Validate each pick against the Nifty opening prediction above")
+            lines.append("  3. Enter swing positions only after price holds above entry for 10 min")
+            lines.append("  4. Skip any name that *gaps above its target* at open")
+            lines.append("")
+
     # ── Prediction block (top buy picks across intraday + swing) ──────────
     preds: list[dict] = []
     for key in ("intraday", "swing"):
@@ -355,9 +476,18 @@ def build_text_summary(buckets: dict, mfs: list[dict], prior: dict,
             lv = p["levels"]
             sym = p["symbol"].replace(".NS", "")
             lines.append(
-                f"  • {sym:<10} Buy ₹{lv['entry']:>8,.2f}  Exit ₹{lv['sl']:>8,.2f}  "
-                f"Target ₹{lv['target']:>8,.2f}  ({p['bucket_score']:.0f}/100)"
+                f"  • *{sym}*  Buy ₹{lv['entry']:,.2f}  SL ₹{lv['sl']:,.2f}  "
+                f"Target ₹{lv['target']:,.2f}  ({p['bucket_score']:.0f}/100)"
             )
+            lines.append(
+                f"      Expected profit *{lv.get('expected_profit_pct', 0):+.2f}%* "
+                f"(risk {lv.get('risk_pct', 0):.2f}%, R:R 1:{lv.get('rr', 0):.1f}) · "
+                f"Hold: {lv.get('hold_hint', '')}"
+            )
+            lines.append(f"      When to buy: {lv.get('buy_window', '')}")
+            if lv.get("forecast_5d"):
+                lo, hi = lv["forecast_5d"]
+                lines.append(f"      5-day range: ₹{lo:,.2f} – ₹{hi:,.2f}")
         lines.append("")
 
     if mfs:
