@@ -13,7 +13,7 @@ PHONE_NUMBER       = os.environ.get("GOLD_PHONE_NUMBER",    "919790967892")
 # Additional recipients (comma-separated, no spaces). Set via env or extend the default.
 PHONE_NUMBERS: list[str] = [
     n.strip() for n in
-    os.environ.get("GOLD_PHONE_NUMBERS", f"{PHONE_NUMBER},919566240454").split(",")
+    os.environ.get("GOLD_PHONE_NUMBERS", f"{PHONE_NUMBER},919566240454,919789990096").split(",")
     if n.strip()
 ]
 GREEN_API_INSTANCE = os.environ.get("GREEN_API_INSTANCE",   "7107567480")
