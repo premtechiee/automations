@@ -238,9 +238,9 @@
 <a class="cmd-anchor" href="#status"><code>status</code><span>Login + holdings count smoke-test</span></a>
 <a class="cmd-anchor" href="#portfolio"><code>portfolio</code><span>Print holdings, funds, and intraday positions</span></a>
 <a class="cmd-anchor" href="#order"><code>order</code><span>Place a single manual order</span></a>
-<a class="cmd-anchor" href="#auto-trade"><code>auto-trade [--once]</code><span>Run the live auto-trader (foreground loop or one tick)</span></a>
+<a class="cmd-anchor" href="#auto-trade"><code>auto-trade [--once] [--refresh]</code><span>Run the live auto-trader (foreground loop or one tick)</span></a>
 <a class="cmd-anchor" href="#auto-trade-status"><code>auto-trade-status</code><span>Print live auto-trader state</span></a>
-<a class="cmd-anchor" href="#paper-trade"><code>paper-trade [--once]</code><span>Run the paper-trader (never transmits)</span></a>
+<a class="cmd-anchor" href="#paper-trade"><code>paper-trade [--once] [--refresh|--refresh-if-stale]</code><span>Run the paper-trader (never transmits)</span></a>
 <a class="cmd-anchor" href="#paper-summary"><code>paper-summary</code><span>Quick paper-trading P&amp;L summary</span></a>
 <a class="cmd-anchor" href="#paper-report"><code>paper-report [--send --channel ...]</code><span>Full performance report (saved &amp; printed)</span></a>
 </section>
@@ -304,11 +304,19 @@ python scripts/angel_one.py order --symbol HDFCBANK --side SELL --qty 1 \
 LTPs, and BUYs / SLs / TGTs in real-time. <strong>Always dry-runs by default;
 set both <code>ANGEL_TRADING_ENABLED=1</code> AND <code>AUTO_TRADE_DRY_RUN=0</code>
 to transmit.</strong></p>
+<table>
+  <tr><th>Flag</th><th>Purpose</th></tr>
+  <tr><td><code>--once</code></td><td>Single tick (cron-friendly) instead of foreground loop</td></tr>
+  <tr><td><code>--refresh</code></td><td>Re-run the analyzer to regenerate today's picks before trading</td></tr>
+</table>
 <pre><code># Foreground loop, polls every 60s during market hours
 python scripts/angel_one.py auto-trade
 
 # Single tick (cron-friendly)
-python scripts/angel_one.py auto-trade --once</code></pre>
+python scripts/angel_one.py auto-trade --once
+
+# Refresh picks via analyzer, then start the loop — fully autonomous
+python scripts/angel_one.py auto-trade --refresh</code></pre>
 <p>State persists at <code>data/auto_trader_state.json</code>. See
 <a href="#trader-config">Trader Config</a> for tunables.</p>
 </section>
@@ -326,11 +334,23 @@ and halt status (if the daily-loss limit was hit).</p>
 <strong>never transmits</strong>. Uses a virtual cash balance
 (<code>PAPER_STARTING_CASH</code>, default ₹100k) and tracks cumulative P&amp;L
 across days at <code>data/paper_trader_state.json</code>.</p>
+<table>
+  <tr><th>Flag</th><th>Purpose</th></tr>
+  <tr><td><code>--once</code></td><td>Single tick instead of foreground loop</td></tr>
+  <tr><td><code>--refresh</code></td><td>Always re-run the analyzer first to regenerate today's picks</td></tr>
+  <tr><td><code>--refresh-if-stale</code></td><td>Run the analyzer only if today's picks don't exist yet</td></tr>
+</table>
 <pre><code># Foreground loop
 python scripts/angel_one.py paper-trade
 
 # Single tick
-python scripts/angel_one.py paper-trade --once</code></pre>
+python scripts/angel_one.py paper-trade --once
+
+# Fully auto: regenerate picks if needed, then loop
+python scripts/angel_one.py paper-trade --refresh-if-stale
+
+# Force a fresh analysis even if today's picks exist, then loop
+python scripts/angel_one.py paper-trade --refresh</code></pre>
 <div class="callout ok">
   Paper mode forces <code>dry_run=True</code> regardless of any env var. There
   is <em>no</em> way to accidentally transmit real orders from this command.
@@ -424,6 +444,12 @@ buys <code>(100,000 × 0.10) // 500 = 20</code> shares. Quantities below
 
 <section id="workflow-paper">
 <h2>Workflow: Paper Trading</h2>
+<h3>Recommended (one-command)</h3>
+<pre><code># Refreshes picks if today's report doesn't exist yet, then loops the
+# paper trader — fully autonomous from a single invocation.
+python scripts/angel_one.py paper-trade --refresh-if-stale</code></pre>
+
+<h3>Manual (two-step)</h3>
 <pre><code># 1. Generate today's picks
 python scripts/stock_analyzer.py --dry-run
 
@@ -460,7 +486,10 @@ $env:AUTO_TRADE_MAX_PCT_PER_TRADE  = "0.05"
 $env:AUTO_TRADE_NOTIFY_CHANNEL     = "telegram"
 
 # 4. Run
-python scripts/angel_one.py auto-trade</code></pre>
+python scripts/angel_one.py auto-trade
+
+# Or do it all in one command — regenerate picks, then trade
+python scripts/angel_one.py auto-trade --refresh</code></pre>
 </section>
 
 <section id="integration">

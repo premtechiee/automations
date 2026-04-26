@@ -10,6 +10,12 @@ on:
     - cron: '0 4 * * 1-5'    # 09:30 IST Mon–Fri → OPEN CONFIRMATION (trades validated)
     - cron: '30 8 * * 1-5'   # 14:00 IST Mon–Fri → MID-SESSION UPDATE
 
+    # ── Paper trading (Mon–Fri) ──
+    # Tick every 15 min during market hours (09:15–15:30 IST → 03:45–10:00 UTC).
+    - cron: '*/15 3-9 * * 1-5'  # paper-trade tick every 15 min during market hours
+    # End-of-day report at 15:45 IST (10:15 UTC) — full performance summary to WhatsApp
+    - cron: '15 10 * * 1-5'  # 15:45 IST Mon–Fri → PAPER REPORT to WhatsApp
+
   # Manual trigger from GitHub Actions UI
   workflow_dispatch:
     inputs:
@@ -25,6 +31,9 @@ on:
           - '--now'
           - '--dry-run'
           - '--test'
+          - '--angel paper-trade --once --refresh-if-stale'
+          - '--angel paper-report --send'
+          - '--angel paper-summary'
 
 jobs:
   run-analyzer:
@@ -75,6 +84,42 @@ jobs:
           TELEGRAM_CHAT_ID:    ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python scripts/stock_analyzer.py --afternoon --channel whatsapp
 
+      # ── Paper-trader tick (every 15 min during market hours) ──
+      - name: Paper-trade tick
+        if: github.event_name == 'schedule' && github.event.schedule == '*/15 3-9 * * 1-5'
+        env:
+          GOLD_PHONE_NUMBER:    ${{ secrets.GOLD_PHONE_NUMBER }}
+          GREEN_API_INSTANCE:   ${{ secrets.GREEN_API_INSTANCE }}
+          GREEN_API_TOKEN:      ${{ secrets.GREEN_API_TOKEN }}
+          TELEGRAM_BOT_TOKEN:   ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:     ${{ secrets.TELEGRAM_CHAT_ID }}
+          ANGEL_API_KEY:        ${{ secrets.ANGEL_API_KEY }}
+          ANGEL_CLIENT_CODE:    ${{ secrets.ANGEL_CLIENT_CODE }}
+          ANGEL_MPIN:           ${{ secrets.ANGEL_MPIN }}
+          ANGEL_TOTP_SECRET:    ${{ secrets.ANGEL_TOTP_SECRET }}
+          PAPER_STARTING_CASH:  ${{ vars.PAPER_STARTING_CASH || '100000' }}
+        run: |
+          python scripts/stock_analyzer.py --angel paper-trade --once --refresh-if-stale
+
+      # ── End-of-day paper-trading report (15:45 IST) ──
+      - name: Paper-trading daily report → WhatsApp
+        if: github.event_name == 'schedule' && github.event.schedule == '15 10 * * 1-5'
+        env:
+          GOLD_PHONE_NUMBER:    ${{ secrets.GOLD_PHONE_NUMBER }}
+          GREEN_API_INSTANCE:   ${{ secrets.GREEN_API_INSTANCE }}
+          GREEN_API_TOKEN:      ${{ secrets.GREEN_API_TOKEN }}
+          TELEGRAM_BOT_TOKEN:   ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID:     ${{ secrets.TELEGRAM_CHAT_ID }}
+          ANGEL_API_KEY:        ${{ secrets.ANGEL_API_KEY }}
+          ANGEL_CLIENT_CODE:    ${{ secrets.ANGEL_CLIENT_CODE }}
+          ANGEL_MPIN:           ${{ secrets.ANGEL_MPIN }}
+          ANGEL_TOTP_SECRET:    ${{ secrets.ANGEL_TOTP_SECRET }}
+          PAPER_STARTING_CASH:  ${{ vars.PAPER_STARTING_CASH || '100000' }}
+        run: |
+          # One last tick before sending the report so EOD positions are reflected
+          python scripts/stock_analyzer.py --angel paper-trade --once || true
+          python scripts/stock_analyzer.py --angel paper-report --send --channel whatsapp
+
       - name: Manual run
         if: github.event_name == 'workflow_dispatch'
         env:
@@ -83,16 +128,31 @@ jobs:
           GREEN_API_TOKEN:     ${{ secrets.GREEN_API_TOKEN }}
           TELEGRAM_BOT_TOKEN:  ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID:    ${{ secrets.TELEGRAM_CHAT_ID }}
+          ANGEL_API_KEY:       ${{ secrets.ANGEL_API_KEY }}
+          ANGEL_CLIENT_CODE:   ${{ secrets.ANGEL_CLIENT_CODE }}
+          ANGEL_MPIN:          ${{ secrets.ANGEL_MPIN }}
+          ANGEL_TOTP_SECRET:   ${{ secrets.ANGEL_TOTP_SECRET }}
+          PAPER_STARTING_CASH: ${{ vars.PAPER_STARTING_CASH || '100000' }}
         run: python scripts/stock_analyzer.py ${{ github.event.inputs.command }} --channel whatsapp
 
-      - name: Commit report snapshot
+      # ── Persist state across runs ──
+      # Paper-trader needs cumulative state (open trades, P&L, history) to survive
+      # between ephemeral runners. We commit data/paper_trader_state.json + the
+      # latest paper report and stock-report snapshot back to the repo.
+      - name: Commit state + report snapshots
         if: github.event_name == 'schedule'
         continue-on-error: true
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/stock_reports/ || true
+          git pull --rebase --autostash || true
+          git add -f data/paper_trader_state.json data/paper_reports/ data/stock_reports/ 2>/dev/null || true
           if ! git diff --quiet --staged; then
-            git commit -m "chore: stock report snapshot [skip ci]"
-            git push
+            git commit -m "chore: paper-trader state + reports [skip ci]"
+            # Retry push up to 3 times in case of concurrent commits from other tick jobs
+            for i in 1 2 3; do
+              if git push; then break; fi
+              git pull --rebase --autostash || true
+            done
           fi
+

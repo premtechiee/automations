@@ -140,8 +140,35 @@ def _cmd_order(args, log) -> int:
     return 1
 
 
+def _refresh_picks(log, force: bool = False) -> bool:
+    """Run the analyzer to (re)generate today's picks.
+
+    Returns True if a fresh report was produced. With force=False, skips the
+    run when today's picks already exist on disk.
+    """
+    from datetime import datetime
+    from src.stock_analyzer.auto_trader import _REPORTS_IDX, _REPORTS_DIR
+    today = datetime.now().strftime("%Y-%m-%d")
+    if not force and _REPORTS_IDX.exists():
+        try:
+            import json as _json
+            idx = _json.loads(_REPORTS_IDX.read_text(encoding="utf-8"))
+            if idx and idx[-1].startswith(today):
+                log.info(f"refresh: today's picks already exist ({idx[-1]}) — skipping")
+                return False
+        except Exception:
+            pass
+    log.info("refresh: generating today's picks via analyzer (dry-run, no PDF)")
+    from src.stock_analyzer.main import run_report
+    run_report(dry_run=True, channel="whatsapp", theme="light",
+               watchlist_path=None, make_pdf=False)
+    return True
+
+
 def _cmd_auto_trade(args, log) -> int:
     from src.stock_analyzer.auto_trader import TraderConfig, tick, run_loop
+    if getattr(args, "refresh", False):
+        _refresh_picks(log, force=True)
     cfg = TraderConfig.from_env()
     log.info(f"auto-trader config: dry_run={cfg.dry_run} "
              f"max_positions={cfg.max_positions} "
@@ -159,6 +186,10 @@ def _cmd_auto_trade(args, log) -> int:
 
 def _cmd_paper_trade(args, log) -> int:
     from src.stock_analyzer.auto_trader import TraderConfig, tick, run_loop
+    if getattr(args, "refresh", False):
+        _refresh_picks(log, force=True)
+    elif getattr(args, "refresh_if_stale", False):
+        _refresh_picks(log, force=False)
     cfg = TraderConfig.from_env(paper=True)
     log.info(f"📝 PAPER TRADING — virtual cash ₹{cfg.paper_starting_cash:,.0f}, "
              f"max_positions={cfg.max_positions} "
@@ -278,6 +309,8 @@ def _build_parser() -> argparse.ArgumentParser:
                              "ANGEL_TRADING_ENABLED=1 AND AUTO_TRADE_DRY_RUN=0)")
     at.add_argument("--once", action="store_true",
                     help="Single tick instead of foreground loop")
+    at.add_argument("--refresh", action="store_true",
+                    help="Re-run the analyzer to regenerate today's picks before trading")
 
     sub.add_parser("auto-trade-status",
                    help="Print live auto-trader state (open trades, P&L)")
@@ -286,6 +319,10 @@ def _build_parser() -> argparse.ArgumentParser:
                         help="Run paper-trader (never transmits, virtual cash)")
     pt.add_argument("--once", action="store_true",
                     help="Single tick instead of foreground loop")
+    pt.add_argument("--refresh", action="store_true",
+                    help="Re-run the analyzer to regenerate today's picks before trading")
+    pt.add_argument("--refresh-if-stale", action="store_true",
+                    help="Run the analyzer only if no picks exist for today yet")
 
     sub.add_parser("paper-summary",
                    help="Quick paper-trading P&L + win-rate summary")

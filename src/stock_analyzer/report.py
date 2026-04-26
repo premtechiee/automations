@@ -2116,7 +2116,7 @@ def build_report_image(buckets: dict, mfs: list[dict], prior: dict, out_path: st
         d.rounded_rectangle([(C3_X, cy3 + 4), (C3_X + 4, cy3 + TP_H - 4)],
                             radius=2, fill=p["green"])
         d.text((C3_X + 14, cy3 + 8),
-               "💎  TOP PROFIT OPPORTUNITIES",
+               "★  TOP PROFIT OPPORTUNITIES",
                font=_sf(12, True), fill=p["green"])
         d.text((C3_X + C3_W - 14, cy3 + 10),
                f"{len(top5)} of {len(all_picks)}",
