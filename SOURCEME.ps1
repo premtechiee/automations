@@ -47,9 +47,3 @@ if (Test-Path $REQ) {
 Write-Host ""
 Write-Host "[SOURCEME] Environment ready. Python: $(python --version)" -ForegroundColor Green
 Write-Host "   Run:  python scripts/gold_notifier.py --dry-run" -ForegroundColor DarkGray
-
-$env:ANGEL_API_KEY      = 'TFc6IfAs'
-$env:ANGEL_CLIENT_CODE  = 'AAAD884268'
-$env:ANGEL_MPIN         = '1994'
-$env:ANGEL_TOTP_SECRET  = 'K2JYXK646JV64TTYB6XQEQO4BQ'
-$env:ANGEL_TRADING_ENABLED = '0'

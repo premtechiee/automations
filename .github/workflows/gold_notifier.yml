@@ -1,15 +1,17 @@
 name: Gold Price Notifier
 
+# ──────────────────────────────────────────────────────────────────────────
+# Schedules in UTC; IST = UTC + 5:30. Mon–Sat (gold trades on Saturday).
+# GitHub may delay scheduled runs by 5–30 min under load.
+# ──────────────────────────────────────────────────────────────────────────
 on:
   schedule:
-    # All times UTC (IST = UTC+5:30). Note: GitHub may delay by up to 30-60 min.
-    - cron: '0 4 * * 1-6'    # 09:30 IST Mon–Sat  → morning briefing
-    - cron: '30 8 * * 1-6'   # 14:00 IST Mon–Sat  → afternoon drop check
-    - cron: '30 4 * * 1-6'   # 10:00 IST Mon–Sat  → mid-morning threshold check
-    - cron: '30 6 * * 1-6'   # 12:00 IST Mon–Sat  → midday threshold check
-    - cron: '30 10 * * 1-6'  # 16:00 IST Mon–Sat  → evening threshold check
+    - cron: '0 4 * * 1-6'    # 09:30 IST → morning briefing
+    - cron: '30 4 * * 1-6'   # 10:00 IST → mid-morning threshold check
+    - cron: '30 6 * * 1-6'   # 12:00 IST → midday threshold check
+    - cron: '30 8 * * 1-6'   # 14:00 IST → afternoon drop check
+    - cron: '30 10 * * 1-6'  # 16:00 IST → evening threshold check
 
-  # Allow manual trigger from GitHub Actions UI
   workflow_dispatch:
     inputs:
       command:
@@ -25,9 +27,13 @@ on:
           - '--check'
           - '--dry-run'
 
+permissions:
+  contents: read
+
 jobs:
   run-notifier:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
       - name: Checkout repo
@@ -39,42 +45,39 @@ jobs:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
+      - name: Install Python dependencies
+        run: pip install --quiet -r requirements.txt
 
-      - name: Morning briefing (10:30 IST)
+      # ─── Map secrets → env once, reused by every step below ───
+      - name: Load runtime secrets into environment
+        run: |
+          {
+            echo "GOLD_PHONE_NUMBER=${{ secrets.GOLD_PHONE_NUMBER }}"
+            echo "GOLD_PHONE_NUMBERS=${{ secrets.GOLD_PHONE_NUMBERS }}"
+            echo "GREEN_API_INSTANCE=${{ secrets.GREEN_API_INSTANCE }}"
+            echo "GREEN_API_TOKEN=${{ secrets.GREEN_API_TOKEN }}"
+            echo "GREEN_API_URL=${{ secrets.GREEN_API_URL }}"
+            echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}"
+            echo "TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}"
+          } >> "$GITHUB_ENV"
+
+      - name: Morning briefing (09:30 IST)
         if: github.event_name == 'schedule' && github.event.schedule == '0 4 * * 1-6'
-        env:
-          GOLD_PHONE_NUMBER:   ${{ secrets.GOLD_PHONE_NUMBER }}
-          GREEN_API_INSTANCE:  ${{ secrets.GREEN_API_INSTANCE }}
-          GREEN_API_TOKEN:     ${{ secrets.GREEN_API_TOKEN }}
         run: python scripts/gold_notifier.py --morning --channel whatsapp
 
-      - name: Afternoon drop check (15:00 IST)
+      - name: Afternoon drop check (14:00 IST)
         if: github.event_name == 'schedule' && github.event.schedule == '30 8 * * 1-6'
-        env:
-          GOLD_PHONE_NUMBER:   ${{ secrets.GOLD_PHONE_NUMBER }}
-          GREEN_API_INSTANCE:  ${{ secrets.GREEN_API_INSTANCE }}
-          GREEN_API_TOKEN:     ${{ secrets.GREEN_API_TOKEN }}
         run: python scripts/gold_notifier.py --afternoon --channel whatsapp
 
-      - name: Threshold check (mid-morning / midday / evening)
+      - name: Threshold check (10:00 / 12:00 / 16:00 IST)
         if: >
           github.event_name == 'schedule' && (
             github.event.schedule == '30 4 * * 1-6' ||
             github.event.schedule == '30 6 * * 1-6' ||
             github.event.schedule == '30 10 * * 1-6'
           )
-        env:
-          GOLD_PHONE_NUMBER:   ${{ secrets.GOLD_PHONE_NUMBER }}
-          GREEN_API_INSTANCE:  ${{ secrets.GREEN_API_INSTANCE }}
-          GREEN_API_TOKEN:     ${{ secrets.GREEN_API_TOKEN }}
         run: python scripts/gold_notifier.py --check --channel whatsapp
 
       - name: Manual run
         if: github.event_name == 'workflow_dispatch'
-        env:
-          GOLD_PHONE_NUMBER:   ${{ secrets.GOLD_PHONE_NUMBER }}
-          GREEN_API_INSTANCE:  ${{ secrets.GREEN_API_INSTANCE }}
-          GREEN_API_TOKEN:     ${{ secrets.GREEN_API_TOKEN }}
         run: python scripts/gold_notifier.py ${{ github.event.inputs.command }} --channel whatsapp
