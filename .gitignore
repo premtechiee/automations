@@ -9,10 +9,17 @@ __pycache__/
 venv/
 env/
 
-# Runtime data (logs, model, images)
+# Runtime data (logs, model, images, reports, trader state)
 data/*.json
 data/*.png
 data/*.log
+data/*.pdf
+data/stock_reports/
+data/paper_reports/
+data/paper_trader_state.json
+data/auto_trader_state.json
+data/angel_session.json
+data/angel_instruments.json
 
 # Environment secrets
 .env
