@@ -72,32 +72,50 @@ def _pct_move(series) -> float | None:
 
 def fetch_macro_snapshot() -> dict[str, Any]:
     """
-    Pull last-close prices for key global markers via yfinance.
-    Returns dict of percentage moves + a 'regime' field: risk-on / risk-off / neutral.
-    Non-fatal — returns {} on network failure.
+    Pull last-close prices for key global markers directly from Yahoo's
+    chart endpoint (no yfinance dependency, hard requests timeouts).
+    Returns dict of percentage moves + a 'regime' field. Non-fatal.
     """
-    try:
-        import yfinance as yf  # type: ignore
-    except Exception:
-        logger.debug("yfinance unavailable for macro snapshot.")
-        return {}
+    from .fetchers import _fetch_history_yahoo  # reuse hardened HTTP path
 
     tickers = {
+        # ── Global / overnight cues ────────────────────────────────
         "SPY":  "SPY",         # S&P 500 ETF
         "QQQ":  "QQQ",         # Nasdaq 100 ETF
         "DJI":  "^DJI",        # Dow Jones
-        "VIX":  "^VIX",        # CBOE volatility
+        "VIX":  "^VIX",        # CBOE volatility (US fear gauge)
         "OIL":  "CL=F",        # WTI crude futures
         "DXY":  "DX-Y.NYB",    # Dollar index
         "GOLD": "GC=F",        # Gold futures
-        "NIFTY": "^NSEI",      # Indian benchmark
+        "INR":  "INR=X",       # USD-INR
+        # ── Indian benchmark + broad-market indices ───────────────
+        "NIFTY":      "^NSEI",       # Nifty 50
+        "NIFTY_NEXT50": "^NSMIDCP",  # Nifty Next 50 fallback proxy
+        "NIFTY100":   "^CNX100",     # Nifty 100
+        "NIFTY200":   "^CNX200",     # Nifty 200
+        "NIFTY500":   "^CRSLDX",     # Nifty 500
+        "NIFTY_MIDCAP": "NIFTY_MIDCAP_100.NS",
+        "NIFTY_SMALLCAP": "^CNXSC",
+        "BANKNIFTY":  "^NSEBANK",    # Bank Nifty
+        "FINNIFTY":   "NIFTY_FIN_SERVICE.NS",
+        "NIFTY_IT":   "^CNXIT",
+        "NIFTY_AUTO": "^CNXAUTO",
+        "NIFTY_PHARMA": "^CNXPHARMA",
+        "NIFTY_FMCG": "^CNXFMCG",
+        "NIFTY_ENERGY": "^CNXENERGY",
+        "NIFTY_METAL": "^CNXMETAL",
+        "NIFTY_REALTY": "^CNXREALTY",
+        "NIFTY_PSU_BANK": "^CNXPSUBANK",
+        "INDIA_VIX":  "^INDIAVIX",   # Indian fear gauge
+        "SENSEX":     "^BSESN",      # BSE Sensex
+        "BSE500":     "BSE-500.BO",
     }
 
     snap: dict[str, Any] = {}
     for key, tkr in tickers.items():
         try:
-            hist = yf.Ticker(tkr).history(period="5d", interval="1d", auto_adjust=False)
-            if hist.empty:
+            hist = _fetch_history_yahoo(tkr, "1mo", "1d")
+            if hist is None or hist.empty:
                 continue
             close = hist["Close"]
             snap[key] = {
@@ -107,7 +125,6 @@ def fetch_macro_snapshot() -> dict[str, Any]:
         except Exception as exc:
             logger.debug(f"macro fetch failed {key}: {exc}")
 
-    # Compute a regime classification from VIX + US indices
     snap["regime"] = _classify_regime(snap)
     return snap
 
@@ -222,12 +239,59 @@ def build_macro_context(headlines: list[str]) -> dict[str, Any]:
         samp = geo["on_samples"][0] if geo["on_samples"] else "de-escalation signals"
         reasons.append(f"Geopolitical mood positive: “{samp[:90]}”")
 
+    # ── NSE FII/DII institutional flows + index PCR (free, no account) ─────
+    flows: dict[str, Any] = {"available": False}
+    pcr_idx: dict[str, Any] = {}
+    try:
+        from .nse import fetch_fii_dii, fetch_index_option_chain
+        flows = fetch_fii_dii() or {"available": False}
+        pcr_idx = {
+            "NIFTY":     fetch_index_option_chain("NIFTY"),
+            "BANKNIFTY": fetch_index_option_chain("BANKNIFTY"),
+        }
+        # strip empty entries so renderers can len()-check easily
+        pcr_idx = {k: v for k, v in pcr_idx.items() if v}
+    except Exception as exc:
+        logger.debug(f"NSE flows/PCR fetch skipped: {exc}")
+
+    if flows.get("available"):
+        fn = float(flows.get("fii_net") or 0)
+        dn = float(flows.get("dii_net") or 0)
+        if fn >= 1500:
+            bias += 2
+            reasons.append(f"FII bought ₹{fn:,.0f}cr — strong institutional buying")
+        elif fn >= 500:
+            bias += 1
+            reasons.append(f"FII net buyers (+₹{fn:,.0f}cr)")
+        elif fn <= -1500:
+            bias -= 2
+            reasons.append(f"FII sold ₹{abs(fn):,.0f}cr — heavy outflow")
+        elif fn <= -500:
+            bias -= 1
+            reasons.append(f"FII net sellers (₹{fn:,.0f}cr)")
+        if dn >= 1500:
+            bias += 1
+            reasons.append(f"DII absorbing supply (+₹{dn:,.0f}cr)")
+        elif dn <= -1500:
+            bias -= 1
+            reasons.append(f"DII also exiting (₹{dn:,.0f}cr)")
+
+    # Index PCR overlay — heavy put-writing = bullish, heavy call-writing = bearish.
+    nifty_pcr = (pcr_idx.get("NIFTY") or {}).get("pcr")
+    if nifty_pcr is not None:
+        if nifty_pcr >= 1.30:
+            bias += 1; reasons.append(f"Nifty PCR {nifty_pcr:.2f} — option writers bullish")
+        elif nifty_pcr <= 0.70:
+            bias -= 1; reasons.append(f"Nifty PCR {nifty_pcr:.2f} — option writers bearish")
+
     return {
         "snapshot":   snap,
         "geo":        geo,
-        "bias":       bias,       # integer typically -5..+5
+        "bias":       bias,       # integer typically -7..+7 now
         "regime":     regime,
         "reasons":    reasons,
+        "flows":      flows,         # FII/DII institutional activity
+        "pcr_index":  pcr_idx,       # index option-chain bias
         "opening":    _predict_india_open(snap, geo, bias),
     }
 

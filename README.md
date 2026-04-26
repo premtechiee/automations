@@ -68,12 +68,18 @@ python scripts/gold_notifier.py --check
 python scripts/gold_notifier.py --test
 ```
 
-## Intel VPN / proxy
+## Proxy configuration
 
-The automation auto-detects whether it is running inside Intel's network by
-probing `proxy-dmz.intel.com:912` at startup (2-second timeout).  
-If reachable, `HTTPS_PROXY` is set to `http://proxy-dmz.intel.com:912` — no
-manual configuration needed.
+The automation does not depend on any corporate proxy. By default it
+connects directly to the internet (suitable for home / cloud / mobile
+hotspots). If you need to route traffic through a proxy:
+
+- Set `HTTPS_PROXY` (or `https_proxy`) in your environment / `.env`, e.g.
+  `HTTPS_PROXY=http://user:pass@host:port`, **or**
+- Pass it programmatically via `lib.proxy.configure_proxy(https_proxy=...)`.
+
+PythonAnywhere is auto-detected and uses its outbound proxy
+`http://proxy.server:3128` automatically.
 
 ## Adding a new automation
 

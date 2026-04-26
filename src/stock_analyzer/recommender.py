@@ -12,6 +12,7 @@ is not forced to also look good for intraday trading.
 
 from __future__ import annotations
 import logging
+import os
 from typing import Any
 
 from .config import (
@@ -30,13 +31,47 @@ logger = logging.getLogger(__name__)
 # ── Per-stock enrichment ────────────────────────────────────────────────────
 
 def enrich_stock(pkg: dict[str, Any], headlines: list[str],
-                 macro: dict | None = None) -> dict[str, Any]:
+                 macro: dict | None = None,
+                 nse_announcements: list[dict] | None = None) -> dict[str, Any]:
     tech     = summarise_technicals(pkg["history"])
     fund     = score_fundamentals(pkg["info"])
     senti    = score_headlines_for(ticker_to_keyword(pkg["symbol"]), headlines)
     patterns = detect_candles(pkg["history"])
     sr       = find_support_resistance(pkg["history"])
-    pred     = predict_direction(tech, patterns, sr, macro=macro)
+
+    # ── NSE corporate-announcements lookup (board meetings, results,
+    # dividends, insider trades). Each match feeds the sentiment scorer
+    # too so the learner attributes outcomes to filings.
+    nse_filings: list[dict] = []
+    if nse_announcements:
+        try:
+            from .nse import announcements_for
+            nse_filings = announcements_for(pkg["symbol"], nse_announcements)
+        except Exception as exc:
+            logger.debug(f"NSE announcements lookup failed: {exc}")
+        # Feed filing subjects through the same categorical sentiment scorer
+        # so phrases like "buyback approved" / "board meeting" / "insider sell"
+        # propagate into news_corp_action_pos / news_shareholder_neg etc.
+        if nse_filings:
+            extra = [f.get("subject", "") for f in nse_filings if f.get("subject")]
+            if extra:
+                kw = ticker_to_keyword(pkg["symbol"])
+                # Re-score with both RSS headlines + filing subjects together
+                senti = score_headlines_for(kw, list(headlines) + extra)
+                senti["filings_seen"] = len(extra)
+
+    # ── Per-stock NSE option-chain (PCR + max-pain) — only fetched for
+    # F&O-eligible names, rate-limited so a 200-stock universe doesn't
+    # hammer NSE. Default OFF; enable with STOCK_FETCH_PCR=1.
+    option_chain: dict = {}
+    if os.environ.get("STOCK_FETCH_PCR") == "1":
+        try:
+            from .nse import fetch_equity_option_chain
+            option_chain = fetch_equity_option_chain(pkg["symbol"]) or {}
+        except Exception as exc:
+            logger.debug(f"NSE option chain fetch failed for {pkg['symbol']}: {exc}")
+
+    pred = predict_direction(tech, patterns, sr, macro=macro, senti=senti)
 
     composite = (
         WEIGHT_FUNDAMENTAL * fund["score"] +
@@ -55,6 +90,8 @@ def enrich_stock(pkg: dict[str, Any], headlines: list[str],
         "patterns":  patterns,
         "sr":        sr,
         "predict":   pred,
+        "filings":   nse_filings,
+        "option_chain": option_chain,
         "composite": round(composite, 1),
     }
 

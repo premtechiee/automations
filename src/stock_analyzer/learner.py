@@ -48,36 +48,91 @@ _DEFAULT = {
 # ── Feature attribution ─────────────────────────────────────────────────────
 
 def _features_at_pick(pick: dict, macro: dict | None = None) -> list[str]:
-    """Return list of feature tags that were active when this pick was made."""
+    """Return list of feature tags that were active when this pick was made.
+
+    Richer feature set → more accurate learning:
+      • trend / momentum / RSI / volume (legacy)
+      • volatility regime (ATR%)
+      • multi-timeframe price momentum (1-day / 1-month / 3-month buckets)
+      • fundamental-score quintile
+      • bucket-score quintile
+      • candle bias + S/R proximity
+      • macro regime + opening-gap direction
+    """
     tags: list[str] = []
     t = pick.get("tech") or {}
     sr = pick.get("sr") or {}
     pr = pick.get("predict") or {}
+    f  = pick.get("fund") or {}
 
+    # ── Trend / momentum / RSI / volume ────────────────────────────────
     if t.get("trend_up"):              tags.append("trend_up")
     else:                              tags.append("trend_down")
     if t.get("macd_hist", 0) > 0:      tags.append("macd_pos")
     else:                              tags.append("macd_neg")
     rsi = t.get("rsi14") or 50
-    if rsi > 70:                       tags.append("rsi_overbought")
+    if   rsi > 70:                     tags.append("rsi_overbought")
     elif rsi < 30:                     tags.append("rsi_oversold")
     elif 45 <= rsi <= 65:              tags.append("rsi_strong")
-    if (t.get("vol_ratio") or 0) > 1.4: tags.append("vol_surge")
+    vr = t.get("vol_ratio") or 0
+    if   vr > 1.6:                     tags.append("vol_surge")
+    elif vr < 0.6:                     tags.append("vol_dry")
 
+    # ── Volatility regime (ATR%) ───────────────────────────────────────
+    atr_pct = t.get("atr_pct") or 0
+    if   atr_pct > 4.0:                tags.append("vol_regime_high")
+    elif atr_pct < 1.5:                tags.append("vol_regime_low")
+    else:                              tags.append("vol_regime_mid")
+
+    # ── Multi-timeframe momentum ───────────────────────────────────────
+    d1 = t.get("chg_1d_pct") or 0
+    m1 = t.get("chg_1m_pct") or 0
+    m3 = t.get("chg_3m_pct") or 0
+    if   d1 >= 2.0:  tags.append("mom_1d_strong_up")
+    elif d1 <= -2.0: tags.append("mom_1d_strong_down")
+    if   m1 >= 5.0:  tags.append("mom_1m_up")
+    elif m1 <= -5.0: tags.append("mom_1m_down")
+    if   m3 >= 10.0: tags.append("mom_3m_up")
+    elif m3 <= -10.0: tags.append("mom_3m_down")
+
+    # ── Fundamental quality quintile ───────────────────────────────────
+    fs = f.get("score")
+    if fs is not None:
+        if   fs >= 70: tags.append("fund_strong")
+        elif fs >= 50: tags.append("fund_mid")
+        else:          tags.append("fund_weak")
+
+    # ── Bucket composite score quintile ────────────────────────────────
+    bs = pick.get("bucket_score")
+    if bs is not None:
+        if   bs >= 75: tags.append("score_top")
+        elif bs >= 60: tags.append("score_high")
+        elif bs >= 45: tags.append("score_mid")
+        else:          tags.append("score_low")
+
+    # ── Candle bias ────────────────────────────────────────────────────
     for pat in pick.get("patterns", []):
         pl = pat.lower()
         if "bullish" in pl or "hammer" in pl or "morning" in pl:
             tags.append("candle_bullish")
         elif "bearish" in pl or "shooting" in pl or "evening" in pl:
             tags.append("candle_bearish")
+        elif "doji" in pl:
+            tags.append("candle_doji")
 
-    # Macro snapshot (optional)
+    # ── Macro regime + opening bias ────────────────────────────────────
     macro = macro or pr.get("macro") or {}
-    regime = macro.get("regime") if isinstance(macro, dict) else None
-    if regime in ("risk-on", "risk-off"):
-        tags.append(f"macro_{regime.replace('-', '_')}")
+    if isinstance(macro, dict):
+        regime = macro.get("regime")
+        if regime in ("risk-on", "risk-off"):
+            tags.append(f"macro_{regime.replace('-', '_')}")
+        opening = (macro.get("opening") or {})
+        od = opening.get("direction") or ""
+        if   "GAP-UP"   in od: tags.append("open_gap_up")
+        elif "GAP-DOWN" in od: tags.append("open_gap_down")
+        elif "FLAT"     in od: tags.append("open_flat")
 
-    # S/R proximity
+    # ── S/R proximity ──────────────────────────────────────────────────
     price = pick.get("price") or t.get("price") or 0
     if price and sr.get("support"):
         if (price - sr["support"]) / price * 100 < 1.0:
@@ -85,6 +140,37 @@ def _features_at_pick(pick: dict, macro: dict | None = None) -> list[str]:
     if price and sr.get("resistance"):
         if (sr["resistance"] - price) / price * 100 < 1.0:
             tags.append("near_resistance")
+
+    # ── Categorised news sentiment (earnings / regulatory / political /
+    # geopolitical / corp_action / shareholder / macro). We tag both the
+    # category direction AND a "strong" variant when the signal is large
+    # enough — this lets the learner discover, e.g., that 'earnings_pos'
+    # is reliable but 'political_pos' is noise for swing trades.
+    senti = pick.get("senti") or {}
+    cats = senti.get("categories") or {}
+    for cat, info in cats.items():
+        pos = int(info.get("pos", 0))
+        neg = int(info.get("neg", 0))
+        total = pos + neg
+        if total == 0:
+            continue
+        norm = (pos - neg) / total
+        if norm > 0.2:
+            tags.append(f"news_{cat}_pos")
+            if total >= 3 and norm > 0.5:
+                tags.append(f"news_{cat}_strong_pos")
+        elif norm < -0.2:
+            tags.append(f"news_{cat}_neg")
+            if total >= 3 and norm < -0.5:
+                tags.append(f"news_{cat}_strong_neg")
+
+    # Overall sentiment quintile (legacy)
+    sscore = senti.get("score")
+    if sscore is not None:
+        if   sscore >= 65: tags.append("senti_strong_pos")
+        elif sscore >= 55: tags.append("senti_mild_pos")
+        elif sscore <= 35: tags.append("senti_strong_neg")
+        elif sscore <= 45: tags.append("senti_mild_neg")
 
     return tags
 
@@ -104,8 +190,8 @@ def update_learned_weights(current_prices: dict[str, float],
                             window_runs: int = 30) -> dict[str, Any]:
     """
     Walk the last `window_runs` saved reports, score every pick against
-    today's price, attribute wins/losses to active features, save updated
-    weights to learned_weights.json. Returns the new weight map.
+    today's price, attribute wins/losses to active features **per bucket**,
+    save updated weights to learned_weights.json. Returns the new payload.
     """
     idx_path = os.path.join(REPORTS_DIR, "_index.json")
     if not os.path.exists(idx_path):
@@ -116,8 +202,16 @@ def update_learned_weights(current_prices: dict[str, float],
     except Exception:
         return _load_weights()
 
-    # Tally per feature: {feature: {wins, total}}
-    tally: dict[str, dict[str, int]] = {}
+    # Tally: {feature: {bucket: {wins, total}}}
+    tally: dict[str, dict[str, dict[str, int]]] = {}
+    # Also keep an "all" tally across buckets for global weight
+    all_tally: dict[str, dict[str, int]] = {}
+
+    # Calibration buckets: track confidence→actual hit-rate
+    calib: dict[str, dict[str, int]] = {}  # keyed "50-59", "60-69", ...
+
+    total_picks_scored = 0
+    total_wins         = 0
 
     for fname in idx[-window_runs:]:
         path = os.path.join(REPORTS_DIR, fname)
@@ -137,41 +231,97 @@ def update_learned_weights(current_prices: dict[str, float],
                 won = _is_win(pick, current_prices[sym], bucket)
                 if won is None:
                     continue
+                total_picks_scored += 1
+                if won:
+                    total_wins += 1
                 feats = _features_at_pick(pick, macro)
                 for f in feats:
-                    e = tally.setdefault(f, {"wins": 0, "total": 0})
+                    bd = tally.setdefault(f, {})
+                    e  = bd.setdefault(bucket, {"wins": 0, "total": 0})
                     e["total"] += 1
                     if won:
                         e["wins"] += 1
+                    a = all_tally.setdefault(f, {"wins": 0, "total": 0})
+                    a["total"] += 1
+                    if won:
+                        a["wins"] += 1
 
-    # Convert tally -> weight using smoothed hit-rate
-    new_weights = {}
-    for feat, e in tally.items():
-        if e["total"] < _DEFAULT["min_samples"]:
-            w = 1.0
-            hit = (e["wins"] + _DEFAULT["smoothing"]) / (e["total"] + 2 * _DEFAULT["smoothing"])
-        else:
-            hit = (e["wins"] + _DEFAULT["smoothing"]) / (e["total"] + 2 * _DEFAULT["smoothing"])
-            # 0.5 hit-rate → weight 1.0; 0.7 → 1.4; 0.3 → 0.6
-            w = max(_DEFAULT["min_weight"],
-                    min(_DEFAULT["max_weight"], 0.5 + (hit - 0.5) * 2.0))
+                # Confidence calibration
+                conf = (pick.get("predict") or {}).get("confidence")
+                if conf is not None:
+                    try:
+                        conf = int(conf)
+                    except Exception:
+                        conf = None
+                if conf is not None:
+                    band = (f"{(conf // 10) * 10}-{(conf // 10) * 10 + 9}"
+                            if conf < 100 else "90-99")
+                    eb = calib.setdefault(band, {"wins": 0, "total": 0})
+                    eb["total"] += 1
+                    if won:
+                        eb["wins"] += 1
+
+    def _hit(wins, total):
+        return (wins + _DEFAULT["smoothing"]) / (total + 2 * _DEFAULT["smoothing"])
+
+    def _weight(hit, total):
+        if total < _DEFAULT["min_samples"]:
+            return 1.0
+        # 0.5 hit → 1.0; 0.7 → 1.4; 0.3 → 0.6
+        return max(_DEFAULT["min_weight"],
+                   min(_DEFAULT["max_weight"], 0.5 + (hit - 0.5) * 2.0))
+
+    new_weights: dict[str, Any] = {}
+    for feat, all_e in all_tally.items():
+        hit = _hit(all_e["wins"], all_e["total"])
+        w   = _weight(hit, all_e["total"])
+        per_bucket: dict[str, Any] = {}
+        for bkt, e in tally.get(feat, {}).items():
+            bhit = _hit(e["wins"], e["total"])
+            per_bucket[bkt] = {
+                "weight":   round(_weight(bhit, e["total"]), 3),
+                "hit_rate": round(bhit * 100, 1),
+                "wins":     e["wins"],
+                "total":    e["total"],
+            }
         new_weights[feat] = {
             "weight":   round(w, 3),
             "hit_rate": round(hit * 100, 1),
-            "wins":     e["wins"],
-            "total":    e["total"],
+            "wins":     all_e["wins"],
+            "total":    all_e["total"],
+            "by_bucket": per_bucket,
         }
 
+    # Calibration curve (for confidence display)
+    calib_curve = {}
+    for band, e in sorted(calib.items()):
+        if e["total"] == 0:
+            continue
+        calib_curve[band] = {
+            "wins":     e["wins"],
+            "total":    e["total"],
+            "hit_rate": round(e["wins"] / e["total"] * 100, 1),
+        }
+
+    overall_accuracy = (total_wins / total_picks_scored * 100) if total_picks_scored else None
+
     payload = {
-        "updated_at":  datetime.now().isoformat(timespec="seconds"),
-        "window_runs": window_runs,
-        "features":    new_weights,
+        "updated_at":       datetime.now().isoformat(timespec="seconds"),
+        "window_runs":      window_runs,
+        "features":         new_weights,
+        "calibration":      calib_curve,
+        "overall_accuracy": overall_accuracy,
+        "picks_scored":     total_picks_scored,
+        "picks_won":        total_wins,
     }
     os.makedirs(os.path.dirname(WEIGHTS_FILE), exist_ok=True)
     with open(WEIGHTS_FILE, "w", encoding="utf-8") as f:
         json.dump(payload, f, indent=2)
-    logger.info(f"Learned weights updated for {len(new_weights)} features → "
-                f"{WEIGHTS_FILE}")
+    logger.info(f"Learned weights updated: {len(new_weights)} features, "
+                f"{total_picks_scored} picks scored "
+                f"({overall_accuracy:.1f}% accurate)"
+                if overall_accuracy is not None else
+                f"Learned weights updated: {len(new_weights)} features")
     return payload
 
 
@@ -184,10 +334,58 @@ def _load_weights() -> dict[str, Any]:
         return {"features": {}}
 
 
-def feature_weight(feature: str) -> float:
-    """Public lookup used by patterns.predict_direction()."""
-    w = _load_weights().get("features", {}).get(feature, {})
-    return float(w.get("weight", 1.0))
+def feature_weight(feature: str, bucket: str | None = None) -> float:
+    """Public lookup used by patterns.predict_direction().
+    If `bucket` is given, prefer the bucket-specific weight when available
+    (intraday/swing/holding/sell)."""
+    feats = _load_weights().get("features", {}).get(feature, {})
+    if bucket and "by_bucket" in feats:
+        bw = feats["by_bucket"].get(bucket)
+        if bw:
+            return float(bw.get("weight", 1.0))
+    return float(feats.get("weight", 1.0))
+
+
+def calibrated_confidence(raw_conf: int | float) -> int:
+    """Map raw confidence (0-100) to an empirically calibrated percentage
+    based on past hit-rates of similar confidence bands."""
+    w = _load_weights()
+    calib = w.get("calibration") or {}
+    if not calib:
+        return int(raw_conf)
+    try:
+        c = int(raw_conf)
+    except Exception:
+        return 50
+    band = (f"{(c // 10) * 10}-{(c // 10) * 10 + 9}" if c < 100 else "90-99")
+    if band in calib and calib[band].get("total", 0) >= 5:
+        return int(round(calib[band]["hit_rate"]))
+    return c
+
+
+def self_review(top_n: int = 5) -> dict[str, Any]:
+    """Return a snapshot of model learning: most-reliable & least-reliable
+    features, overall accuracy, calibration curve. Used in the reports."""
+    w = _load_weights()
+    feats = w.get("features", {})
+    # Only consider features with meaningful sample size
+    scored = [(name, d) for name, d in feats.items() if d.get("total", 0) >= 5]
+    scored.sort(key=lambda kv: kv[1]["hit_rate"], reverse=True)
+
+    best  = [{"name": n, **d} for n, d in scored[:top_n]]
+    worst = [{"name": n, **d} for n, d in list(reversed(scored))[:top_n]]
+
+    return {
+        "updated_at":       w.get("updated_at"),
+        "window_runs":      w.get("window_runs"),
+        "overall_accuracy": w.get("overall_accuracy"),
+        "picks_scored":     w.get("picks_scored", 0),
+        "picks_won":        w.get("picks_won", 0),
+        "n_features":       len(feats),
+        "best_features":    best,
+        "worst_features":   worst,
+        "calibration":      w.get("calibration", {}),
+    }
 
 
 # ── Expert advisor synthesis ────────────────────────────────────────────────

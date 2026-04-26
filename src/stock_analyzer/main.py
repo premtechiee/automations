@@ -95,7 +95,7 @@ def _send(channel: str, image_path: str, caption: str,
                 _tg_doc(TELEGRAM_CHAT_ID, pdf_path, "📄 Full PDF report",
                         TELEGRAM_BOT_TOKEN)
             except Exception as exc:
-                logger.debug(f"Telegram document send skipped: {exc}")
+                logger.warning(f"Telegram PDF send failed: {exc}")
         return
 
     # WhatsApp → loop over recipients
@@ -111,7 +111,7 @@ def _send(channel: str, image_path: str, caption: str,
                 _wa_doc(phone, pdf_path, "📄 Full PDF report",
                         GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL)
             except Exception as exc:
-                logger.debug(f"WhatsApp document send skipped: {exc}")
+                logger.warning(f"WhatsApp PDF send failed: {exc}")
 
 
 # ── Main flow ───────────────────────────────────────────────────────────────
@@ -141,12 +141,53 @@ def run_report(dry_run: bool = False, channel: str = "whatsapp",
     logger.info(f"Macro regime: {macro.get('regime')} | bias={macro.get('bias')} "
                 f"| geo-risk={macro.get('geo', {}).get('level')}")
 
+    # NSE corporate announcements (fetched once, dispatched per-stock)
+    nse_filings: list[dict] = []
+    try:
+        from .nse import fetch_corp_announcements
+        nse_filings = fetch_corp_announcements() or []
+        logger.info(f"NSE corp announcements: {len(nse_filings)} filings")
+    except Exception as exc:
+        logger.debug(f"NSE corp announcements skipped: {exc}")
+
+    # ── Angel One live overlay (replaces stale prices, adds portfolio) ───
+    # Fail-soft — pipeline runs unchanged when creds absent or Angel down.
+    angel_holdings: list[dict] = []
+    angel_funds:    dict       = {}
+    try:
+        from lib import angelone
+        if angelone.is_available():
+            # 1. Live LTP overlay — refresh last-close on each fetched stock
+            #    so all downstream tech indicators / pick prices are accurate
+            #    even if Yahoo is stale or weekend-frozen.
+            replaced = 0
+            for pkg in stocks:
+                hist = pkg.get("history") or []
+                if not hist:
+                    continue
+                live = angelone.fetch_ltp(pkg["symbol"])
+                if live and live.get("ltp"):
+                    hist[-1]["close"] = live["ltp"]
+                    replaced += 1
+            logger.info(f"Angel One LTP overlay: refreshed {replaced}/{len(stocks)} symbols")
+
+            # 2. Portfolio holdings + funds for personalised report cards
+            angel_holdings = angelone.fetch_holdings()
+            angel_funds    = angelone.fetch_funds()
+            logger.info(f"Angel One: {len(angel_holdings)} holdings, "
+                        f"₹{angel_funds.get('available_cash', 0):,.0f} cash")
+        else:
+            logger.debug("Angel One not authenticated — overlay skipped.")
+    except Exception as exc:
+        logger.debug(f"Angel One overlay skipped: {exc}")
+
     if not stocks:
         logger.error("No stock data — aborting.")
         return {"ok": False, "error": "no data"}
 
     # 2. Analyse
-    enriched = [enrich_stock(s, headlines, macro=macro) for s in stocks]
+    enriched = [enrich_stock(s, headlines, macro=macro,
+                             nse_announcements=nse_filings) for s in stocks]
 
     # 3. Rank
     buckets = build_buckets(enriched)
@@ -165,18 +206,36 @@ def run_report(dry_run: bool = False, channel: str = "whatsapp",
     except Exception as exc:
         logger.warning(f"Learner update skipped: {exc}")
 
+    # 4c. Market-wide forecast (breadth + macro + prediction ensemble)
+    try:
+        from .market_forecast import forecast_market
+        market_forecast = forecast_market(enriched, buckets, macro)
+    except Exception as exc:
+        logger.warning(f"Market forecast skipped: {exc}")
+        market_forecast = None
+
+    # 4d. Model self-review snapshot (best/worst features, overall accuracy)
+    try:
+        from .learner import self_review
+        review = self_review(top_n=5)
+    except Exception as exc:
+        logger.warning(f"Self-review skipped: {exc}")
+        review = None
+
     # 5. Persist
     payload = {
-        "generated_at": datetime.now().isoformat(timespec="seconds"),
-        "buckets":      buckets,
-        "mfs":          mfs,
-        "watchlist":    watchlist,
-        "macro":        {
+        "generated_at":    datetime.now().isoformat(timespec="seconds"),
+        "buckets":         buckets,
+        "mfs":             mfs,
+        "watchlist":       watchlist,
+        "macro":           {
             "regime":   macro.get("regime"),
             "bias":     macro.get("bias"),
             "geo":      macro.get("geo"),
             "snapshot": macro.get("snapshot"),
         },
+        "market_forecast": market_forecast,
+        "self_review":     review,
     }
     save_report(payload)
 
@@ -188,8 +247,13 @@ def run_report(dry_run: bool = False, channel: str = "whatsapp",
 
     image   = build_report_image(buckets, mfs, prior,
                                  out_path=IMAGE_OUTPUT_PATH, theme=theme,
-                                 macro=macro)
-    caption = build_text_summary(buckets, mfs, prior, macro=macro)
+                                 macro=macro, enriched=enriched,
+                                 market_forecast=market_forecast,
+                                 review=review,
+                                 angel_holdings=angel_holdings,
+                                 angel_funds=angel_funds)
+    caption = build_text_summary(buckets, mfs, prior, macro=macro,
+                                  market_forecast=market_forecast)
     caption = f"{advice}\n\n{caption}"
     _label  = os.environ.get("STOCK_SESSION_LABEL", "").strip()
     if _label:
@@ -205,6 +269,8 @@ def run_report(dry_run: bool = False, channel: str = "whatsapp",
                 macro=macro,
                 advice=advice,
                 out_path=PDF_OUTPUT_PATH,
+                market_forecast=market_forecast,
+                review=review,
             )
         except Exception as exc:
             logger.error(f"PDF generation failed: {exc}")

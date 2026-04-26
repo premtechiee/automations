@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock Analyzer — Documentation</title>
+  <style>
+    :root {
+      --accent:      #4ade80;
+      --accent-2:    #22d3ee;
+      --accent-soft: rgba(74,222,128,.10);
+      --bg:          #0f1117;
+      --surface:     #1a1d27;
+      --surface2:    #22263a;
+      --border:      #2e3250;
+      --text:        #e2e4ef;
+      --muted:       #8890b0;
+      --red:         #f87171;
+      --amber:       #fbbf24;
+      --blue:        #60a5fa;
+      --purple:      #c084fc;
+      --mono:        'JetBrains Mono','Fira Code','Cascadia Code',Consolas,monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      font-size: 15px; line-height: 1.7; display: flex;
+    }
+    nav {
+      width: 270px; min-height: 100vh;
+      background: var(--surface); border-right: 1px solid var(--border);
+      padding: 24px 0; position: sticky; top: 0; flex-shrink: 0;
+      overflow-y: auto; max-height: 100vh;
+    }
+    nav .logo {
+      display:flex; align-items:center; gap:10px;
+      padding: 0 20px 20px; border-bottom:1px solid var(--border);
+      font-weight:700; font-size:15px; color: var(--accent);
+    }
+    nav .logo span { font-size:24px; }
+    nav ul { list-style:none; padding:12px 0; }
+    nav ul li a {
+      display:block; padding:6px 20px; color: var(--muted);
+      text-decoration:none; font-size:13px;
+      transition: color .15s, background .15s;
+      border-left: 2px solid transparent;
+    }
+    nav ul li a:hover, nav ul li a.active {
+      color: var(--accent); background: var(--accent-soft);
+      border-left-color: var(--accent);
+    }
+    nav .section-label {
+      padding: 14px 20px 4px; font-size:10px;
+      text-transform: uppercase; letter-spacing: .1em;
+      color: var(--muted); font-weight: 600;
+    }
+    main { flex: 1; padding: 48px 56px 96px; max-width: 980px; }
+    h1 {
+      font-size: 32px; font-weight: 700; margin-bottom: 8px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    h2 {
+      font-size: 22px; font-weight: 700; margin: 40px 0 12px;
+      color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 6px;
+    }
+    h3 { font-size: 17px; font-weight: 600; margin: 24px 0 8px; color: var(--accent); }
+    h4 { font-size: 14px; font-weight: 600; margin: 18px 0 6px; color: var(--accent-2); }
+    p, li { color: var(--text); }
+    p { margin-bottom: 12px; }
+    a { color: var(--accent-2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ul, ol { padding-left: 24px; margin-bottom: 12px; }
+    li { margin-bottom: 4px; }
+    code {
+      font-family: var(--mono); font-size: 13px;
+      background: var(--surface2); padding: 2px 6px; border-radius: 4px;
+      color: var(--accent);
+    }
+    pre {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px 18px; overflow-x: auto;
+      font-family: var(--mono); font-size: 13px; line-height: 1.5;
+      margin: 12px 0 18px; color: var(--text);
+    }
+    pre code { background: transparent; padding: 0; color: inherit; }
+    .tagline { color: var(--muted); font-size: 16px; margin-bottom: 32px; }
+    table {
+      width: 100%; border-collapse: collapse; margin: 12px 0 24px;
+      font-size: 13.5px;
+    }
+    th, td {
+      text-align: left; padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    th { color: var(--accent); font-weight: 600; background: var(--surface); }
+    tr:hover td { background: rgba(255,255,255,.02); }
+    .pill {
+      display: inline-block; padding: 2px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 600; letter-spacing: .04em;
+      background: var(--accent-soft); color: var(--accent);
+      vertical-align: middle; margin-left: 8px;
+    }
+    .pill.red    { background: rgba(248,113,113,.12); color: var(--red); }
+    .pill.amber  { background: rgba(251,191,36,.12); color: var(--amber); }
+    .pill.blue   { background: rgba(96,165,250,.12); color: var(--blue); }
+    .pill.purple { background: rgba(192,132,252,.12); color: var(--purple); }
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: var(--accent-soft);
+      padding: 12px 16px; border-radius: 0 6px 6px 0;
+      margin: 16px 0; font-size: 14px;
+    }
+    .callout.warn  { border-color: var(--amber); background: rgba(251,191,36,.08); }
+    .callout.danger{ border-color: var(--red);   background: rgba(248,113,113,.08); }
+    .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px 16px;
+    }
+    .card h4 { margin-top: 0; }
+    kbd {
+      font-family: var(--mono); font-size: 12px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 6px; color: var(--text);
+    }
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+      nav { width: 100%; min-height: auto; position: static; max-height: none; }
+      main { padding: 32px 24px; }
+      .grid2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><span>📊</span> Stock Analyzer</div>
+  <ul>
+    <li class="section-label">Overview</li>
+    <li><a href="#intro">Introduction</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#install">Setup</a></li>
+
+    <li class="section-label">Usage</li>
+    <li><a href="#cli">CLI Reference</a></li>
+    <li><a href="#sessions">Session Modes</a></li>
+    <li><a href="#examples">Examples</a></li>
+
+    <li class="section-label">Configuration</li>
+    <li><a href="#env">Environment Variables</a></li>
+    <li><a href="#watchlist">Watchlist</a></li>
+    <li><a href="#theme">Theming</a></li>
+
+    <li class="section-label">Output</li>
+    <li><a href="#report">Report Anatomy</a></li>
+    <li><a href="#delivery">Delivery Channels</a></li>
+
+    <li class="section-label">Integration</li>
+    <li><a href="#angel">Angel One Bridge</a></li>
+    <li><a href="#paper">Paper Trading</a></li>
+
+    <li class="section-label">Operations</li>
+    <li><a href="#troubleshoot">Troubleshooting</a></li>
+    <li><a href="#files">Project Layout</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<h1>Stock Analyzer</h1>
+<p class="tagline">
+  Indian-equities &amp; mutual-fund analysis pipeline with technicals, fundamentals,
+  sentiment, ranked picks, image &amp; PDF reports, and WhatsApp / Telegram delivery.
+</p>
+
+<section id="intro">
+<h2>Introduction</h2>
+<p>
+  <code>scripts/stock_analyzer.py</code> is the entry-point for the project's
+  flagship pipeline. It analyses the NIFTY-50 universe (or a custom watchlist),
+  combines three independent signal layers, and emits four ranked buckets —
+  <em>Intraday</em>, <em>Swing</em>, <em>Holding</em>, <em>Sell</em> — alongside a
+  table of mutual funds. A high-resolution PNG report is generated and optionally
+  shipped via WhatsApp or Telegram together with a printable PDF.
+</p>
+<div class="callout">
+  Script lives at <code>scripts/stock_analyzer.py</code>. The library code is
+  packaged under <code>src/stock_analyzer/</code> and is also importable from
+  Python as <code>from src.stock_analyzer import …</code>.
+</div>
+</section>
+
+<section id="features">
+<h2>Features</h2>
+<div class="grid2">
+  <div class="card">
+    <h4>Technical analysis</h4>
+    <p>EMA trend, RSI, MACD, ATR, Bollinger bands, volume, and breakout heuristics
+       — fed into a composite bucket score.</p>
+  </div>
+  <div class="card">
+    <h4>Fundamentals</h4>
+    <p>P/E, P/B, ROE, D/E, sales growth and margins are pulled from the
+       fundamentals fetcher and feed into both ranking and the report panels.</p>
+  </div>
+  <div class="card">
+    <h4>Sentiment</h4>
+    <p>Lightweight headline keyword scorer overlays bullish/bearish bias on every
+       symbol when news data is available.</p>
+  </div>
+  <div class="card">
+    <h4>Four trading buckets</h4>
+    <p><span class="pill blue">Intraday</span><span class="pill purple">Swing</span>
+       <span class="pill">Holding</span><span class="pill red">Sell</span> — each
+       with entry, stop-loss and target levels computed from ATR.</p>
+  </div>
+  <div class="card">
+    <h4>Mutual-fund ranking</h4>
+    <p>NAV, 1y/3y/5y CAGR, expense ratio and risk grade — sortable table embedded
+       in the same image.</p>
+  </div>
+  <div class="card">
+    <h4>Pixel-perfect report</h4>
+    <p>Pillow-rendered PNG with light/dark themes, sector ribbons, heatmaps,
+       indices cubes, plus a paginated PDF for archival.</p>
+  </div>
+</div>
+</section>
+
+<section id="install">
+<h2>Setup</h2>
+<pre><code># 1. clone &amp; create venv
+git clone https://github.com/premtechiee/automations
+cd automations
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1     # Windows
+# source .venv/bin/activate      # macOS/Linux
+
+# 2. install deps
+pip install -r requirements.txt
+
+# 3. configure secrets (copy .env.example if provided, else create .env)
+notepad .env
+
+# 4. dry-run smoke-test
+python scripts/stock_analyzer.py --dry-run --limit 10
+</code></pre>
+</section>
+
+<section id="cli">
+<h2>CLI Reference</h2>
+<p>Top-level invocation:</p>
+<pre><code>python scripts/stock_analyzer.py [global options] [action]</code></pre>
+
+<h3>Global options</h3>
+<table>
+  <tr><th>Flag</th><th>Default</th><th>Description</th></tr>
+  <tr><td><code>--channel {whatsapp,telegram}</code></td><td><code>whatsapp</code></td><td>Notification channel for non-dry-run sends.</td></tr>
+  <tr><td><code>--theme {light,dark}</code></td><td><code>light</code></td><td>Image theme. Also via <code>STOCK_IMAGE_THEME</code>.</td></tr>
+  <tr><td><code>--limit N</code></td><td><code>0</code></td><td>Limit universe to first N symbols (testing).</td></tr>
+  <tr><td><code>--watchlist PATH</code></td><td><code>data/stock_watchlist.txt</code></td><td>Custom symbol list.</td></tr>
+  <tr><td><code>--no-pdf</code></td><td>off</td><td>Skip PDF generation (image only).</td></tr>
+</table>
+
+<h3>Actions <span class="pill amber">mutually exclusive</span></h3>
+<table>
+  <tr><th>Flag</th><th>Behaviour</th></tr>
+  <tr><td><code>--dry-run</code></td><td>Run analysis, print to console, do <em>not</em> send.</td></tr>
+  <tr><td><code>--now</code></td><td>Run analysis and send through <code>--channel</code>.</td></tr>
+  <tr><td><code>--preopen</code></td><td>🌅 Pre-open brief (08:00 IST) — US close + today's swing picks.</td></tr>
+  <tr><td><code>--morning</code></td><td>🔔 Market-open confirmation (09:30 IST) — validate trades after first 15 min.</td></tr>
+  <tr><td><code>--afternoon</code></td><td>📈 Mid-session update (14:00 IST) — trend + hold/sell guidance.</td></tr>
+  <tr><td><code>--test</code></td><td>Send a test ping only (verify channel delivery).</td></tr>
+  <tr><td><code>--angel ARGS…</code></td><td>Forward everything after <code>--angel</code> to <a href="angel_one.html">angel_one.py</a>.</td></tr>
+</table>
+</section>
+
+<section id="sessions">
+<h2>Session Modes</h2>
+<p>The three session flags pre-set <code>STOCK_SESSION</code> and a friendly
+<code>STOCK_SESSION_LABEL</code> environment variable which the report header
+picks up. They're meant to be wired to a scheduler (Task Scheduler / cron).</p>
+<table>
+  <tr><th>Flag</th><th>Suggested time</th><th>Purpose</th></tr>
+  <tr><td><code>--preopen</code></td><td>08:00 IST</td><td>US close + today's swing picks</td></tr>
+  <tr><td><code>--morning</code></td><td>09:30 IST</td><td>Validate trades after market opens</td></tr>
+  <tr><td><code>--afternoon</code></td><td>14:00 IST</td><td>Mid-session trend + hold/sell guidance</td></tr>
+</table>
+</section>
+
+<section id="examples">
+<h2>Examples</h2>
+<pre><code># Dry-run on a 10-symbol slice — full console log, no send
+python scripts/stock_analyzer.py --dry-run --limit 10
+
+# Send the full report via Telegram with a light theme
+python scripts/stock_analyzer.py --now --channel telegram --theme light
+
+# Pre-open scheduled brief
+python scripts/stock_analyzer.py --preopen
+
+# Skip the PDF (image + console only) for a fast iteration
+python scripts/stock_analyzer.py --dry-run --no-pdf --limit 20
+
+# Use a custom watchlist
+python scripts/stock_analyzer.py --watchlist data/my_picks.txt --dry-run
+
+# Delegate to the Angel One sub-CLI
+python scripts/stock_analyzer.py --angel paper-trade --once
+python scripts/stock_analyzer.py --angel paper-report --send --channel telegram
+</code></pre>
+</section>
+
+<section id="env">
+<h2>Environment Variables</h2>
+<p>All vars are auto-loaded from a <code>.env</code> file at the repo root.</p>
+
+<h3>Channel credentials</h3>
+<table>
+  <tr><th>Var</th><th>Required for</th><th>Purpose</th></tr>
+  <tr><td><code>GREEN_API_INSTANCE</code></td><td>WhatsApp</td><td>Green-API instance id</td></tr>
+  <tr><td><code>GREEN_API_TOKEN</code></td><td>WhatsApp</td><td>Green-API token</td></tr>
+  <tr><td><code>GREEN_API_URL</code></td><td>WhatsApp</td><td>Green-API endpoint</td></tr>
+  <tr><td><code>PHONE_NUMBERS</code></td><td>WhatsApp</td><td>Comma-separated recipients</td></tr>
+  <tr><td><code>TELEGRAM_BOT_TOKEN</code></td><td>Telegram</td><td>Bot token from @BotFather</td></tr>
+  <tr><td><code>TELEGRAM_CHAT_ID</code></td><td>Telegram</td><td>Target chat / channel id</td></tr>
+</table>
+
+<h3>Pipeline tunables</h3>
+<table>
+  <tr><th>Var</th><th>Default</th><th>Purpose</th></tr>
+  <tr><td><code>STOCK_IMAGE_THEME</code></td><td><code>light</code></td><td>Image theme</td></tr>
+  <tr><td><code>STOCK_UNIVERSE_LIMIT</code></td><td><em>unset</em></td><td>Mirrored from <code>--limit</code></td></tr>
+  <tr><td><code>STOCK_SESSION</code></td><td><em>unset</em></td><td>Set by <code>--preopen</code> / <code>--morning</code> / <code>--afternoon</code></td></tr>
+  <tr><td><code>STOCK_SESSION_LABEL</code></td><td><em>unset</em></td><td>Header banner text</td></tr>
+</table>
+</section>
+
+<section id="watchlist">
+<h2>Watchlist</h2>
+<p>By default the analyser pulls the NIFTY-50 list. Override by pointing
+<code>--watchlist</code> at a plain-text file with one Yahoo-style symbol per
+line (e.g. <code>RELIANCE.NS</code>). Lines beginning with <code>#</code> are
+comments.</p>
+<pre><code># data/my_picks.txt
+RELIANCE.NS
+TCS.NS
+HDFCBANK.NS
+# small-caps
+DIXON.NS
+KEI.NS
+</code></pre>
+</section>
+
+<section id="theme">
+<h2>Theming</h2>
+<p>Two themes ship out of the box:</p>
+<ul>
+  <li><code>light</code> <span class="pill">default</span> — clean panels, navy accents, ideal for printing &amp; chat embeds</li>
+  <li><code>dark</code> — terminal-style with neon accents</li>
+</ul>
+<p>Switch via <code>--theme</code> per-run, or set
+<code>STOCK_IMAGE_THEME=dark</code> in <code>.env</code> for a permanent flip.</p>
+</section>
+
+<section id="report">
+<h2>Report Anatomy</h2>
+<p>Every PNG/PDF contains the same panels in this order:</p>
+<ol>
+  <li><strong>Header banner</strong> — date/time + session label</li>
+  <li><strong>Indian indices cubes</strong> — Nifty, Bank Nifty, Nifty IT, etc.</li>
+  <li><strong>Sector heatmap</strong> — % change per sector with auto-fitted labels</li>
+  <li><strong>Sector ribbon</strong> — relative strength bars (right-anchored values)</li>
+  <li><strong>Bucket panels</strong> — Intraday / Swing / Holding / Sell, each with entry / SL / target</li>
+  <li><strong>Mutual-fund table</strong> — top NAV-sorted picks with CAGR and expense ratio</li>
+  <li><strong>Disclaimer</strong></li>
+</ol>
+<p>Every report is also persisted as JSON in
+<code>data/stock_reports/YYYY-MM-DD_HHMM.json</code> and indexed by
+<code>data/stock_reports/_index.json</code> for downstream consumers
+(e.g. the auto-trader and paper-trader).</p>
+</section>
+
+<section id="delivery">
+<h2>Delivery Channels</h2>
+<div class="grid2">
+  <div class="card">
+    <h4>WhatsApp <span class="pill">via Green-API</span></h4>
+    <p>Image is sent first, then the PDF as a document. Failures are logged at
+       <code>WARNING</code> level so they don't go silent.</p>
+  </div>
+  <div class="card">
+    <h4>Telegram <span class="pill blue">native bot</span></h4>
+    <p>Uses <code>sendPhoto</code> + <code>sendDocument</code>. 120s timeouts so
+       large PDFs don't get cut off.</p>
+  </div>
+</div>
+<div class="callout warn">
+  <strong>Heads-up:</strong> if you see <em>"failed to send PDF"</em>, the most
+  common cause is a stale Green-API instance — open the Green-API console and
+  re-link the WhatsApp account.
+</div>
+</section>
+
+<section id="angel">
+<h2>Angel One Bridge</h2>
+<p>All Angel One operations live in
+<a href="angel_one.html"><code>scripts/angel_one.py</code></a> and can be
+invoked directly or via the <code>--angel</code> passthrough on
+<code>stock_analyzer.py</code>:</p>
+<pre><code># Either of these works identically:
+python scripts/angel_one.py status
+python scripts/stock_analyzer.py --angel status
+
+# Compose with stock-analyzer flags
+python scripts/stock_analyzer.py --angel paper-report --send --channel telegram
+</code></pre>
+<p>See the dedicated <a href="angel_one.html">Angel One docs</a> for the full
+sub-command list (status, portfolio, order, auto-trade, paper-trade, …).</p>
+</section>
+
+<section id="paper">
+<h2>Paper Trading</h2>
+<p>Paper trading is a sister mode of the auto-trader. It reads the analyser's
+latest picks, polls real LTPs through Angel One, but never transmits orders —
+all P&amp;L is virtual. This is the safest way to validate the pipeline before
+going live.</p>
+<pre><code># 1. Generate today's picks
+python scripts/stock_analyzer.py --dry-run
+
+# 2. Run the paper trader (loops every 60s during market hours)
+python scripts/stock_analyzer.py --angel paper-trade
+
+# 3. End-of-day report
+python scripts/stock_analyzer.py --angel paper-report
+</code></pre>
+<p>State persists across days at
+<code>data/paper_trader_state.json</code>; full reports archive to
+<code>data/paper_reports/YYYY-MM-DD_HHMM.txt</code>.</p>
+</section>
+
+<section id="troubleshoot">
+<h2>Troubleshooting</h2>
+<table>
+  <tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr>
+  <tr><td>Console shows mojibake (₹, box-drawing)</td><td>Windows cp1252 console</td><td>Already auto-fixed; reports archived to UTF-8 files. Use <kbd>Get-Content</kbd> with <code>-Encoding utf8</code>.</td></tr>
+  <tr><td><code>AG8001 Invalid Token</code></td><td>Cached Angel session expired</td><td>Auto-recovers — first request silently re-auths. Manual: delete <code>data/angel_session.json</code>.</td></tr>
+  <tr><td>WhatsApp "failed to send PDF"</td><td>Stale Green-API instance</td><td>Re-link account in Green-API console.</td></tr>
+  <tr><td>Empty buckets</td><td>Universe returned 0 fundamentals</td><td>Yahoo rate-limit. Re-run with <code>--limit 5</code> after a minute.</td></tr>
+  <tr><td>Text overflow inside cubes</td><td>Long sector names</td><td>Already shrunk via <code>_fit()</code> helper. File an issue with screenshot if it recurs.</td></tr>
+</table>
+</section>
+
+<section id="files">
+<h2>Project Layout</h2>
+<pre><code>scripts/
+  stock_analyzer.py        ← this script
+  angel_one.py             ← Angel One sub-CLI (delegated via --angel)
+  gold_notifier.py
+src/stock_analyzer/
+  main.py                  ← run_report(), send_test_message()
+  config.py                ← env-var defaults, paths, thresholds
+  fetchers.py              ← Yahoo, fundamentals, sentiment
+  analysis.py              ← bucket scoring + level computation
+  formatter.py             ← console / chat-text rendering
+  report.py                ← Pillow image + PDF builder
+  auto_trader.py           ← live + paper trader
+  paper_report.py          ← performance report builder
+data/
+  stock_reports/           ← saved JSON picks (used by auto-trader)
+  paper_trader_state.json  ← virtual book
+  paper_reports/           ← archived performance reports
+  angel_session.json       ← cached Angel session (18h TTL)
+docs/
+  stock_analyzer.html      ← this file
+  angel_one.html           ← Angel One CLI reference
+  gold_notifier.html
+</code></pre>
+</section>
+
+<p style="text-align:center; color:var(--muted); margin-top:48px; font-size:12px;">
+  Built &amp; documented for personal use. Not investment advice.
+</p>
+
+</main>
+
+<script>
+  const links = document.querySelectorAll('nav a[href^="#"]');
+  const sections = [...links].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  function onScroll() {
+    let active = sections[0];
+    for (const s of sections) {
+      if (s.getBoundingClientRect().top < 120) active = s;
+    }
+    links.forEach(a => a.classList.toggle('active',
+      a.getAttribute('href') === '#' + active.id));
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+</script>
+
+</body>
+</html>

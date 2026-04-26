@@ -147,20 +147,35 @@ def find_support_resistance(df: pd.DataFrame, lookback: int = 60,
 # ── Short-term direction prediction ─────────────────────────────────────────
 
 def predict_direction(tech: dict, patterns: list[str], sr: dict,
-                       macro: dict | None = None) -> dict:
+                       macro: dict | None = None,
+                       bucket: str | None = None,
+                       senti: dict | None = None) -> dict:
     """
     Combine technicals + candlesticks + S/R proximity + global macro context
-    into a short-term (1–5 day) outlook.  Returns direction
-    ('UP'/'DOWN'/'SIDEWAYS'), confidence 0-100, and plain-English reasons.
-    Each per-feature contribution is scaled by a learned weight from
-    `learner.feature_weight()` so the system improves as it accumulates
-    real-world performance data.
+    + categorised news sentiment (earnings / corp_action / shareholder /
+    regulatory / political / geopolitical / macro) into a short-term
+    (1–5 day) outlook.  Returns direction ('UP'/'DOWN'/'SIDEWAYS'),
+    confidence 0-100, and plain-English reasons.
+
+    Every per-feature contribution is scaled by a learned weight from
+    `learner.feature_weight()` (optionally bucket-specific) so the system
+    improves as it accumulates real-world performance data. The final
+    confidence is empirically calibrated via `learner.calibrated_confidence()`.
     """
     # Lazy import to avoid circulars
     try:
         from .learner import feature_weight as _fw
+        from .learner import calibrated_confidence as _calib
     except Exception:
-        def _fw(_): return 1.0
+        def _fw(_, __=None): return 1.0
+        def _calib(c):        return c
+
+    def fw(feat):
+        # bucket-aware lookup (falls back to global weight if bucket data missing)
+        try:
+            return _fw(feat, bucket)
+        except TypeError:
+            return _fw(feat)
 
     score   = 0.0
     reasons: list[str] = []
@@ -168,46 +183,82 @@ def predict_direction(tech: dict, patterns: list[str], sr: dict,
 
     # Trend
     if tech.get("trend_up"):
-        score += 2 * _fw("trend_up");  reasons.append("Price is above its 50- & 200-day averages (uptrend)")
+        score += 2 * fw("trend_up");  reasons.append("Price is above its 50- & 200-day averages (uptrend)")
     else:
-        score -= 1 * _fw("trend_down"); reasons.append("Price is below its 50-day average (weak trend)")
+        score -= 1 * fw("trend_down"); reasons.append("Price is below its 50-day average (weak trend)")
 
     # Momentum
     if tech["macd_hist"] > 0:
-        score += 1 * _fw("macd_pos");  reasons.append("Momentum turning positive (MACD)")
+        score += 1 * fw("macd_pos");  reasons.append("Momentum turning positive (MACD)")
     else:
-        score -= 1 * _fw("macd_neg");  reasons.append("Momentum fading (MACD)")
+        score -= 1 * fw("macd_neg");  reasons.append("Momentum fading (MACD)")
 
     # RSI extremes
     if tech["rsi14"] > 70:
-        score -= 2 * _fw("rsi_overbought"); reasons.append("Overbought — likely short-term pullback")
+        score -= 2 * fw("rsi_overbought"); reasons.append("Overbought — likely short-term pullback")
     elif tech["rsi14"] < 30:
-        score += 2 * _fw("rsi_oversold");   reasons.append("Oversold — possible bounce")
+        score += 2 * fw("rsi_oversold");   reasons.append("Oversold — possible bounce")
     elif 45 <= tech["rsi14"] <= 65:
-        score += 1 * _fw("rsi_strong");     reasons.append("Momentum healthy (RSI in strong zone)")
+        score += 1 * fw("rsi_strong");     reasons.append("Momentum healthy (RSI in strong zone)")
 
     # Volume
     if tech["vol_ratio"] > 1.4:
-        score += 1 * _fw("vol_surge"); reasons.append(f"Trading volume is {tech['vol_ratio']:.1f}× the usual — strong interest")
+        score += 1 * fw("vol_surge"); reasons.append(f"Trading volume is {tech['vol_ratio']:.1f}× the usual — strong interest")
     elif tech["vol_ratio"] < 0.6:
         reasons.append("Trading volume low — weak conviction")
 
     # Candlestick bias
     cb = candle_bias(patterns)
     if cb > 0:
-        score += cb * _fw("candle_bullish"); reasons.append("Candle pattern suggests buyers in control")
+        score += cb * fw("candle_bullish"); reasons.append("Candle pattern suggests buyers in control")
     elif cb < 0:
-        score += cb * _fw("candle_bearish"); reasons.append("Candle pattern suggests sellers in control")
+        score += cb * fw("candle_bearish"); reasons.append("Candle pattern suggests sellers in control")
 
     # S/R proximity
     dist_r = (sr["resistance"] - price) / price * 100 if price else 99
     dist_s = (price - sr["support"]) / price * 100 if price else 99
     if dist_r < 1.0:
-        score -= 1 * _fw("near_resistance"); reasons.append(f"Price near resistance ₹{sr['resistance']:.2f} — may struggle to break above")
+        score -= 1 * fw("near_resistance"); reasons.append(f"Price near resistance ₹{sr['resistance']:.2f} — may struggle to break above")
     elif dist_s < 1.0:
-        score += 1 * _fw("near_support");    reasons.append(f"Price near support ₹{sr['support']:.2f} — good risk:reward if it holds")
+        score += 1 * fw("near_support");    reasons.append(f"Price near support ₹{sr['support']:.2f} — good risk:reward if it holds")
 
     # Translate score → direction
+    if score >= 3:     direction = "UP"
+    elif score <= -2:  direction = "DOWN"
+    else:              direction = "SIDEWAYS"
+
+    # ── Categorised news sentiment ──────────────────────────────────────
+    # Each category becomes its own learnable feature tag so the learner
+    # can attribute outcomes to specific drivers (earnings beat vs probe
+    # vs FII outflow etc).  Score normalised to ±1 per category and capped.
+    senti_bias = 0.0
+    senti = senti or {}
+    cats = senti.get("categories") or {}
+    for cat, info in cats.items():
+        pos = int(info.get("pos", 0))
+        neg = int(info.get("neg", 0))
+        if pos + neg == 0:
+            continue
+        norm = (pos - neg) / (pos + neg)               # −1 … +1
+        magnitude = min(2.0, (pos + neg) / 2.0)         # cap impact
+        # earnings & regulatory have stronger price impact → 1.5x base
+        cat_strength = {
+            "earnings": 1.5, "regulatory": 1.5, "shareholder": 1.3,
+            "corp_action": 1.2, "geopolitical": 1.0,
+            "political": 0.8, "macro": 0.8,
+        }.get(cat, 1.0)
+        feat = f"news_{cat}_{'pos' if norm > 0 else 'neg'}"
+        contrib = norm * magnitude * cat_strength * fw(feat)
+        score += contrib
+        senti_bias += contrib
+        if abs(contrib) >= 0.5:
+            label = cat.replace("_", " ")
+            reasons.append(
+                f"{'Positive' if norm > 0 else 'Negative'} {label} news "
+                f"(+{pos}/-{neg})"
+            )
+
+    # Re-classify after sentiment overlay
     if score >= 3:     direction = "UP"
     elif score <= -2:  direction = "DOWN"
     else:              direction = "SIDEWAYS"
@@ -218,7 +269,7 @@ def predict_direction(tech: dict, patterns: list[str], sr: dict,
     if macro:
         macro_bias = int(macro.get("bias") or 0)
         regime = macro.get("regime")
-        macro_w = _fw(f"macro_{(regime or 'neutral').replace('-', '_')}")
+        macro_w = fw(f"macro_{(regime or 'neutral').replace('-', '_')}")
         if macro.get("reasons"):
             reasons.append(macro["reasons"][0])
         score += macro_bias * macro_w
@@ -227,13 +278,15 @@ def predict_direction(tech: dict, patterns: list[str], sr: dict,
         elif score <= -2:  direction = "DOWN"
         else:              direction = "SIDEWAYS"
 
-    # Confidence — bounded; macro agreement amplifies
-    confidence = min(95, 50 + abs(score) * 10)
+    # Confidence — bounded; macro agreement amplifies; then empirically calibrated
+    raw_confidence = min(95, 50 + abs(score) * 10)
+    confidence     = _calib(raw_confidence)
 
     return {
         "direction":  direction,
         "confidence": int(confidence),
         "score":      round(score, 2),
         "macro_bias": macro_bias,
+        "senti_bias": round(senti_bias, 2),
         "reasons":    reasons[:6],
     }

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Angel One CLI — Documentation</title>
+  <style>
+    :root {
+      --accent:      #f59e0b;
+      --accent-2:    #fb923c;
+      --accent-soft: rgba(245,158,11,.10);
+      --bg:          #0f1117;
+      --surface:     #1a1d27;
+      --surface2:    #22263a;
+      --border:      #2e3250;
+      --text:        #e2e4ef;
+      --muted:       #8890b0;
+      --green:       #4ade80;
+      --red:         #f87171;
+      --blue:        #60a5fa;
+      --purple:      #c084fc;
+      --mono:        'JetBrains Mono','Fira Code','Cascadia Code',Consolas,monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+      font-size: 15px; line-height: 1.7; display: flex;
+    }
+    nav {
+      width: 270px; min-height: 100vh;
+      background: var(--surface); border-right: 1px solid var(--border);
+      padding: 24px 0; position: sticky; top: 0; flex-shrink: 0;
+      overflow-y: auto; max-height: 100vh;
+    }
+    nav .logo {
+      display:flex; align-items:center; gap:10px;
+      padding: 0 20px 20px; border-bottom:1px solid var(--border);
+      font-weight:700; font-size:15px; color: var(--accent);
+    }
+    nav .logo span { font-size:24px; }
+    nav ul { list-style:none; padding:12px 0; }
+    nav ul li a {
+      display:block; padding:6px 20px; color: var(--muted);
+      text-decoration:none; font-size:13px;
+      transition: color .15s, background .15s;
+      border-left: 2px solid transparent;
+    }
+    nav ul li a:hover, nav ul li a.active {
+      color: var(--accent); background: var(--accent-soft);
+      border-left-color: var(--accent);
+    }
+    nav .section-label {
+      padding: 14px 20px 4px; font-size:10px;
+      text-transform: uppercase; letter-spacing: .1em;
+      color: var(--muted); font-weight: 600;
+    }
+    main { flex: 1; padding: 48px 56px 96px; max-width: 980px; }
+    h1 {
+      font-size: 32px; font-weight: 700; margin-bottom: 8px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+    }
+    h2 {
+      font-size: 22px; font-weight: 700; margin: 40px 0 12px;
+      color: var(--text); border-bottom: 1px solid var(--border); padding-bottom: 6px;
+    }
+    h3 { font-size: 17px; font-weight: 600; margin: 24px 0 8px; color: var(--accent); }
+    h4 { font-size: 14px; font-weight: 600; margin: 18px 0 6px; color: var(--accent-2); }
+    p, li { color: var(--text); }
+    p { margin-bottom: 12px; }
+    a { color: var(--accent-2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    ul, ol { padding-left: 24px; margin-bottom: 12px; }
+    li { margin-bottom: 4px; }
+    code {
+      font-family: var(--mono); font-size: 13px;
+      background: var(--surface2); padding: 2px 6px; border-radius: 4px;
+      color: var(--accent);
+    }
+    pre {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px 18px; overflow-x: auto;
+      font-family: var(--mono); font-size: 13px; line-height: 1.5;
+      margin: 12px 0 18px; color: var(--text);
+    }
+    pre code { background: transparent; padding: 0; color: inherit; }
+    .tagline { color: var(--muted); font-size: 16px; margin-bottom: 32px; }
+    table {
+      width: 100%; border-collapse: collapse; margin: 12px 0 24px;
+      font-size: 13.5px;
+    }
+    th, td {
+      text-align: left; padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    th { color: var(--accent); font-weight: 600; background: var(--surface); }
+    tr:hover td { background: rgba(255,255,255,.02); }
+    .pill {
+      display: inline-block; padding: 2px 10px; border-radius: 999px;
+      font-size: 11px; font-weight: 600; letter-spacing: .04em;
+      background: var(--accent-soft); color: var(--accent);
+      vertical-align: middle; margin-left: 8px;
+    }
+    .pill.green  { background: rgba(74,222,128,.12); color: var(--green); }
+    .pill.red    { background: rgba(248,113,113,.12); color: var(--red); }
+    .pill.blue   { background: rgba(96,165,250,.12); color: var(--blue); }
+    .pill.purple { background: rgba(192,132,252,.12); color: var(--purple); }
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: var(--accent-soft);
+      padding: 12px 16px; border-radius: 0 6px 6px 0;
+      margin: 16px 0; font-size: 14px;
+    }
+    .callout.warn  { border-color: #fbbf24; background: rgba(251,191,36,.08); }
+    .callout.danger{ border-color: var(--red);   background: rgba(248,113,113,.08); }
+    .callout.ok    { border-color: var(--green); background: rgba(74,222,128,.08); }
+    .grid2 { display:grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 12px 0; }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 14px 16px;
+    }
+    .card h4 { margin-top: 0; }
+    kbd {
+      font-family: var(--mono); font-size: 12px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 4px; padding: 1px 6px; color: var(--text);
+    }
+    .cmd-anchor {
+      display: block; padding: 14px 16px; margin: 8px 0;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; transition: border-color .15s;
+    }
+    .cmd-anchor:hover { border-color: var(--accent); }
+    .cmd-anchor code { font-size: 14px; color: var(--accent); }
+    .cmd-anchor span { color: var(--muted); font-size: 13px; margin-left: 8px; }
+    @media (max-width: 900px) {
+      body { flex-direction: column; }
+      nav { width: 100%; min-height: auto; position: static; max-height: none; }
+      main { padding: 32px 24px; }
+      .grid2 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo"><span>📈</span> Angel One CLI</div>
+  <ul>
+    <li class="section-label">Overview</li>
+    <li><a href="#intro">Introduction</a></li>
+    <li><a href="#auth">Authentication</a></li>
+    <li><a href="#cli">Command Reference</a></li>
+
+    <li class="section-label">Sub-commands</li>
+    <li><a href="#status">status</a></li>
+    <li><a href="#portfolio">portfolio</a></li>
+    <li><a href="#order">order</a></li>
+    <li><a href="#auto-trade">auto-trade</a></li>
+    <li><a href="#auto-trade-status">auto-trade-status</a></li>
+    <li><a href="#paper-trade">paper-trade</a></li>
+    <li><a href="#paper-summary">paper-summary</a></li>
+    <li><a href="#paper-report">paper-report</a></li>
+
+    <li class="section-label">Engine</li>
+    <li><a href="#trader-config">Trader Config</a></li>
+    <li><a href="#decision">Decision Logic</a></li>
+    <li><a href="#sizing">Position Sizing</a></li>
+    <li><a href="#state">State Files</a></li>
+
+    <li class="section-label">Workflows</li>
+    <li><a href="#workflow-paper">Paper-trading workflow</a></li>
+    <li><a href="#workflow-live">Live-trading workflow</a></li>
+    <li><a href="#integration">Stock-analyzer bridge</a></li>
+
+    <li class="section-label">Operations</li>
+    <li><a href="#troubleshoot">Troubleshooting</a></li>
+    <li><a href="#safety">Safety Rails</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<h1>Angel One CLI</h1>
+<p class="tagline">
+  Standalone command-line interface for Angel One — connectivity checks,
+  portfolio inspection, manual orders, the live auto-trader, the paper-trader,
+  and a full performance report engine.
+</p>
+
+<section id="intro">
+<h2>Introduction</h2>
+<p>
+  <code>scripts/angel_one.py</code> is a single, self-contained CLI that wraps
+  every interaction with the Angel One SmartAPI. It loads the project's
+  <code>.env</code>, authenticates through TOTP, caches the session at
+  <code>data/angel_session.json</code> (18-hour TTL), and exposes eight
+  sub-commands grouped into three areas:
+</p>
+<ul>
+  <li><strong>Inspection</strong> — <code>status</code>, <code>portfolio</code></li>
+  <li><strong>Manual</strong> — <code>order</code></li>
+  <li><strong>Engine</strong> — <code>auto-trade</code>, <code>paper-trade</code>, <code>*-status</code>, <code>paper-summary</code>, <code>paper-report</code></li>
+</ul>
+<div class="callout">
+  All sub-commands also work via the <code>--angel</code> passthrough on
+  <a href="stock_analyzer.html"><code>stock_analyzer.py</code></a>. The two
+  scripts share the same code path; pick whichever is more convenient.
+</div>
+</section>
+
+<section id="auth">
+<h2>Authentication</h2>
+<p>The script needs four secrets in <code>.env</code>:</p>
+<table>
+  <tr><th>Variable</th><th>How to get it</th></tr>
+  <tr><td><code>ANGEL_API_KEY</code></td><td>SmartAPI dashboard → Apps → API key</td></tr>
+  <tr><td><code>ANGEL_CLIENT_CODE</code></td><td>Your Angel One client id (e.g. <code>AAAD1234</code>)</td></tr>
+  <tr><td><code>ANGEL_MPIN</code></td><td>The 4-digit MPIN you set up</td></tr>
+  <tr><td><code>ANGEL_TOTP_SECRET</code></td><td>The base-32 secret behind your authenticator app</td></tr>
+</table>
+<p>Optional but important:</p>
+<table>
+  <tr><th>Variable</th><th>Default</th><th>Purpose</th></tr>
+  <tr><td><code>ANGEL_TRADING_ENABLED</code></td><td><code>0</code></td><td>Master kill-switch. Must be <code>1</code> to transmit any real order.</td></tr>
+</table>
+<div class="callout warn">
+  Sessions are cached at <code>data/angel_session.json</code> for 18 hours. On
+  <code>AG8001 Invalid Token</code> the script silently deletes the cache and
+  re-authenticates — no action needed from you.
+</div>
+</section>
+
+<section id="cli">
+<h2>Command Reference</h2>
+<pre><code>python scripts/angel_one.py &lt;command&gt; [options]</code></pre>
+
+<a class="cmd-anchor" href="#status"><code>status</code><span>Login + holdings count smoke-test</span></a>
+<a class="cmd-anchor" href="#portfolio"><code>portfolio</code><span>Print holdings, funds, and intraday positions</span></a>
+<a class="cmd-anchor" href="#order"><code>order</code><span>Place a single manual order</span></a>
+<a class="cmd-anchor" href="#auto-trade"><code>auto-trade [--once]</code><span>Run the live auto-trader (foreground loop or one tick)</span></a>
+<a class="cmd-anchor" href="#auto-trade-status"><code>auto-trade-status</code><span>Print live auto-trader state</span></a>
+<a class="cmd-anchor" href="#paper-trade"><code>paper-trade [--once]</code><span>Run the paper-trader (never transmits)</span></a>
+<a class="cmd-anchor" href="#paper-summary"><code>paper-summary</code><span>Quick paper-trading P&amp;L summary</span></a>
+<a class="cmd-anchor" href="#paper-report"><code>paper-report [--send --channel ...]</code><span>Full performance report (saved &amp; printed)</span></a>
+</section>
+
+<section id="status">
+<h2><code>status</code></h2>
+<p>Verifies SmartAPI authentication and prints holdings count + cash + the
+master trading-enabled flag. Use this as the first check on any new machine.</p>
+<pre><code>python scripts/angel_one.py status</code></pre>
+<pre><code>Angel One available: True
+Holdings: 24  Cash: ₹125,432.10  Trading enabled: False</code></pre>
+</section>
+
+<section id="portfolio">
+<h2><code>portfolio</code></h2>
+<p>Read-only snapshot of your account: cash, net-worth, used margin, holdings
+table with live LTPs &amp; P&amp;L, and intraday positions.</p>
+<pre><code>python scripts/angel_one.py portfolio</code></pre>
+<p>Output sections:</p>
+<ul>
+  <li><strong>Cash / Net / Margin</strong></li>
+  <li><strong>Holdings</strong> — symbol, qty, avg, LTP, P&amp;L, P&amp;L %</li>
+  <li><strong>Intraday positions</strong> — first 10 with net qty + P&amp;L</li>
+</ul>
+</section>
+
+<section id="order">
+<h2><code>order</code></h2>
+<p>Place exactly one order. Defaults to <strong>dry-run</strong> unless
+<code>ANGEL_TRADING_ENABLED=1</code>.</p>
+<table>
+  <tr><th>Flag</th><th>Required</th><th>Notes</th></tr>
+  <tr><td><code>--symbol</code></td><td>yes</td><td>e.g. <code>RELIANCE</code></td></tr>
+  <tr><td><code>--side {BUY,SELL}</code></td><td>yes</td><td></td></tr>
+  <tr><td><code>--qty N</code></td><td>yes</td><td>Positive integer</td></tr>
+  <tr><td><code>--order-type {MARKET,LIMIT,SL,SL-M}</code></td><td></td><td>Default <code>MARKET</code></td></tr>
+  <tr><td><code>--product {DELIVERY,INTRADAY,MARGIN}</code></td><td></td><td>Default <code>DELIVERY</code></td></tr>
+  <tr><td><code>--price</code></td><td>LIMIT/SL only</td><td>Limit price</td></tr>
+  <tr><td><code>--trigger</code></td><td>SL/SL-M only</td><td>Trigger price</td></tr>
+</table>
+<pre><code># Market buy (dry-run unless ANGEL_TRADING_ENABLED=1)
+python scripts/angel_one.py order --symbol RELIANCE --side BUY --qty 1
+
+# Limit sell
+python scripts/angel_one.py order --symbol TCS --side SELL --qty 2 \
+                                  --order-type LIMIT --price 4100
+
+# Intraday stop-loss
+python scripts/angel_one.py order --symbol HDFCBANK --side SELL --qty 1 \
+                                  --order-type SL --product INTRADAY \
+                                  --price 1800 --trigger 1805</code></pre>
+<div class="callout danger">
+  <strong>Live trade.</strong> When <code>ANGEL_TRADING_ENABLED=1</code>, the
+  order goes straight to the exchange. There is no extra confirmation prompt.
+</div>
+</section>
+
+<section id="auto-trade">
+<h2><code>auto-trade</code></h2>
+<p>The live auto-trader. Reads <code>data/stock_reports/</code> picks, polls
+LTPs, and BUYs / SLs / TGTs in real-time. <strong>Always dry-runs by default;
+set both <code>ANGEL_TRADING_ENABLED=1</code> AND <code>AUTO_TRADE_DRY_RUN=0</code>
+to transmit.</strong></p>
+<pre><code># Foreground loop, polls every 60s during market hours
+python scripts/angel_one.py auto-trade
+
+# Single tick (cron-friendly)
+python scripts/angel_one.py auto-trade --once</code></pre>
+<p>State persists at <code>data/auto_trader_state.json</code>. See
+<a href="#trader-config">Trader Config</a> for tunables.</p>
+</section>
+
+<section id="auto-trade-status">
+<h2><code>auto-trade-status</code></h2>
+<p>Prints the live trader's current state — open trades, today's realised P&amp;L,
+and halt status (if the daily-loss limit was hit).</p>
+<pre><code>python scripts/angel_one.py auto-trade-status</code></pre>
+</section>
+
+<section id="paper-trade">
+<h2><code>paper-trade</code></h2>
+<p>Identical decision logic to <code>auto-trade</code>, but
+<strong>never transmits</strong>. Uses a virtual cash balance
+(<code>PAPER_STARTING_CASH</code>, default ₹100k) and tracks cumulative P&amp;L
+across days at <code>data/paper_trader_state.json</code>.</p>
+<pre><code># Foreground loop
+python scripts/angel_one.py paper-trade
+
+# Single tick
+python scripts/angel_one.py paper-trade --once</code></pre>
+<div class="callout ok">
+  Paper mode forces <code>dry_run=True</code> regardless of any env var. There
+  is <em>no</em> way to accidentally transmit real orders from this command.
+</div>
+</section>
+
+<section id="paper-summary">
+<h2><code>paper-summary</code></h2>
+<p>Compact console summary — today's date, cumulative P&amp;L, win rate, open
+positions, closed trades, and last 10 historical trades.</p>
+<pre><code>python scripts/angel_one.py paper-summary</code></pre>
+</section>
+
+<section id="paper-report">
+<h2><code>paper-report</code></h2>
+<p>Full performance report — printed to console <em>and</em> saved to
+<code>data/paper_reports/YYYY-MM-DD_HHMM.txt</code> (UTF-8). Optionally pushed
+through WhatsApp or Telegram.</p>
+<pre><code># Generate &amp; save
+python scripts/angel_one.py paper-report
+
+# Generate, save, and push via Telegram
+python scripts/angel_one.py paper-report --send --channel telegram</code></pre>
+<h3>Sections in the report</h3>
+<table>
+  <tr><th>Section</th><th>Metrics</th></tr>
+  <tr><td>Capital</td><td>Starting cash, current equity, cumulative P&amp;L %, today's realised, halt status</td></tr>
+  <tr><td>Performance</td><td>Trades, wins/losses, <strong>win rate</strong>, net P&amp;L, gross win/loss, avg win, avg loss, <strong>profit factor</strong>, <strong>expectancy</strong>, biggest win, biggest loss</td></tr>
+  <tr><td>By bucket</td><td>Same metrics grouped by <code>intraday</code> / <code>swing</code></td></tr>
+  <tr><td>By symbol</td><td>Top-10 symbols ranked by absolute P&amp;L</td></tr>
+  <tr><td>By exit reason</td><td><code>CLOSED_SL</code> / <code>CLOSED_TGT</code> / <code>CLOSED_EOD</code></td></tr>
+  <tr><td>Open positions</td><td>Symbol, bucket, qty, entry, SL, target, opened-at, capital committed</td></tr>
+  <tr><td>Closed today</td><td>Per-trade P&amp;L breakdown</td></tr>
+  <tr><td>Recent history</td><td>Last 15 closed trades from prior days</td></tr>
+</table>
+</section>
+
+<section id="trader-config">
+<h2>Trader Config</h2>
+<p>All env-driven via <code>TraderConfig.from_env()</code>:</p>
+<table>
+  <tr><th>Variable</th><th>Default</th><th>Purpose</th></tr>
+  <tr><td><code>AUTO_TRADE_MAX_POSITIONS</code></td><td><code>5</code></td><td>Max simultaneous open trades</td></tr>
+  <tr><td><code>AUTO_TRADE_MAX_DAILY_LOSS_INR</code></td><td><code>5000</code></td><td>Halt after this realised loss</td></tr>
+  <tr><td><code>AUTO_TRADE_MAX_PCT_PER_TRADE</code></td><td><code>0.10</code></td><td>Fraction of cash per trade</td></tr>
+  <tr><td><code>AUTO_TRADE_MIN_QTY</code></td><td><code>1</code></td><td>Minimum shares per order</td></tr>
+  <tr><td><code>AUTO_TRADE_BUCKETS</code></td><td><code>intraday,swing</code></td><td>Which buckets to trade</td></tr>
+  <tr><td><code>AUTO_TRADE_DRY_RUN</code></td><td><code>1</code></td><td><code>1</code>=dry, <code>0</code>=transmit (live mode only)</td></tr>
+  <tr><td><code>AUTO_TRADE_NOTIFY_CHANNEL</code></td><td><code>none</code></td><td><code>whatsapp</code> / <code>telegram</code> / <code>none</code></td></tr>
+  <tr><td><code>AUTO_TRADE_POLL_SEC</code></td><td><code>60</code></td><td>Loop poll interval</td></tr>
+  <tr><td><code>PAPER_STARTING_CASH</code></td><td><code>100000</code></td><td>Virtual cash for paper mode</td></tr>
+  <tr><td><code>ANGEL_TRADING_ENABLED</code></td><td><code>0</code></td><td>Master kill-switch — required to transmit</td></tr>
+</table>
+</section>
+
+<section id="decision">
+<h2>Decision Logic</h2>
+<p>Each tick the engine performs three steps in order:</p>
+<ol>
+  <li><strong>Exit checks</strong> — every open trade's LTP is compared against
+      its SL and target; matching trades are closed first.</li>
+  <li><strong>Halt check</strong> — if today's realised P&amp;L drops below
+      <code>-AUTO_TRADE_MAX_DAILY_LOSS_INR</code>, the trader halts for the rest
+      of the day.</li>
+  <li><strong>New entries</strong> — for each pick whose live LTP is within
+      ±0.5% of the entry level <em>and</em> still above SL, a sized BUY is
+      issued (subject to <code>max_positions</code> and available cash).</li>
+</ol>
+</section>
+
+<section id="sizing">
+<h2>Position Sizing</h2>
+<p>Quantity per trade is computed as:</p>
+<pre><code>qty = int((available_cash * MAX_PCT_PER_TRADE) // entry_price)</code></pre>
+<p>So with the defaults — ₹100k cash, 10% per trade, ₹500 share — the trader
+buys <code>(100,000 × 0.10) // 500 = 20</code> shares. Quantities below
+<code>AUTO_TRADE_MIN_QTY</code> are skipped entirely.</p>
+</section>
+
+<section id="state">
+<h2>State Files</h2>
+<table>
+  <tr><th>Path</th><th>Written by</th><th>Contents</th></tr>
+  <tr><td><code>data/angel_session.json</code></td><td>auth layer</td><td>JWT cache (18h TTL, auto-refreshed)</td></tr>
+  <tr><td><code>data/auto_trader_state.json</code></td><td><code>auto-trade</code></td><td>Live open trades, today's closed, realised P&amp;L, halt</td></tr>
+  <tr><td><code>data/paper_trader_state.json</code></td><td><code>paper-trade</code></td><td>Same fields + cumulative P&amp;L, wins, losses, history (last 500)</td></tr>
+  <tr><td><code>data/paper_reports/*.txt</code></td><td><code>paper-report</code></td><td>Archived performance reports (UTF-8)</td></tr>
+  <tr><td><code>data/stock_reports/*.json</code></td><td><a href="stock_analyzer.html">stock_analyzer</a></td><td>Picks consumed by the trader</td></tr>
+</table>
+</section>
+
+<section id="workflow-paper">
+<h2>Workflow: Paper Trading</h2>
+<pre><code># 1. Generate today's picks
+python scripts/stock_analyzer.py --dry-run
+
+# 2. Start the paper trader (loops every 60s during market hours)
+python scripts/angel_one.py paper-trade
+#  ^ Ctrl+C to stop. Or run with --once and schedule via Task Scheduler.
+
+# 3. End-of-day: full performance report
+python scripts/angel_one.py paper-report
+
+# 4. Optional: push report to Telegram nightly
+python scripts/angel_one.py paper-report --send --channel telegram</code></pre>
+<p>The paper book is a separate file (<code>paper_trader_state.json</code>) so
+running paper and live modes side-by-side is safe.</p>
+</section>
+
+<section id="workflow-live">
+<h2>Workflow: Live Trading</h2>
+<div class="callout danger">
+  Real money. Run paper-trade for a few weeks first and review the win-rate /
+  profit-factor in <code>paper-report</code> before flipping the switches below.
+</div>
+<pre><code># 1. Verify connectivity
+python scripts/angel_one.py status
+
+# 2. In .env (or session env) set BOTH:
+$env:ANGEL_TRADING_ENABLED = "1"
+$env:AUTO_TRADE_DRY_RUN    = "0"
+
+# 3. Optional but recommended risk caps
+$env:AUTO_TRADE_MAX_POSITIONS = "3"
+$env:AUTO_TRADE_MAX_DAILY_LOSS_INR = "2000"
+$env:AUTO_TRADE_MAX_PCT_PER_TRADE  = "0.05"
+$env:AUTO_TRADE_NOTIFY_CHANNEL     = "telegram"
+
+# 4. Run
+python scripts/angel_one.py auto-trade</code></pre>
+</section>
+
+<section id="integration">
+<h2>Stock-Analyzer Bridge</h2>
+<p>Every command on this page is also reachable through the analyser's
+<code>--angel</code> passthrough:</p>
+<pre><code>python scripts/stock_analyzer.py --angel status
+python scripts/stock_analyzer.py --angel paper-trade --once
+python scripts/stock_analyzer.py --angel paper-report --send --channel telegram</code></pre>
+<p>Internally <code>stock_analyzer.py</code> simply calls
+<code>angel_one.main(args.angel)</code>, so behaviour is identical and only one
+source of truth is maintained.</p>
+</section>
+
+<section id="troubleshoot">
+<h2>Troubleshooting</h2>
+<table>
+  <tr><th>Symptom</th><th>Cause</th><th>Resolution</th></tr>
+  <tr><td><code>AG8001 Invalid Token</code></td><td>Cached session expired</td><td>Auto-recovers. Manual: delete <code>data/angel_session.json</code>.</td></tr>
+  <tr><td><code>AB1004</code> on <code>fetch_ltp</code></td><td>Symbol not in scrip master</td><td>Check the symbol token in <code>lib.angelone</code> token cache.</td></tr>
+  <tr><td>Tick reports <em>"Angel One not authenticated"</em></td><td>Missing creds</td><td>Confirm <code>ANGEL_*</code> vars are present in <code>.env</code>.</td></tr>
+  <tr><td>0 actions per tick</td><td>Market closed, or LTPs not within entry band</td><td>Expected outside 09:15–15:30 IST. Check <code>auto-trade-status</code>.</td></tr>
+  <tr><td>Halted unexpectedly</td><td>Daily-loss limit hit</td><td>Restarts next trading day. Adjust <code>AUTO_TRADE_MAX_DAILY_LOSS_INR</code> or delete state file to reset.</td></tr>
+  <tr><td>WhatsApp / Telegram alerts not arriving</td><td>Channel unset</td><td>Set <code>AUTO_TRADE_NOTIFY_CHANNEL=telegram</code> and ensure bot creds are in <code>.env</code>.</td></tr>
+</table>
+</section>
+
+<section id="safety">
+<h2>Safety Rails</h2>
+<div class="grid2">
+  <div class="card">
+    <h4>Master kill-switch</h4>
+    <p><code>ANGEL_TRADING_ENABLED=0</code> blocks every order regardless of
+       sub-command. The default is off.</p>
+  </div>
+  <div class="card">
+    <h4>Paper mode is hard-locked</h4>
+    <p><code>paper-trade</code> forces <code>dry_run=True</code>; no env var
+       overrides this.</p>
+  </div>
+  <div class="card">
+    <h4>Daily loss halt</h4>
+    <p>Realised P&amp;L &le; <code>-AUTO_TRADE_MAX_DAILY_LOSS_INR</code> halts
+       new entries for the rest of the trading day.</p>
+  </div>
+  <div class="card">
+    <h4>Per-trade cap</h4>
+    <p>Position sizing is capped at <code>MAX_PCT_PER_TRADE</code> of available
+       cash — protects against fat-finger entries.</p>
+  </div>
+  <div class="card">
+    <h4>Position cap</h4>
+    <p><code>MAX_POSITIONS</code> prevents the trader from opening more concurrent
+       trades than your risk model allows.</p>
+  </div>
+  <div class="card">
+    <h4>Stop-loss is mandatory</h4>
+    <p>Every entry uses an ATR-derived SL from the analyser. Trades without an
+       SL on the pick are skipped entirely.</p>
+  </div>
+</div>
+</section>
+
+<p style="text-align:center; color:var(--muted); margin-top:48px; font-size:12px;">
+  Built &amp; documented for personal use. Not investment advice. Test in paper
+  mode before going live.
+</p>
+
+</main>
+
+<script>
+  const links = document.querySelectorAll('nav a[href^="#"]');
+  const sections = [...links].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  function onScroll() {
+    let active = sections[0];
+    for (const s of sections) {
+      if (s.getBoundingClientRect().top < 120) active = s;
+    }
+    links.forEach(a => a.classList.toggle('active',
+      a.getAttribute('href') === '#' + active.id));
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+</script>
+
+</body>
+</html>

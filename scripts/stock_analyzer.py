@@ -18,6 +18,12 @@ Usage:
     python scripts/stock_analyzer.py --now --channel telegram
     python scripts/stock_analyzer.py --test             # send a ping to verify delivery
     python scripts/stock_analyzer.py --theme light      # override theme
+
+Angel One commands are delegated to scripts/angel_one.py:
+    python scripts/stock_analyzer.py --angel status
+    python scripts/stock_analyzer.py --angel paper-trade --once
+    python scripts/stock_analyzer.py --angel paper-report
+(or call scripts/angel_one.py directly for the same result)
 """
 
 import argparse
@@ -61,13 +67,14 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--channel", choices=["whatsapp", "telegram"], default="whatsapp",
                    help="Notification channel (default: whatsapp).")
     p.add_argument("--theme", choices=["light", "dark"], default=_DEFAULT_THEME,
-                   help="Image theme (default: dark).")
+                   help="Image theme (default: light).")
     p.add_argument("--limit", type=int, default=0,
                    help="Limit universe to first N symbols (0 = no limit). Useful for quick tests.")
     p.add_argument("--watchlist", type=str, default=None,
                    help="Path to watchlist file (default: data/stock_watchlist.txt).")
     p.add_argument("--no-pdf", action="store_true",
                    help="Skip PDF generation (image + console only).")
+
     ex = p.add_mutually_exclusive_group()
     ex.add_argument("--now",       action="store_true", help="Run analysis and send report.")
     ex.add_argument("--preopen",   action="store_true",
@@ -78,6 +85,13 @@ def _build_parser() -> argparse.ArgumentParser:
                     help="Mid-session update (14:00 IST) — trend update + hold/sell guidance.")
     ex.add_argument("--dry-run",   action="store_true", help="Run analysis, print to console, do NOT send.")
     ex.add_argument("--test",      action="store_true", help="Send a test ping only.")
+
+    # ── Angel One commands (delegated to scripts/angel_one.py) ────────────
+    ex.add_argument("--angel", nargs=argparse.REMAINDER, metavar="ARGS",
+                    help="Run an Angel One sub-command. Everything after --angel "
+                         "is forwarded to scripts/angel_one.py. "
+                         "Examples:  --angel status  |  --angel portfolio  |  "
+                         "--angel paper-trade --once  |  --angel paper-report --send")
     return p
 
 
@@ -99,6 +113,10 @@ def main() -> None:
 
     if args.test:
         send_test_message(channel=args.channel)
+    elif args.angel is not None:
+        from scripts.angel_one import main as angel_main
+        rc = angel_main(args.angel)
+        sys.exit(rc or 0)
     elif args.dry_run:
         run_report(dry_run=True,  channel=args.channel, theme=args.theme,
                    watchlist_path=args.watchlist, make_pdf=not args.no_pdf)

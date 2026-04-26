@@ -34,7 +34,7 @@ LOG_FILE          = f"{DATA_DIR}/stock_analyzer.log"
 WATCHLIST_FILE    = f"{DATA_DIR}/stock_watchlist.txt"
 
 # ── Theme ───────────────────────────────────────────────────────────────────
-IMAGE_THEME = os.environ.get("STOCK_IMAGE_THEME", "dark").strip().lower()
+IMAGE_THEME = os.environ.get("STOCK_IMAGE_THEME", "light").strip().lower()
 
 # ── Stock universe — NIFTY 100 (covers NIFTY 50 + NIFTY Next 50) ────────────
 # yfinance suffix: .NS = NSE, .BO = BSE. Using NSE for better liquidity.
@@ -128,22 +128,111 @@ TOP_SELL      = 5
 TOP_MF        = 5
 
 # ── News sources (RSS, free) for basic sentiment ────────────────────────────
+# Wide coverage: business / corporate filings / regulatory / political /
+# geopolitical / sector-specific. Every additional feed gives the
+# self-learning module more attribution power.
 NEWS_RSS_FEEDS: list[str] = [
+    # Indian business / market
     "https://www.moneycontrol.com/rss/marketreports.xml",
     "https://www.moneycontrol.com/rss/business.xml",
+    "https://www.moneycontrol.com/rss/MCtopnews.xml",
+    "https://www.moneycontrol.com/rss/results.xml",
     "https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms",
+    "https://economictimes.indiatimes.com/industry/rssfeeds/13352306.cms",
+    "https://economictimes.indiatimes.com/news/economy/rssfeeds/1373380680.cms",
+    "https://www.business-standard.com/rss/markets-106.rss",
+    "https://www.business-standard.com/rss/companies-101.rss",
+    "https://www.livemint.com/rss/markets",
+    "https://www.livemint.com/rss/companies",
+    # Corporate filings / earnings / regulatory
+    "https://www.moneycontrol.com/rss/iponews.xml",
+    "https://www.moneycontrol.com/rss/buzzingstocks.xml",
+    # RBI / monetary policy / regulation
+    "https://www.rbi.org.in/Scripts/Rss.aspx",
+    "https://www.sebi.gov.in/sebirss.xml",
+    # Political / policy / geopolitics
+    "https://www.thehindu.com/news/national/feeder/default.rss",
+    "https://www.thehindu.com/business/Economy/feeder/default.rss",
+    "https://www.ndtv.com/business/rss",
+    "https://www.ndtv.com/india/rss",
 ]
 
-# Keywords used for naive headline sentiment.
-POS_WORDS = {
-    "surge", "rally", "jump", "gain", "growth", "profit", "beats",
-    "upgrade", "bullish", "record", "high", "rise", "soars", "boost",
-    "outperform", "buy", "positive", "strong", "expansion", "wins",
+# Keywords used for headline sentiment, organised by *category* so the
+# learner can attribute outcomes to specific drivers (earnings vs political
+# vs regulatory etc).  Each category has its own positive / negative lists.
+SENTIMENT_CATEGORIES: dict[str, dict[str, set[str]]] = {
+    # Corporate earnings, results, guidance
+    "earnings": {
+        "pos": {"beats", "beat", "outperform", "record", "profit",
+                "guidance", "raises", "upgrade", "upgraded", "strong",
+                "growth", "expansion", "ebitda", "margin", "topline"},
+        "neg": {"miss", "missed", "downgrade", "downgraded", "loss",
+                "lowered", "weak", "softer", "shortfall", "warning",
+                "guidance-cut", "delay", "delayed", "writeoff"},
+    },
+    # M&A / corporate actions / dividends / buybacks
+    "corp_action": {
+        "pos": {"acquisition", "merger", "buyback", "dividend", "stake",
+                "investment", "expansion", "deal", "partnership", "JV",
+                "joint-venture", "ipo", "listing", "fundraise", "raises"},
+        "neg": {"divest", "spinoff", "exit", "demerge", "delist",
+                "demerger", "pull-out", "withdraws"},
+    },
+    # Insider / shareholder / promoter activity
+    "shareholder": {
+        "pos": {"promoter-buy", "insider-buy", "stake-hike", "increases",
+                "block-deal", "bulk-deal", "qip", "preferential"},
+        "neg": {"promoter-sell", "insider-sell", "stake-cut", "reduces",
+                "pledge", "pledged", "exits"},
+    },
+    # Regulatory / SEBI / RBI / fines / probes
+    "regulatory": {
+        "pos": {"approval", "approves", "approved", "license", "cleared",
+                "clearance", "exemption", "rate-cut", "stimulus",
+                "boost", "incentive", "rebate", "subsidy"},
+        "neg": {"probe", "fine", "fined", "penalty", "investigation",
+                "ban", "banned", "raid", "raids", "rejected", "fraud",
+                "violation", "circular", "show-cause", "notice",
+                "rate-hike", "tax-hike"},
+    },
+    # Political / policy / government / budget / elections
+    "political": {
+        "pos": {"reform", "reforms", "budget-boost", "ease", "relief",
+                "incentive", "subsidy", "infrastructure", "capex",
+                "modi", "policy-push", "fdi-allowed", "election-win"},
+        "neg": {"protest", "strike", "lockdown", "curfew", "tension",
+                "opposition", "no-confidence", "scam", "controversy",
+                "nationalize", "windfall-tax"},
+    },
+    # Geopolitics / war / oil shocks / global macro
+    "geopolitical": {
+        "pos": {"ceasefire", "truce", "deal-signed", "trade-deal",
+                "peace", "agreement", "summit", "cooperation"},
+        "neg": {"war", "attack", "strike", "sanction", "sanctions",
+                "missile", "tariff", "embargo", "conflict", "tension",
+                "escalation", "crash", "panic", "flight-to-safety",
+                "recession", "default", "downgrade"},
+    },
+    # Macro / monetary / FII flows
+    "macro": {
+        "pos": {"fii-inflow", "rate-cut", "liquidity", "easing",
+                "dovish", "softens", "boost", "stimulus", "rally",
+                "surge", "all-time-high"},
+        "neg": {"fii-outflow", "rate-hike", "hawkish", "tightening",
+                "selloff", "crash", "plunge", "slump", "correction",
+                "bear", "fear"},
+    },
 }
-NEG_WORDS = {
-    "fall", "drop", "plunge", "loss", "miss", "downgrade", "bearish",
-    "low", "slump", "cut", "concern", "weak", "decline", "sell",
-    "negative", "probe", "fraud", "fine", "layoff", "delay", "ban",
+
+# Flat union sets — kept for backward compatibility with the old simple
+# scorer (POS_WORDS / NEG_WORDS still imported from a few helpers).
+POS_WORDS: set[str] = set().union(*(c["pos"] for c in SENTIMENT_CATEGORIES.values())) | {
+    "surge", "rally", "jump", "gain", "growth", "high", "rise", "soars",
+    "outperform", "buy", "positive", "strong", "wins",
+}
+NEG_WORDS: set[str] = set().union(*(c["neg"] for c in SENTIMENT_CATEGORIES.values())) | {
+    "fall", "drop", "plunge", "loss", "low", "slump", "cut", "concern",
+    "weak", "decline", "sell", "negative", "layoff",
 }
 
 DISCLAIMER = (

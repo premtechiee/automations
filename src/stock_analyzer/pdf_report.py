@@ -16,9 +16,11 @@ from reportlab.lib.styles       import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units        import mm
 from reportlab.platypus         import (
     SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, KeepTogether,
+    Image as RLImage,
 )
 
 from .config import PDF_OUTPUT_PATH, DISCLAIMER
+from . import charts
 
 logger = logging.getLogger(__name__)
 
@@ -28,21 +30,33 @@ logger = logging.getLogger(__name__)
 def _styles():
     ss = getSampleStyleSheet()
     ss.add(ParagraphStyle(
-        "H1x", parent=ss["Heading1"], fontSize=20, textColor=colors.HexColor("#1E6BD8"),
-        spaceAfter=6, leading=24))
+        "H1x", parent=ss["Heading1"], fontSize=26,
+        textColor=colors.HexColor("#0B2C66"),
+        spaceAfter=4, leading=30, fontName="Helvetica-Bold"))
     ss.add(ParagraphStyle(
-        "H2x", parent=ss["Heading2"], fontSize=14, textColor=colors.HexColor("#1E6BD8"),
-        spaceBefore=10, spaceAfter=4, leading=18))
+        "H2x", parent=ss["Heading2"], fontSize=16,
+        textColor=colors.HexColor("#1E40AF"),
+        spaceBefore=14, spaceAfter=6, leading=20, fontName="Helvetica-Bold"))
     ss.add(ParagraphStyle(
-        "muted", parent=ss["BodyText"], fontSize=9, textColor=colors.HexColor("#666"),
-        spaceAfter=4))
+        "H3x", parent=ss["Heading3"], fontSize=13,
+        textColor=colors.HexColor("#1E40AF"),
+        spaceBefore=8, spaceAfter=3, leading=16, fontName="Helvetica-Bold"))
     ss.add(ParagraphStyle(
-        "body", parent=ss["BodyText"], fontSize=10, leading=13, spaceAfter=4))
+        "muted", parent=ss["BodyText"], fontSize=10,
+        textColor=colors.HexColor("#5B6473"), spaceAfter=4, leading=13))
     ss.add(ParagraphStyle(
-        "cell", parent=ss["BodyText"], fontSize=8.5, leading=10))
+        "body", parent=ss["BodyText"], fontSize=11, leading=15, spaceAfter=5))
     ss.add(ParagraphStyle(
-        "cellb", parent=ss["BodyText"], fontSize=8.5, leading=10,
-        textColor=colors.HexColor("#111"), fontName="Helvetica-Bold"))
+        "callout", parent=ss["BodyText"], fontSize=11, leading=15,
+        textColor=colors.HexColor("#0B2C66"),
+        backColor=colors.HexColor("#EAF1FB"),
+        borderColor=colors.HexColor("#1E40AF"), borderWidth=1, borderRadius=6,
+        borderPadding=10, spaceAfter=8))
+    ss.add(ParagraphStyle(
+        "cell", parent=ss["BodyText"], fontSize=9.5, leading=11.5))
+    ss.add(ParagraphStyle(
+        "cellb", parent=ss["BodyText"], fontSize=9.5, leading=11.5,
+        textColor=colors.HexColor("#0F1B33"), fontName="Helvetica-Bold"))
     return ss
 
 
@@ -184,32 +198,25 @@ def _prior_table(prior: dict):
 
 
 def _per_stock_detail_row(p: dict, ss):
-    """A small key-value paragraph block describing one stock in depth."""
+    """Compact 2-line per-stock summary: headline + plan + rationale."""
     t   = p["tech"]; f = p["fund"]; lv = p["levels"]
     sym = p["symbol"].replace(".NS", "")
     rationale = _build_rationale(p)
+    hold = lv.get("est_hold_days") or 0
+    hold_tag = ("today" if hold == 0
+                else "1y+" if hold >= 252
+                else f"{hold}d")
     body = (
-        f"<b>{sym} — {f.get('name','')}</b> &nbsp;|&nbsp; "
-        f"Sector: {f.get('sector','—')} &nbsp;|&nbsp; "
-        f"Company Size: {_fmt_mcap(f.get('mcap'))}<br/>"
-        f"Current Price <b>₹{p['price']:,.2f}</b> &nbsp;"
-        f"Today {_fmt_pct(t['chg_1d_pct'])}, 1 Month {_fmt_pct(t['chg_1m_pct'])}, "
-        f"3 Months {_fmt_pct(t['chg_3m_pct'])}<br/>"
-        f"Price/Earnings {_fmt_num(f.get('pe'))} &nbsp; Price/Book {_fmt_num(f.get('pb'))} &nbsp; "
-        f"Return on Equity {_fmt_pct((f.get('roe') or 0) * 100 if f.get('roe') and abs(f['roe']) < 2 else f.get('roe'))} &nbsp; "
-        f"Debt Level {_fmt_num(f.get('de'))} &nbsp; "
-        f"Momentum {t['rsi14']:.0f} &nbsp; Daily Swing {t['atr_pct']:.2f}%<br/>"
-        f"<b>Action:</b> Buy at ₹{lv['entry']:,.2f} &nbsp; "
-        f"<font color='#C83240'>Exit if drops to ₹{lv['sl']:,.2f}</font> &nbsp; "
-        f"<font color='#148C5A'>Profit Target ₹{lv['target']:,.2f}</font> &nbsp; "
-        f"Score <b>{p['bucket_score']:.0f}/100</b><br/>"
-        f"<b>Expected profit:</b> {lv.get('expected_profit_pct', 0):+.2f}% "
-        f"(risk {lv.get('risk_pct', 0):.2f}%, R:R 1:{lv.get('rr', 0):.1f}) &nbsp;|&nbsp; "
-        f"<b>Hold:</b> {lv.get('hold_hint','')}<br/>"
-        f"<b>When to buy:</b> {lv.get('buy_window','')}<br/>"
-        + (f"<b>5-day range:</b> ₹{lv['forecast_5d'][0]:,.2f} – ₹{lv['forecast_5d'][1]:,.2f}<br/>"
-           if lv.get('forecast_5d') else "")
-        + f"<i>{rationale}</i>"
+        f"<b>{sym}</b> · {f.get('sector','—')} · ₹{p['price']:,.2f} "
+        f"(<font color='{'#148C5A' if t['chg_1d_pct'] >= 0 else '#C83240'}'>"
+        f"{_fmt_pct(t['chg_1d_pct'])}</font>)"
+        f" · RSI {t['rsi14']:.0f} · Score <b>{p['bucket_score']:.0f}/100</b><br/>"
+        f"<b>Plan:</b> Buy ₹{lv['entry']:,.2f} · "
+        f"<font color='#C83240'>SL ₹{lv['sl']:,.2f}</font> · "
+        f"<font color='#148C5A'>Target ₹{lv['target']:,.2f}</font> · "
+        f"<b>{lv.get('expected_profit_pct', 0):+.2f}%</b> · Hold {hold_tag} · "
+        f"R:R 1:{lv.get('rr', 0):.1f}<br/>"
+        f"<i>{rationale}</i>"
     )
     return Paragraph(body, ss["body"])
 
@@ -403,6 +410,388 @@ def _add_prediction_section(story: list, buckets: dict, ss) -> None:
     story.append(Spacer(1, 10))
 
 
+# ── Chart/metrics helpers ──────────────────────────────────────────────────
+
+def _chart_flow(pil_img, content_w_mm: float = 182.0) -> RLImage:
+    """Wrap a PIL image as a ReportLab flowable scaled to page content width."""
+    import io as _io
+    buf = _io.BytesIO()
+    pil_img.save(buf, format="PNG")
+    buf.seek(0)
+    # Scale to content width (182mm), preserving aspect ratio
+    src_w, src_h = pil_img.size
+    target_w = content_w_mm * mm
+    target_h = target_w * (src_h / src_w)
+    return RLImage(buf, width=target_w, height=target_h)
+
+
+def _compute_breadth(enriched: list[dict]) -> dict:
+    adv = dec = flat = 0
+    big_up = big_dn = 0
+    trending_up = 0
+    rsi_vals: list[float] = []
+    top_gainer = top_loser = None
+    profit_samples: list[float] = []
+    for e in enriched or []:
+        t = e.get("tech") or {}
+        v = t.get("chg_1d_pct")
+        if v is None:
+            continue
+        if v > 0.2:   adv += 1
+        elif v < -0.2: dec += 1
+        else:          flat += 1
+        if v >= 2.0:  big_up += 1
+        if v <= -2.0: big_dn += 1
+        if t.get("trend_up"):
+            trending_up += 1
+        rsi_vals.append(float(t.get("rsi14") or 50))
+        if top_gainer is None or v > top_gainer[1]:
+            top_gainer = (e["symbol"].replace(".NS", ""), v)
+        if top_loser is None or v < top_loser[1]:
+            top_loser = (e["symbol"].replace(".NS", ""), v)
+
+    total = adv + dec + flat
+    rsi_med = sorted(rsi_vals)[len(rsi_vals) // 2] if rsi_vals else 50
+
+    return {
+        "total":       total,
+        "adv":         adv,
+        "dec":         dec,
+        "flat":        flat,
+        "adv_pct":     (adv / total * 100) if total else 0,
+        "dec_pct":     (dec / total * 100) if total else 0,
+        "big_up":      big_up,
+        "big_dn":      big_dn,
+        "trending_up": trending_up,
+        "trend_pct":   (trending_up / total * 100) if total else 0,
+        "rsi_median":  rsi_med,
+        "top_gainer":  top_gainer,
+        "top_loser":   top_loser,
+    }
+
+
+def _add_breadth_metrics_section(story: list, enriched: list[dict],
+                                  buckets: dict, ss) -> None:
+    b = _compute_breadth(enriched)
+    if not b["total"]:
+        return
+
+    # Bucket-level expected-profit summary
+    bucket_stats = []
+    for key, label in [("intraday", "Same-Day"),
+                       ("swing",    "Short-Term"),
+                       ("holding",  "Long-Term")]:
+        picks = buckets.get(key) or []
+        if not picks:
+            continue
+        profits = [float((p.get("levels") or {}).get("expected_profit_pct") or 0)
+                   for p in picks]
+        avg = sum(profits) / len(profits) if profits else 0
+        best = max(profits) if profits else 0
+        bucket_stats.append((label, len(picks), avg, best))
+
+    story.append(Paragraph("📊 Market Breadth &amp; Key Metrics", ss["H2x"]))
+
+    tg = b["top_gainer"] or ("—", 0)
+    tl = b["top_loser"]  or ("—", 0)
+    rows = [
+        ["Metric", "Value"],
+        ["Stocks analysed",            f"{b['total']}"],
+        ["Advancers",                  f"{b['adv']} ({b['adv_pct']:.0f}%)"],
+        ["Decliners",                  f"{b['dec']} ({b['dec_pct']:.0f}%)"],
+        ["Unchanged",                  f"{b['flat']}"],
+        ["Strong gainers (≥ +2%)",     f"{b['big_up']}"],
+        ["Strong losers (≤ -2%)",      f"{b['big_dn']}"],
+        ["Trending up (>50/200 EMA)",  f"{b['trending_up']} ({b['trend_pct']:.0f}%)"],
+        ["Median RSI(14)",             f"{b['rsi_median']:.0f}"],
+        ["Top gainer today",           f"{tg[0]}  ({tg[1]:+.2f}%)"],
+        ["Top loser today",            f"{tl[0]}  ({tl[1]:+.2f}%)"],
+    ]
+    for label, n, avg, best in bucket_stats:
+        rows.append([f"{label} picks — avg expected profit",
+                     f"{n} picks · avg {avg:+.2f}%  ·  best {best:+.2f}%"])
+
+    tbl = Table(rows, colWidths=[85 * mm, 97 * mm], repeatRows=1)
+    tbl.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1E6BD8")),
+        ("TEXTCOLOR",  (0, 0), (-1, 0), colors.white),
+        ("FONTNAME",   (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE",   (0, 0), (-1, -1), 9),
+        ("GRID",       (0, 0), (-1, -1), 0.25, colors.HexColor("#DDD")),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1),
+         [colors.HexColor("#F5F7FA"), colors.white]),
+    ]))
+    story.append(tbl)
+    story.append(Spacer(1, 8))
+
+
+def _add_charts_section(story: list, buckets: dict, macro: dict | None,
+                         enriched: list[dict], ss) -> None:
+    """Embed analytics charts generated by charts.py."""
+    try:
+        # Expected profit bars (full width)
+        top_picks = []
+        for key in ("intraday", "swing", "holding"):
+            top_picks.extend((buckets.get(key) or [])[:4])
+        if top_picks:
+            story.append(Paragraph("🎯 Expected Profit — Top Picks", ss["H2x"]))
+            story.append(_chart_flow(
+                charts.chart_expected_profit(
+                    top_picks, "Expected profit % (colour = predicted direction)",
+                    width=1150, height=340, theme="light",
+                )
+            ))
+            story.append(Spacer(1, 4))
+
+        # Macro bars
+        if (macro or {}).get("snapshot"):
+            story.append(Paragraph("🌐 Global Markets Overnight", ss["H2x"]))
+            story.append(_chart_flow(
+                charts.chart_macro(macro, width=1150, height=180, theme="light")
+            ))
+            story.append(Spacer(1, 4))
+
+        # Risk/Reward + sector heatmap (side by side via table)
+        rr = charts.chart_risk_reward(buckets, width=560, height=340, theme="light")
+        sh = charts.chart_sector_heatmap(enriched, width=560, height=340, theme="light")
+        story.append(Paragraph("🧭 Risk/Reward &amp; Sector Performance", ss["H2x"]))
+        side = Table([[_chart_flow(rr, 90), _chart_flow(sh, 90)]],
+                      colWidths=[92 * mm, 92 * mm])
+        side.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"),
+                                    ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                                    ("RIGHTPADDING", (0, 0), (-1, -1), 0)]))
+        story.append(side)
+        story.append(Spacer(1, 4))
+
+        # Breadth + confidence histogram side by side
+        br = charts.chart_breadth(enriched, width=560, height=210, theme="light")
+        cf = charts.chart_confidence_hist(buckets, width=560, height=210, theme="light")
+        story.append(Paragraph("📈 Breadth &amp; Prediction Confidence", ss["H2x"]))
+        side2 = Table([[_chart_flow(br, 90), _chart_flow(cf, 90)]],
+                       colWidths=[92 * mm, 92 * mm])
+        side2.setStyle(TableStyle([("VALIGN", (0, 0), (-1, -1), "TOP"),
+                                     ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                                     ("RIGHTPADDING", (0, 0), (-1, -1), 0)]))
+        story.append(side2)
+        story.append(Spacer(1, 6))
+    except Exception as exc:
+        logger.warning(f"PDF charts section failed: {exc}")
+
+
+def _add_executive_summary(story: list, buckets: dict, macro: dict | None,
+                            enriched: list[dict], prior: dict, ss,
+                            market_forecast: dict | None = None) -> None:
+    """TL;DR page 1 — one table covering the top picks, the market context,
+    and past accuracy so a reader can act in < 30 seconds."""
+    # Market context one-liner
+    regime  = ((macro or {}).get("regime") or "neutral").upper()
+    opening = (macro or {}).get("opening") or {}
+    snap    = (macro or {}).get("snapshot") or {}
+    nifty_d = (snap.get("NIFTY") or {}).get("chg_pct")
+    spy_d   = (snap.get("SPY")   or {}).get("chg_pct")
+
+    ctx_bits = [f"Global <b>{regime}</b>"]
+    if opening.get("direction"):
+        ctx_bits.append(
+            f"Open {opening['direction']} ({opening.get('gap_pct','—')}, "
+            f"{opening.get('confidence', 0)}% conf.)"
+        )
+    if nifty_d is not None:
+        ctx_bits.append(f"Nifty {nifty_d:+.2f}%")
+    if spy_d is not None:
+        ctx_bits.append(f"S&amp;P {spy_d:+.2f}%")
+
+    # Breadth
+    adv = dec = flat = 0
+    for e in enriched or []:
+        v = (e.get("tech") or {}).get("chg_1d_pct")
+        if v is None: continue
+        if v > 0.2:   adv += 1
+        elif v < -0.2: dec += 1
+        else:          flat += 1
+    total = adv + dec + flat
+    if total:
+        ctx_bits.append(
+            f"Breadth <b>{adv}/{total}</b> up ({adv / total * 100:.0f}%)"
+        )
+
+    story.append(Paragraph("⚡ Executive Summary", ss["H1x"]))
+    story.append(Paragraph(" &nbsp;·&nbsp; ".join(ctx_bits), ss["body"]))
+    story.append(Spacer(1, 4))
+
+    # Market-wide 5-session forecast (big callout)
+    if market_forecast:
+        mf = market_forecast
+        arrow = {"UP": "↑", "DOWN": "↓", "SIDEWAYS": "→"}.get(mf["direction"], "→")
+        lo, hi = mf["band_pct"]
+        colour = {"UP": "#148C5A", "DOWN": "#C83240"}.get(mf["direction"], "#555")
+        story.append(Paragraph(
+            f"<b><font color='{colour}'>🔮 Next-5-session Market Forecast: "
+            f"{arrow} {mf['direction']}</font></b>  &nbsp;·&nbsp;  "
+            f"<b>{mf['confidence']}% confidence</b>  &nbsp;·&nbsp;  "
+            f"expected band <b>{lo:+.1f}% … {hi:+.1f}%</b>",
+            ss["body"]))
+        reasons = mf.get("reasons") or []
+        if reasons:
+            story.append(Paragraph(
+                "Drivers: " + " · ".join(reasons[:4]), ss["muted"]))
+        story.append(Spacer(1, 4))
+
+    # TL;DR table: top 3 of each bucket in a single condensed grid
+    header = ["Type", "Stock", "Price ₹", "Buy ₹", "SL ₹", "Target ₹",
+              "Profit %", "Hold", "Conf."]
+    data   = [header]
+    style  = [
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#1E6BD8")),
+        ("TEXTCOLOR",  (0, 0), (-1, 0), colors.white),
+        ("FONTNAME",   (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("FONTSIZE",   (0, 0), (-1, -1), 9),
+        ("GRID",       (0, 0), (-1, -1), 0.25, colors.HexColor("#DDD")),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1),
+         [colors.HexColor("#F5F7FA"), colors.white]),
+        ("VALIGN",     (0, 0), (-1, -1), "MIDDLE"),
+    ]
+
+    bucket_tag = [
+        ("intraday", "Same-Day",    colors.HexColor("#1E6BD8")),
+        ("swing",    "Short-Term",  colors.HexColor("#148C5A")),
+        ("holding",  "Long-Term",   colors.HexColor("#6A1B9A")),
+        ("sell",     "Avoid/Sell",  colors.HexColor("#C83240")),
+    ]
+    row_i = 1
+    for key, label, tag_colour in bucket_tag:
+        picks = (buckets.get(key) or [])[:3]
+        for p in picks:
+            lv = p["levels"]
+            pr = p.get("predict") or {}
+            pp = float(lv.get("expected_profit_pct") or 0)
+            hd = lv.get("est_hold_days") or 0
+            hold_tag = ("today" if hd == 0
+                        else "1y+" if hd >= 252
+                        else f"{hd}d")
+            conf_txt = f"{pr.get('confidence','')}%" if pr else "—"
+            data.append([
+                label,
+                p["symbol"].replace(".NS", ""),
+                _fmt_num(p["price"]),
+                _fmt_num(lv["entry"]),
+                _fmt_num(lv["sl"]),
+                _fmt_num(lv["target"]),
+                f"{pp:+.2f}%",
+                hold_tag,
+                conf_txt,
+            ])
+            style.append(("TEXTCOLOR", (0, row_i), (0, row_i), tag_colour))
+            style.append(("TEXTCOLOR", (4, row_i), (4, row_i), colors.HexColor("#C83240")))
+            style.append(("TEXTCOLOR", (5, row_i), (5, row_i), colors.HexColor("#148C5A")))
+            style.append(("TEXTCOLOR", (6, row_i), (6, row_i),
+                          colors.HexColor("#148C5A") if pp >= 0 else colors.HexColor("#C83240")))
+            row_i += 1
+
+    if row_i == 1:  # no picks at all
+        return
+
+    col_w = [22, 24, 20, 22, 20, 22, 22, 16, 14]  # = 182 mm
+    tbl = Table(data, colWidths=[w * mm for w in col_w], repeatRows=1)
+    tbl.setStyle(TableStyle(style))
+    story.append(tbl)
+    story.append(Spacer(1, 4))
+
+    # Past hit-rate one-liner
+    if prior.get("available"):
+        parts = []
+        for b in ("intraday", "swing", "holding", "sell"):
+            info = prior["buckets"].get(b, {})
+            hr = info.get("hit_rate")
+            if hr is None:
+                continue
+            parts.append(f"{b.capitalize()} <b>{hr:.0f}%</b> ({info['wins']}/{info['count']})")
+        if parts:
+            story.append(Paragraph(
+                "🧾 <b>Past picks hit-rate:</b>  " + "  ·  ".join(parts),
+                ss["muted"]))
+    story.append(Spacer(1, 8))
+
+
+def _add_self_review_section(story: list, review: dict, ss) -> None:
+    """Render the model's self-assessment: overall accuracy + best/worst
+    signals + calibration quality. Shown to the user so they can see that
+    the automation is actively learning from its past picks."""
+    acc = review.get("overall_accuracy")
+    ps  = review.get("picks_scored", 0)
+    pw  = review.get("picks_won", 0)
+    nf  = review.get("n_features", 0)
+    acc_txt = f"{acc:.1f}%" if acc is not None else "calibrating…"
+
+    story.append(Paragraph("🧠 Model Self-Review", ss["H2x"]))
+    story.append(Paragraph(
+        f"Overall accuracy <b>{acc_txt}</b>  ·  "
+        f"<b>{pw}/{ps}</b> past picks correct  ·  "
+        f"<b>{nf}</b> signals tracked",
+        ss["body"]))
+    story.append(Spacer(1, 3))
+
+    best  = review.get("best_features") or []
+    worst = review.get("worst_features") or []
+
+    def _ft_table(rows: list[dict], title_colour: str) -> Table:
+        data = [["Signal", "Hit-rate", "Samples", "Weight"]]
+        for r in rows:
+            data.append([
+                r.get("name", "—"),
+                f"{r.get('hit_rate', 0):.0f}%",
+                str(r.get("total", 0)),
+                f"{r.get('weight', 1.0):.2f}×",
+            ])
+        t = Table(data, colWidths=[70 * mm, 22 * mm, 22 * mm, 22 * mm],
+                  repeatRows=1)
+        t.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor(title_colour)),
+            ("TEXTCOLOR",  (0, 0), (-1, 0), colors.white),
+            ("FONTNAME",   (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE",   (0, 0), (-1, -1), 9),
+            ("GRID",       (0, 0), (-1, -1), 0.25, colors.HexColor("#DDD")),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1),
+             [colors.HexColor("#F5F7FA"), colors.white]),
+            ("ALIGN",      (1, 0), (-1, -1), "RIGHT"),
+        ]))
+        return t
+
+    if best:
+        story.append(Paragraph("<b>Most reliable signals</b> (boosted)", ss["muted"]))
+        story.append(_ft_table(best, "#148C5A"))
+        story.append(Spacer(1, 4))
+    if worst:
+        story.append(Paragraph("<b>Least reliable signals</b> (suppressed)", ss["muted"]))
+        story.append(_ft_table(worst, "#C83240"))
+        story.append(Spacer(1, 4))
+
+    cal = review.get("calibration") or []
+    cal = [r for r in cal if isinstance(r, dict)]
+    if cal:
+        data = [["Confidence band", "Hit-rate", "Samples"]]
+        for r in cal:
+            data.append([
+                r.get("band", "—"),
+                f"{r.get('hit_rate', 0):.0f}%",
+                str(r.get("total", 0)),
+            ])
+        t = Table(data, colWidths=[70 * mm, 34 * mm, 34 * mm], repeatRows=1)
+        t.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#6A1B9A")),
+            ("TEXTCOLOR",  (0, 0), (-1, 0), colors.white),
+            ("FONTNAME",   (0, 0), (-1, 0), "Helvetica-Bold"),
+            ("FONTSIZE",   (0, 0), (-1, -1), 9),
+            ("GRID",       (0, 0), (-1, -1), 0.25, colors.HexColor("#DDD")),
+            ("ROWBACKGROUNDS", (0, 1), (-1, -1),
+             [colors.HexColor("#F5F7FA"), colors.white]),
+            ("ALIGN",      (1, 0), (-1, -1), "RIGHT"),
+        ]))
+        story.append(Paragraph("<b>Confidence calibration</b> (higher conf. should win more)", ss["muted"]))
+        story.append(t)
+        story.append(Spacer(1, 4))
+
+
 def build_pdf_report(
     buckets: dict,
     mfs: list[dict],
@@ -412,6 +801,8 @@ def build_pdf_report(
     macro: dict | None = None,
     advice: str | None = None,
     out_path: str | None = None,
+    market_forecast: dict | None = None,
+    review: dict | None = None,
 ) -> str:
     out_path = out_path or PDF_OUTPUT_PATH
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
@@ -425,10 +816,36 @@ def build_pdf_report(
     ss = _styles()
     story: list = []
 
-    # ── Cover ──────────────────────────────────────────────────────────────
-    story.append(Paragraph("📊 Indian Market — Intelligence Report", ss["H1x"]))
-    story.append(Paragraph(
-        datetime.now().strftime("%A, %d %b %Y  ·  %H:%M IST"), ss["muted"]))
+    # ── Hero banner ────────────────────────────────────────────────────────
+    hero = Table(
+        [[Paragraph(
+            "<font color='#FFFFFF' size='20'><b>📊 Indian Market Intelligence</b></font>"
+            "<br/><font color='#DCE6F8' size='11'>"
+            "Daily Report · Stocks · Funds · Forecast</font>"
+            f"<br/><font color='#B8C8E6' size='10'>{datetime.now().strftime('%A, %d %b %Y  ·  %H:%M IST')}</font>",
+            ss["body"])]],
+        colWidths=[doc.width],
+    )
+    hero.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, -1), colors.HexColor("#1E40AF")),
+        ("LEFTPADDING", (0, 0), (-1, -1), 18),
+        ("RIGHTPADDING", (0, 0), (-1, -1), 18),
+        ("TOPPADDING", (0, 0), (-1, -1), 16),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 16),
+        ("ROUNDEDCORNERS", [8, 8, 8, 8]),
+    ]))
+    story.append(hero)
+    story.append(Spacer(1, 12))
+
+    # ── Executive Summary (TL;DR page 1) ───────────────────────────────────
+    _add_executive_summary(story, buckets, macro, all_enriched or [], prior, ss,
+                            market_forecast=market_forecast)
+    # Model self-review immediately follows TL;DR on same page if space allows
+    if review:
+        _add_self_review_section(story, review, ss)
+    story.append(PageBreak())
+
+    # ── Intro paragraph ────────────────────────────────────────────────────
     story.append(Paragraph(
         "Automated analysis combining price trends, company finances, and "
         "news sentiment across NIFTY 100 stocks plus your personal watchlist. "
@@ -450,6 +867,13 @@ def build_pdf_report(
 
     # ── Today's Prediction highlights ──────────────────────────────────────
     _add_prediction_section(story, buckets, ss)
+
+    # ── Market Breadth metrics ─────────────────────────────────────────────
+    _add_breadth_metrics_section(story, all_enriched or [], buckets, ss)
+
+    # ── Advanced charts (expected profit, macro, risk/reward, sector,
+    #     breadth, confidence) ─────────────────────────────────────────────
+    _add_charts_section(story, buckets, macro, all_enriched or [], ss)
 
     # ── Bucket tables ──────────────────────────────────────────────────────
     for title, key, action in [

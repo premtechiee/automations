@@ -84,3 +84,40 @@ def send_photo(
     except Exception as exc:
         logger.error(f"Failed to send Telegram photo: {exc}")
         return False
+
+
+def send_document(
+    chat_id: str,
+    file_path: str,
+    caption: str,
+    bot_token: str,
+    proxies: dict | None = None,
+) -> bool:
+    """Upload and send a document (PDF, etc.) via Telegram sendDocument."""
+    if not bot_token or not chat_id:
+        logger.error("Telegram credentials missing - cannot send document.")
+        return False
+    import os
+    if not os.path.exists(file_path):
+        logger.error(f"Document not found: {file_path}")
+        return False
+    url = f"{_API_BASE.format(token=bot_token)}/sendDocument"
+    try:
+        with open(file_path, "rb") as fh:
+            resp = requests.post(
+                url,
+                data={"chat_id": chat_id, "caption": caption},
+                files={"document": (os.path.basename(file_path), fh)},
+                timeout=120,
+                proxies=proxies or {},
+            )
+        resp.raise_for_status()
+        result = resp.json()
+        if result.get("ok"):
+            logger.info(f"Telegram document sent: {os.path.basename(file_path)}")
+            return True
+        logger.error(f"Telegram document API error: {result}")
+        return False
+    except Exception as exc:
+        logger.error(f"Failed to send Telegram document: {exc}")
+        return False
