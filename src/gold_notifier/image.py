@@ -734,10 +734,10 @@ def generate_price_image(
     _sec("BUY / SELL SIGNAL & 7-DAY FORECAST", "⚡")
     ga_top = y
 
-    # Gauge (left half)
+    # Gauge (left half) — sized to fill the half-panel
     GCX = PAD + (W // 2 - PAD) // 2
-    GCY = y + 165
-    GR  = 112
+    GCY = y + 230
+    GR  = 178
 
     def _gauge(score):
         t  = max(-1.0, min(1.0, score / 10))
@@ -750,55 +750,55 @@ def generate_price_image(
         for sa, ea, col, _ in zones_def:
             # subtle glow behind arc
             _alpha_poly(
-                [(GCX, GCY)] + [(GCX + (GR + 18) * _math.cos(_math.radians(d)),
-                                  GCY + (GR + 18) * _math.sin(_math.radians(d)))
+                [(GCX, GCY)] + [(GCX + (GR + 26) * _math.cos(_math.radians(d)),
+                                  GCY + (GR + 26) * _math.sin(_math.radians(d)))
                                  for d in range(int(sa), int(ea) + 1, 3)] + [(GCX, GCY)],
                 (*col, 30)
             )
             drw.arc([(GCX - GR, GCY - GR), (GCX + GR, GCY + GR)],
-                    start=sa, end=ea, fill=col, width=26)
+                    start=sa, end=ea, fill=col, width=38)
         # Outer ring
-        drw.arc([(GCX - GR - 5, GCY - GR - 5), (GCX + GR + 5, GCY + GR + 5)],
+        drw.arc([(GCX - GR - 7, GCY - GR - 7), (GCX + GR + 7, GCY + GR + 7)],
                 start=180, end=360, fill=DIV, width=2)
         # Inner ring
-        drw.arc([(GCX - GR + 26, GCY - GR + 26), (GCX + GR - 26, GCY + GR - 26)],
+        drw.arc([(GCX - GR + 38, GCY - GR + 38), (GCX + GR - 38, GCY + GR - 38)],
                 start=180, end=360, fill=DIV, width=1)
 
         # Ticks
         for deg in range(180, 361, 18):
             r2 = _math.radians(deg)
-            t_len = 8 if deg % 36 == 0 else 4
-            x1 = GCX + (GR + 5) * _math.cos(r2); y1 = GCY + (GR + 5) * _math.sin(r2)
+            t_len = 12 if deg % 36 == 0 else 6
+            x1 = GCX + (GR + 7) * _math.cos(r2); y1 = GCY + (GR + 7) * _math.sin(r2)
             x2 = GCX + (GR - t_len) * _math.cos(r2); y2 = GCY + (GR - t_len) * _math.sin(r2)
             drw.line([(x1, y1), (x2, y2)], fill=INK3, width=1)
 
         # Labels
-        drw.text((GCX - GR - 40, GCY + 10), "SELL", font=F13, fill=RED)
-        drw.text((GCX + GR + 10,  GCY + 10), "BUY",  font=F13, fill=GRN)
+        drw.text((GCX - GR - 56, GCY + 14), "SELL", font=F15, fill=RED)
+        drw.text((GCX + GR + 14,  GCY + 14), "BUY",  font=F15, fill=GRN)
 
         # Glow around hub
-        _glow_hub(GCX, GCY, r_out=46, r_in=16, rgba=GLOW)
+        _glow_hub(GCX, GCY, r_out=66, r_in=22, rgba=GLOW)
 
         # Needle
         nr  = _math.radians(nd)
-        nx  = GCX + (GR - 28) * _math.cos(nr)
-        ny2 = GCY + (GR - 28) * _math.sin(nr)
-        drw.line([(GCX, GCY), (nx, ny2)], fill=SHD, width=10)
-        drw.line([(GCX, GCY), (nx, ny2)], fill=GLD2, width=7)
-        drw.line([(GCX, GCY), (nx, ny2)], fill=GLD, width=3)
+        nx  = GCX + (GR - 36) * _math.cos(nr)
+        ny2 = GCY + (GR - 36) * _math.sin(nr)
+        drw.line([(GCX, GCY), (nx, ny2)], fill=SHD, width=14)
+        drw.line([(GCX, GCY), (nx, ny2)], fill=GLD2, width=10)
+        drw.line([(GCX, GCY), (nx, ny2)], fill=GLD, width=4)
         # Hub
-        drw.ellipse([(GCX - 14, GCY - 14), (GCX + 14, GCY + 14)], fill=GLD)
-        drw.ellipse([(GCX - 6,  GCY - 6),  (GCX + 6,  GCY + 6)],  fill=INK)
+        drw.ellipse([(GCX - 20, GCY - 20), (GCX + 20, GCY + 20)], fill=GLD)
+        drw.ellipse([(GCX - 9,  GCY - 9),  (GCX + 9,  GCY + 9)],  fill=INK)
 
         # Score text
         st = f"Score: {score:+.1f}"
-        drw.text((GCX - _tw(st, F15) // 2, GCY + 24), st, font=F15, fill=INK)
+        drw.text((GCX - _tw(st, F15) // 2, GCY + 40), st, font=F15, fill=INK)
         if   score >= 7:   ver, vc = "STRONG BUY",  GRN2
         elif score >= 3:   ver, vc = "BUY",          GRN
         elif score <= -7:  ver, vc = "STRONG SELL",  RED2
         elif score <= -3:  ver, vc = "SELL",          RED
         else:              ver, vc = "NEUTRAL",       AMB
-        drw.text((GCX - _tw(ver, F22b) // 2, GCY + 50), ver, font=F22b, fill=vc)
+        drw.text((GCX - _tw(ver, F22b) // 2, GCY + 70), ver, font=F22b, fill=vc)
 
     _gauge(combined)
 
@@ -812,8 +812,8 @@ def generate_price_image(
              fill=BG if sum(GLD) > 350 else INK)
 
     wry = fy0 + 52
-    for hdr, x in [("Day", fx0 + 18), ("Dir", fx0 + 90), ("Expected", fx0 + 162),
-                   ("Price Range (low – high)", fx0 + 330)]:
+    for hdr, x in [("Day", fx0 + 18), ("Dir", fx0 + 90), ("Expected", fx0 + 200),
+                   ("Price Range (low – high)", fx0 + 360)]:
         drw.text((x, wry), hdr, font=F13, fill=GLD if hdr == "Expected" else INK3)
     wry += 24
     drw.line([(fx0 + 10, wry), (W - PAD - 10, wry)], fill=DIV, width=1)
@@ -838,12 +838,12 @@ def generate_price_image(
                 drw.text((fx0 + 18, wry + 6), wd, font=F14, fill=INK3)
                 drw.text((fx0 + 90, wry + 6), "Weekend", font=F14, fill=MUT)
             else:
-                pcol = GRN2 if "UP" in dirn else (RED2 if "DOWN" in dirn else AMB)
+                pcol = GRN if "UP" in dirn else (RED if "DOWN" in dirn else AMB)
                 arr3 = "▲" if "UP" in dirn else ("▼" if "DOWN" in dirn else "—")
                 drw.text((fx0 + 18, wry + 5), wd, font=F13, fill=INK)
-                _pill(fx0 + 78, wry + 2, f"{arr3} {dirn}", pcol, fnt=F13, h=26)
-                drw.text((fx0 + 162, wry + 5), f"₹{mid_22:,}", font=F13, fill=GLD)
-                drw.text((fx0 + 330, wry + 5), f"₹{lo_22:,} – ₹{hi_22:,}", font=F13, fill=INK2)
+                drw.text((fx0 + 90, wry + 5), f"{arr3} {dirn}", font=F13, fill=pcol)
+                drw.text((fx0 + 200, wry + 5), f"₹{mid_22:,}", font=F13, fill=GLD)
+                drw.text((fx0 + 360, wry + 5), f"₹{lo_22:,} – ₹{hi_22:,}", font=F13, fill=INK2)
             wry += 36
 
     # Forecast area mini-chart
@@ -999,18 +999,15 @@ def generate_price_image(
                 arr = "▲" if dc >= 0 else "▼"
                 txt = f"{arr}{abs(dc):,.0f}"
                 tw_t = _tw(txt, F11)
-                pw   = tw_t + 8
-                ph_t = 14
-                # Default above the dot; flip below if it would clip the
-                # top indicator strip area.
+                pw   = tw_t + 12
+                ph_t = 22
+                # Always place above the dot; clamp inside chart area.
                 lx0 = xp - pw // 2
-                ly0 = yp - ph_t - 8
-                if ly0 < py0 + 70:  # leave room for in-chart indicator cards
-                    ly0 = yp + 10
+                ly0 = max(py0 + 2, yp - ph_t - 8)
                 lx1 = lx0 + pw
                 _alpha_rect(lx0, ly0, lx1, ly0 + ph_t,
-                            (PANEL[0], PANEL[1], PANEL[2], 220), radius=3)
-                drw.text((lx0 + 4, ly0 - 1), txt, font=F11, fill=col)
+                            (PANEL[0], PANEL[1], PANEL[2], 220), radius=4)
+                drw.text((lx0 + 6, ly0 + 2), txt, font=F11, fill=col)
         except Exception:
             pass
 
@@ -1049,21 +1046,17 @@ def generate_price_image(
                     continue
                 lbl  = f"₹{fc_mids[i]:,}"
                 tw_l = _tw(lbl, F13)
-                pad_x, pad_y = 6, 3
+                pad_x, pad_y = 10, 5
                 pill_w = tw_l + 2 * pad_x
-                pill_h = 18
-                place_above = (i == n_f - 1)
-                ly = yp - 22 if place_above else yp + 12
-                if ly < py0 + 2:
-                    ly = yp + 12
-                if ly + pill_h > py1 - 2:
-                    ly = yp - 22
+                pill_h = 32
+                # Always above the marker, clamped to top of plot
+                ly = max(py0 + 2, yp - pill_h - 10)
                 lx0 = xp - pill_w // 2
                 lx1 = lx0 + pill_w
                 _alpha_rect(lx0, ly, lx1, ly + pill_h,
-                            (PANEL[0], PANEL[1], PANEL[2], 230), radius=4)
+                            (PANEL[0], PANEL[1], PANEL[2], 230), radius=8)
                 drw.rounded_rectangle([(lx0, ly), (lx1, ly + pill_h)],
-                                       radius=4, outline=dc, width=1)
+                                       radius=8, outline=dc, width=1)
                 drw.text((lx0 + pad_x, ly + pad_y), lbl, font=F13, fill=dc)
 
         # X-axis day labels — render rotated 90° to fit dense timelines.
@@ -1105,19 +1098,17 @@ def generate_price_image(
                     continue
                 _draw_rot_label(_px(n_h + i), py1 + 22, dl, GLD2)
 
-        # Current price callout — placed beside the boundary dot
+        # Current price callout — placed above the boundary dot
         cur_x, cur_y = _px(n_h - 1), _py(closings_22k[-1])
         cur_lbl = f"₹{closings_22k[-1]:,}"
-        cw = _tw(cur_lbl, F13) + 14
-        pill_x0 = cur_x - cw - 8
-        if pill_x0 < px0:
-            pill_x0 = cur_x + 12
-        pill_y0 = cur_y - 26
-        if pill_y0 < py0 + 2:
-            pill_y0 = cur_y + 10
+        cw = _tw(cur_lbl, F13) + 20
+        ph_p = 32
+        pill_x0 = max(px0, min(px1 - cw, cur_x - cw // 2))
+        pill_y0 = max(py0 + 2, cur_y - ph_p - 12)
         drw.rounded_rectangle([(pill_x0, pill_y0),
-                                (pill_x0 + cw, pill_y0 + 18)], radius=5, fill=BLU)
-        drw.text((pill_x0 + 7, pill_y0 + 1), cur_lbl,
+                                (pill_x0 + cw, pill_y0 + ph_p)],
+                              radius=8, fill=BLU)
+        drw.text((pill_x0 + 10, pill_y0 + 5), cur_lbl,
                  font=F13, fill=BG if sum(BLU) > 350 else (255, 255, 255))
 
         # ── In-chart indicator strip (inside the same panel) ──────────────
@@ -1176,25 +1167,52 @@ def generate_price_image(
 
         # Strip is OVERLAID at the very top of the chart, above the price
         # line, so the indicators sit visually inside the graph itself.
-        n_cards = len(cards)
-        gap_c   = 10
-        strip_h   = 64
-        strip_top = y + 14                # just under the section banner edge
-        avail_w = (chart_x1 - PAD) - 2 * 16 - (n_cards - 1) * gap_c
-        ccw     = avail_w // n_cards
+        # Rendered as proper KPI cards (gradient body, top accent bar,
+        # label / big value / sub-line) for a modern dashboard look.
+        n_cards   = len(cards)
+        gap_c     = 12
+        strip_h   = 92
+        strip_top = y + 12
+        avail_w   = (chart_x1 - PAD) - 2 * 16 - (n_cards - 1) * gap_c
+        ccw       = avail_w // n_cards
         for ci, (lbl, big, sub, col) in enumerate(cards):
             cx0 = PAD + 16 + ci * (ccw + gap_c)
             cx1 = cx0 + ccw
-            # Translucent backdrop so the chart bg shows through faintly
-            _alpha_rect(cx0, strip_top, cx1, strip_top + strip_h,
-                        (CARD2[0], CARD2[1], CARD2[2], 215), radius=8)
-            drw.rounded_rectangle([(cx0, strip_top), (cx1, strip_top + strip_h)],
-                                   radius=8, outline=DIV, width=1)
-            drw.rounded_rectangle([(cx0, strip_top), (cx0 + 4, strip_top + strip_h)],
-                                   radius=2, fill=col)
-            drw.text((cx0 + 12, strip_top + 6),  lbl, font=F13, fill=INK3)
-            drw.text((cx0 + 12, strip_top + 24), big, font=F18b, fill=col)
-            drw.text((cx0 + 12, strip_top + 46), sub, font=F13, fill=INK2)
+            cy0 = strip_top
+            cy1 = strip_top + strip_h
+            # Solid card body with subtle vertical gradient (panel → card2)
+            _alpha_rect(cx0, cy0, cx1, cy1,
+                        (PANEL[0], PANEL[1], PANEL[2], 245), radius=10)
+            _v_gradient(drw, cx0 + 1, cy0 + 1, cx1 - 1, cy1 - 1,
+                        PANEL, CARD2, steps=24)
+            drw.rounded_rectangle([(cx0, cy0), (cx1, cy1)],
+                                  radius=10, outline=DIV, width=1)
+            # Top accent bar (full-width, tinted)
+            _alpha_rect(cx0, cy0, cx1, cy0 + 5,
+                        (col[0], col[1], col[2], 230), radius=2)
+            drw.rounded_rectangle([(cx0, cy0), (cx1, cy0 + 5)],
+                                  radius=2, fill=col)
+            # Tiny coloured dot beside label
+            drw.ellipse([(cx0 + 14, cy0 + 18),
+                         (cx0 + 22, cy0 + 26)], fill=col)
+            # Label
+            drw.text((cx0 + 28, cy0 + 14), lbl[:28], font=F13, fill=INK3)
+            # Big value — auto-shrink to fit card width
+            big_txt = big
+            big_font = F22b
+            if _tw(big_txt, big_font) > ccw - 28:
+                big_font = F18b
+            if _tw(big_txt, big_font) > ccw - 28:
+                big_txt = big_txt[:18] + "…"
+            drw.text((cx0 + 14, cy0 + 38), big_txt, font=big_font, fill=col)
+            # Sub-line
+            sub_txt = sub
+            if _tw(sub_txt, F13) > ccw - 24:
+                while sub_txt and _tw(sub_txt + "…", F13) > ccw - 24:
+                    sub_txt = sub_txt[:-1]
+                sub_txt = (sub_txt + "…") if sub_txt else ""
+            drw.text((cx0 + 14, cy0 + strip_h - 22), sub_txt,
+                     font=F13, fill=INK2)
 
         y += ph + GAP
 
@@ -1306,6 +1324,14 @@ def generate_price_image(
         long_series = [(_today - _td(days=len(closings_22k) - i - 1), v)
                        for i, v in enumerate(closings_22k)]
 
+    # Snap the most-recent point to the live spot price so the NOW pill,
+    # KPI tile and all 1Y/3Y/5Y deltas match the rest of the dashboard.
+    if long_series and closings_22k:
+        from datetime import date as _date_now
+        _last_d, _ = long_series[-1]
+        long_series[-1] = (max(_last_d, _date_now.today()),
+                           int(closings_22k[-1]))
+
     if len(long_series) >= 2:
         from datetime import date as _date2, timedelta as _td2
 
@@ -1369,7 +1395,9 @@ def generate_price_image(
             drw.text((kx0 + 14, kpi_y0 + 46), sub, font=F11,  fill=INK2)
 
         # ── Plot area (below KPI strip, above year axis) ────────────────
-        LP, RP, TP, BP = 78, 28, 12 + kpi_h + 18, 56
+        # RP enlarged to leave room for the NOW pill outside the plot
+        # so it never overlaps the price line.
+        LP, RP, TP, BP = 78, 132, 12 + kpi_h + 18, 56
         ax0, ay0 = PAD + LP, y + TP
         ax1, ay1 = W - PAD - RP, y + H_TECH - BP
 
@@ -1414,47 +1442,38 @@ def generate_price_image(
             drw.text((lx0 + 6, ly0 + 2), yl, font=F11, fill=INK2)
 
         # ── Multi-stop gradient area fill below the price line ─────────
+        # Blue palette
+        LINE_COL = ( 37,  99, 235)       # main price line (blue)
+        AREA_COL = ( 96, 165, 250)       # area fill stops (light blue)
         try:
             line_pts = [(_xp(i), _yp(v)) for i, (_, v) in enumerate(long_series)]
             # Build 3 stacked bands of decreasing opacity for a smooth wash
-            for alpha in (90, 55, 28):
+            for alpha in (95, 60, 30):
                 poly = [(line_pts[0][0], ay1)] + line_pts + [(line_pts[-1][0], ay1)]
-                _alpha_poly(poly, (GLD[0], GLD[1], GLD[2], alpha))
+                _alpha_poly(poly, (AREA_COL[0], AREA_COL[1], AREA_COL[2], alpha))
         except Exception:
             line_pts = [(_xp(i), _yp(v)) for i, (_, v) in enumerate(long_series)]
-
-        # 200-day MA first (so 50-day MA sits on top), thinner & dim
-        if n >= 200:
-            ma2_pts = []
-            for i in range(199, n):
-                avg2 = sum(vals[i - 199:i + 1]) / 200
-                ma2_pts.append((_xp(i), _yp(avg2)))
-            if len(ma2_pts) >= 2:
-                drw.line(ma2_pts, fill=AMB, width=2)
-
-        if n >= 50:
-            ma_pts = []
-            for i in range(49, n):
-                avg = sum(vals[i - 49:i + 1]) / 50
-                ma_pts.append((_xp(i), _yp(avg)))
-            if len(ma_pts) >= 2:
-                drw.line(ma_pts, fill=BLU, width=2)
 
         # Main price line — slightly thicker with a subtle outer glow
         if len(line_pts) >= 2:
             try:
                 _alpha_lines = line_pts
-                # Soft outer glow: draw same line with translucent gold
-                # (PIL doesn't blur lines; emulate by widening a faint stroke).
+                # Soft outer glow
                 glow_overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
                 ImageDraw.Draw(glow_overlay).line(
-                    _alpha_lines, fill=(GLD[0], GLD[1], GLD[2], 70), width=7)
+                    _alpha_lines,
+                    fill=(LINE_COL[0], LINE_COL[1], LINE_COL[2], 80),
+                    width=7,
+                )
                 img.paste(glow_overlay, (0, 0), glow_overlay)
             except Exception:
                 pass
-            drw.line(line_pts, fill=GLD, width=3)
+            drw.line(line_pts, fill=LINE_COL, width=3)
 
-        # 5-year high / low markers with dotted guideline down to axis
+        # 5-year high / low markers with dotted guideline down to axis.
+        # Pills are stacked on the right side (HIGH top, LOW bottom)
+        # with a leader from the marker dot.
+        right_pills = []
         for i_m, label, col in [(ath_idx, f"5Y HIGH ₹{vals[ath_idx]:,}", GRN),
                                 (atl_idx, f"5Y LOW ₹{vals[atl_idx]:,}",   RED)]:
             xm, ym = _xp(i_m), _yp(vals[i_m])
@@ -1463,27 +1482,41 @@ def generate_price_image(
             drw.ellipse([(xm - 7, ym - 7), (xm + 7, ym + 7)], fill=PANEL)
             drw.ellipse([(xm - 5, ym - 5), (xm + 5, ym + 5)], fill=col)
             drw.ellipse([(xm - 2, ym - 2), (xm + 2, ym + 2)], fill=CARD)
-            tw_l = _tw(label, F11)
-            place_above = ym - 26 >= ay0 + 2
-            ly = ym - 24 if place_above else ym + 10
-            lx = max(ax0, min(ax1 - tw_l - 12, xm - tw_l // 2 - 6))
-            _alpha_rect(lx, ly, lx + tw_l + 12, ly + 18,
-                        (PANEL[0], PANEL[1], PANEL[2], 235), radius=5)
-            drw.rounded_rectangle([(lx, ly), (lx + tw_l + 12, ly + 18)],
-                                  radius=5, outline=col, width=1)
-            drw.text((lx + 6, ly + 2), label, font=F11, fill=col)
+            right_pills.append((label, col, xm, ym))
 
-        # Current price pill at the right edge
+        lh = 28
+        for slot, (label, col, xm, ym) in enumerate(right_pills):
+            tw_l = _tw(label, F11)
+            lw = tw_l + 16
+            lx1 = W - PAD - 8
+            lx0 = lx1 - lw
+            # Slot 0 → near top; slot 1 → near bottom
+            ly = ay0 + 8 if slot == 0 else ay1 - lh - 8
+            # Leader from marker dot to pill (horizontal then to dot)
+            drw.line([(xm + 6, ym), (lx0 - 6, ly + lh // 2)], fill=col, width=1)
+            _alpha_rect(lx0, ly, lx1, ly + lh,
+                        (PANEL[0], PANEL[1], PANEL[2], 245), radius=8)
+            drw.rounded_rectangle([(lx0, ly), (lx1, ly + lh)],
+                                  radius=8, outline=col, width=1)
+            drw.text((lx0 + 8, ly + 5), label, font=F11, fill=col)
+
+        # Current price pill — anchored to the right-center of the plot
+        # area so it never overlaps the price line.
         cx, cy = _xp(n - 1), _yp(vals[-1])
         cur_lbl = f"NOW ₹{vals[-1]:,}"
-        cw = _tw(cur_lbl, F13) + 16
+        cw = _tw(cur_lbl, F13) + 20
+        ph = 32
+        # Marker dot at the actual data point
         drw.ellipse([(cx - 7, cy - 7), (cx + 7, cy + 7)], fill=PANEL)
         drw.ellipse([(cx - 5, cy - 5), (cx + 5, cy + 5)], fill=BLU)
-        px0_p = max(ax0, cx - cw - 8)
-        py0_p = max(ay0 + 2, cy - 28)
-        drw.rounded_rectangle([(px0_p, py0_p), (px0_p + cw, py0_p + 20)],
-                              radius=6, fill=BLU)
-        drw.text((px0_p + 8, py0_p + 2), cur_lbl, font=F13,
+        # Pill anchored to the right edge, vertically centred
+        px1_p = W - PAD - 8
+        px0_p = px1_p - cw
+        py0_p = (ay0 + ay1) // 2 - ph // 2
+        py1_p = py0_p + ph
+        drw.rounded_rectangle([(px0_p, py0_p), (px1_p, py1_p)],
+                              radius=8, fill=BLU)
+        drw.text((px0_p + 10, py0_p + 5), cur_lbl, font=F13,
                  fill=BG if sum(BLU) > 350 else (255, 255, 255))
 
         # Footer summary band
@@ -1497,14 +1530,11 @@ def generate_price_image(
         drw.text((PAD + 16, y + H_TECH - 24), summary, font=F13, fill=chg_col)
 
         # Mini-legend (right side of footer)
-        leg_x = ax1 - 240
+        leg_x = ax1 - 80
         leg_y = y + H_TECH - 26
-        drw.line([(leg_x, leg_y + 8), (leg_x + 22, leg_y + 8)], fill=GLD, width=3)
+        drw.line([(leg_x, leg_y + 8), (leg_x + 22, leg_y + 8)],
+                 fill=LINE_COL, width=3)
         drw.text((leg_x + 28, leg_y + 2), "Price", font=F11, fill=INK3)
-        drw.line([(leg_x + 80, leg_y + 8), (leg_x + 102, leg_y + 8)], fill=BLU, width=2)
-        drw.text((leg_x + 108, leg_y + 2), "50d MA", font=F11, fill=INK3)
-        drw.line([(leg_x + 160, leg_y + 8), (leg_x + 182, leg_y + 8)], fill=AMB, width=2)
-        drw.text((leg_x + 188, leg_y + 2), "200d MA", font=F11, fill=INK3)
     else:
         drw.text((PAD + 18, y + 18), "Insufficient history available.", font=F13, fill=MUT)
 
