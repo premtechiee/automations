@@ -1,0 +1,19 @@
+{
+  "_comment": "Optional counter-party identity tags. Each entry maps a regex/substring (matched case-insensitively against the raw remark) to a friendly NAME and a RELATION bucket. Edit freely; the analyzer auto-loads this file.",
+  "_relations_suggested": [
+    "Family", "Self", "Friend", "Colleague",
+    "Loan", "Salary", "Rent", "Investment", "Refund", "Vendor"
+  ],
+  "tags": [
+    { "match": "INTEL\\s*TECHNOLOG",            "name": "Intel Salary",        "relation": "Salary" },
+    { "match": "ICIC0000013",                    "name": "ICICI Loan / EMI",    "relation": "Loan" },
+    { "match": "UNIONBANKOFINDIA",               "name": "Union Bank ACH",      "relation": "Loan" },
+    { "match": "ZERODHA|GROWW|UPSTOX",           "name": "Stock Broker",        "relation": "Investment" },
+    { "match": "GROWW PAY",                      "name": "Groww",               "relation": "Investment" },
+    { "match": "BSE\\s*LTD|NSE\\s*CLEARING",     "name": "Stock Exchange",      "relation": "Investment" },
+
+    { "_comment": "Add personal contacts here, e.g.:" },
+    { "match": "abhi.*@oksbi",                   "name": "Abhishek (Brother)",  "relation": "Family" },
+    { "match": "vijaya.*@(ybl|okaxis|oksbi)",      "name": "Mother",              "relation": "Family" }
+  ]
+}

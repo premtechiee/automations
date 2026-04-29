@@ -62,6 +62,29 @@ try:
         if logzero is not None:
             # Restore to WARNING so genuine SDK warnings still surface.
             logzero.logger.setLevel(logging.WARNING)
+            # The SmartApi SDK hard-codes its logfile path to
+            # ``logs/<YYYY-MM-DD>/app.log`` (relative to CWD) inside
+            # SmartConnect.__init__. Redirect any such call into the
+            # automation-scoped folder so the top-level ``logs/`` tree
+            # stays clean.
+            try:
+                import time as _t
+                _orig_logfile = logzero.logfile
+
+                def _redirect_logfile(filename, *args, **kwargs):  # pragma: no cover
+                    try:
+                        norm = str(filename).replace("\\", "/")
+                        if norm.endswith("/app.log"):
+                            d = Path("logs") / "angel_one" / _t.strftime("%Y-%m-%d")
+                            d.mkdir(parents=True, exist_ok=True)
+                            filename = str(d / "app.log")
+                    except Exception:
+                        pass
+                    return _orig_logfile(filename, *args, **kwargs)
+
+                logzero.logfile = _redirect_logfile
+            except Exception:
+                pass
     _AVAILABLE = True
 except Exception as exc:                       # pragma: no cover
     logger.debug(f"Angel One SDK unavailable: {exc}")

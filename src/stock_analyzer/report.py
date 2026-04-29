@@ -2267,94 +2267,95 @@ def build_report_image(buckets: dict, mfs: list[dict], prior: dict, out_path: st
 def build_text_summary(buckets: dict, mfs: list[dict], prior: dict,
                         macro: dict | None = None,
                         market_forecast: dict | None = None) -> str:
-    """Compact, scannable caption (WhatsApp/Telegram + console).
-    Target: < 60 lines so users can read on one screen."""
-    lines: list[str] = []
-    lines.append(f"📊 *Market Brief* — {datetime.now().strftime('%d %b %Y · %H:%M')}")
+    """Crisp WhatsApp/Telegram message — scannable in <10 seconds.
 
-    # ── Macro one-liner ────────────────────────────────────────────────────
+    Layout: header → macro one-liner → forecast one-liner → 2 picks per bucket
+    with prices on a single line → top funds on one line → past hit-rate on
+    one line → disclaimer.
+    """
+    lines: list[str] = []
+    lines.append(f"📊 *Brief* · {datetime.now().strftime('%d %b · %H:%M')}")
+
+    # ── Macro: single line ─────────────────────────────────────────────────
     if macro and macro.get("snapshot"):
         snap = macro["snapshot"]
         regime = macro.get("regime", "neutral").upper()
         bits: list[str] = [f"🌐 {regime}"]
-        for k, label in [("SPY", "S&P"), ("NIFTY", "Nifty"),
+        for k, label in [("NIFTY", "Nfty"), ("SPY", "S&P"),
                          ("VIX", "VIX"), ("OIL", "Oil"), ("GOLD", "Gold")]:
             v = snap.get(k)
             if not v:
                 continue
             if k == "VIX":
-                bits.append(f"{label} {v['last']:.0f}")
+                bits.append(f"VIX {v['last']:.0f}")
             else:
                 bits.append(f"{label} {v['chg_pct']:+.1f}%")
-        geo_lvl = (macro.get("geo") or {}).get("level", 50)
-        if geo_lvl >= 65:
-            bits.append("⚠️Geo risk HIGH")
-        lines.append("  ·  ".join(bits))
+        if (macro.get("geo") or {}).get("level", 50) >= 65:
+            bits.append("⚠️Geo")
+        lines.append(" · ".join(bits))
 
-    # ── Opening prediction (one line) ──────────────────────────────────────
+    # ── Forecast lines (open + 5-session) — combined on one row when both ─
+    fc_bits: list[str] = []
     _session = (os.environ.get("STOCK_SESSION") or "").lower()
     opening = (macro or {}).get("opening") or {}
     if opening and _session in ("preopen", "", "morning"):
         arrow = {"GAP-UP": "🟢↑", "MILD GAP-UP": "🟢↗",
                  "GAP-DOWN": "🔴↓", "MILD GAP-DOWN": "🔴↘",
                  "FLAT OPEN": "⚪→"}.get(opening["direction"], "⚪")
-        lines.append(
-            f"🔮 *Open 09:15:* {arrow} {opening['direction']} "
-            f"({opening['gap_pct']}, {opening['confidence']}% conf.)"
+        fc_bits.append(
+            f"Open {arrow} {opening['gap_pct']} ({opening['confidence']}%)"
         )
-
-    # ── Market-wide 5-session forecast ─────────────────────────────────────
     if market_forecast:
         mf = market_forecast
         arrow = {"UP": "↑", "DOWN": "↓", "SIDEWAYS": "→"}.get(mf["direction"], "→")
         lo, hi = mf["band_pct"]
-        lines.append(
-            f"🌍 *Market forecast (5 sessions):* {arrow} {mf['direction']} "
-            f"· {mf['confidence']}% conf. · band {lo:+.1f}% … {hi:+.1f}%"
+        fc_bits.append(
+            f"5d {arrow}{mf['direction']} {mf['confidence']}% [{lo:+.1f},{hi:+.1f}]"
         )
+    if fc_bits:
+        lines.append("🔮 " + " · ".join(fc_bits))
+
     lines.append("")
 
-    # ── Bucket picks — one line per pick, max 3 per bucket ────────────────
-    labels = [("🔥 Same-Day (exit today)",          "intraday"),
-              ("📈 Short-Term (2–15 days)",         "swing"),
-              ("🏦 Long-Term (≥1 year)",            "holding"),
-              ("⚠️ Avoid / Sell",                   "sell")]
+    # ── Bucket picks: 2 each, single line per pick ────────────────────────
+    labels = [("🔥 Intraday",   "intraday"),
+              ("📈 Swing 2-15d", "swing"),
+              ("🏦 Long-term",   "holding"),
+              ("⚠️ Avoid",       "sell")]
     if _session == "preopen":
-        labels = [("📈 *Swing Picks for Today*",    "swing"),
-                  ("🔥 Same-Day (after 09:15)",     "intraday"),
-                  ("🏦 Long-Term",                  "holding"),
-                  ("⚠️ Avoid / Sell",               "sell")]
+        labels = [("📈 Swing today", "swing"),
+                  ("🔥 Intraday",    "intraday"),
+                  ("🏦 Long-term",   "holding"),
+                  ("⚠️ Avoid",       "sell")]
 
-    dir_emoji = {"UP": "🟢", "DOWN": "🔴", "SIDEWAYS": "⚪"}
     for title, key in labels:
-        picks = (buckets.get(key) or [])[:3]
+        picks = (buckets.get(key) or [])[:2]
         if not picks:
             continue
         lines.append(f"*{title}*")
         for p in picks:
-            lv = p["levels"]
-            pr = p.get("predict") or {}
+            lv  = p["levels"]
+            pr  = p.get("predict") or {}
             sym = p["symbol"].replace(".NS", "")
             hold = lv.get("est_hold_days") or 0
-            hold_tag = ("intraday" if hold == 0
+            hold_tag = ("0d" if hold == 0
                         else "1y+" if hold >= 252
                         else f"{hold}d")
-            conf_tag = f" · {dir_emoji.get(pr.get('direction'),'')}{pr.get('confidence','')}%" if pr else ""
+            conf = f" {pr.get('confidence')}%" if pr.get("confidence") else ""
             lines.append(
-                f"• *{sym}*  ₹{lv['entry']:,.0f} → ₹{lv['target']:,.0f}  "
-                f"(*{lv.get('expected_profit_pct', 0):+.1f}%*, "
-                f"SL ₹{lv['sl']:,.0f}, {hold_tag}{conf_tag})"
+                f"• *{sym}* {lv['entry']:,.0f}→{lv['target']:,.0f} "
+                f"(*{lv.get('expected_profit_pct', 0):+.1f}%* "
+                f"SL {lv['sl']:,.0f} {hold_tag}{conf})"
             )
         lines.append("")
 
-    # ── Mutual funds — top 3 one-liners ────────────────────────────────────
+    # ── Top funds: single line ─────────────────────────────────────────────
     if mfs:
-        lines.append("*💰 Top Funds*")
-        for m in mfs[:3]:
-            lines.append(f"• {m['name'][:36]}  1Y {_fmt_pct(m['r_1y'])}")
-        lines.append("")
+        fund_bits = [f"{m['name'].split()[0][:10]} {_fmt_pct(m['r_1y'])}"
+                     for m in mfs[:3]]
+        lines.append("💰 Funds 1Y: " + " · ".join(fund_bits))
 
-    # ── Past picks — one-line summary ──────────────────────────────────────
+    # ── Past hit-rate: single line ─────────────────────────────────────────
     if prior.get("available"):
         parts = []
         for b in ("intraday", "swing", "holding", "sell"):
@@ -2364,8 +2365,8 @@ def build_text_summary(buckets: dict, mfs: list[dict], prior: dict,
                 continue
             parts.append(f"{b[:4].capitalize()} {hr:.0f}%")
         if parts:
-            lines.append(f"🧾 *Past hit-rate:* {' · '.join(parts)}")
-            lines.append("")
+            lines.append("🧾 Hits: " + " · ".join(parts))
 
+    lines.append("")
     lines.append(f"_{DISCLAIMER}_")
     return "\n".join(lines)

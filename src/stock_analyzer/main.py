@@ -83,11 +83,87 @@ def _print_console_dry_run(buckets: dict, mfs: list[dict], prior: dict,
 
 # ── Senders ─────────────────────────────────────────────────────────────────
 
+# Green API caption limit is ~1024 chars; Telegram photo caption is also 1024.
+# Keep a safety margin and send the full text separately.
+_CAPTION_LIMIT = 900
+# Keep image well under Green API's 1 MB free-tier file size cap.
+_IMAGE_MAX_BYTES = 900 * 1024
+
+
+def _short_caption(caption: str, limit: int = _CAPTION_LIMIT) -> str:
+    """First line(s) of the caption, truncated for use as photo caption."""
+    if not caption:
+        return ""
+    txt = caption.strip()
+    if len(txt) <= limit:
+        return txt
+    cut = txt[:limit].rsplit("\n", 1)[0]
+    return cut + "\n…"
+
+
+def _shrink_image(path: str, max_bytes: int = _IMAGE_MAX_BYTES) -> str:
+    """Return a path to an image guaranteed to be under ``max_bytes``.
+
+    The original PNG is left untouched. If it already fits, returns ``path``.
+    Otherwise progressively downscales / re-encodes as JPEG and writes a
+    sibling ``*.send.jpg`` file. Fail-soft: returns the original on error.
+    """
+    try:
+        size = os.path.getsize(path)
+    except OSError:
+        return path
+    if size <= max_bytes:
+        return path
+    try:
+        from PIL import Image  # type: ignore
+    except Exception as exc:
+        logger.warning(f"Pillow unavailable, sending oversize image as-is: {exc}")
+        return path
+
+    base, _ = os.path.splitext(path)
+    out = f"{base}.send.jpg"
+    try:
+        img = Image.open(path)
+        if img.mode not in ("RGB", "L"):
+            img = img.convert("RGB")
+        # Try a few quality / scale combos until we fit.
+        for scale in (1.0, 0.85, 0.7, 0.55, 0.4):
+            w = max(800, int(img.width * scale))
+            h = max(600, int(img.height * scale))
+            resized = img if scale == 1.0 else img.resize((w, h), Image.LANCZOS)
+            for quality in (85, 75, 65, 55):
+                resized.save(out, "JPEG", quality=quality, optimize=True)
+                if os.path.getsize(out) <= max_bytes:
+                    logger.info(
+                        f"Compressed report image {size/1024:.0f} KB → "
+                        f"{os.path.getsize(out)/1024:.0f} KB "
+                        f"(scale={scale:.2f}, q={quality})."
+                    )
+                    return out
+        logger.warning(
+            f"Could not get image under {max_bytes/1024:.0f} KB; "
+            f"sending best effort {os.path.getsize(out)/1024:.0f} KB."
+        )
+        return out
+    except Exception as exc:
+        logger.warning(f"Image shrink failed, sending original: {exc}")
+        return path
+
+
 def _send(channel: str, image_path: str, caption: str,
           pdf_path: str | None = None) -> None:
+    short = _short_caption(caption)
+    send_path = _shrink_image(image_path)
+
     if channel == "telegram":
-        ok = _tg_img(TELEGRAM_CHAT_ID, image_path, caption, TELEGRAM_BOT_TOKEN)
+        ok = _tg_img(TELEGRAM_CHAT_ID, send_path, short, TELEGRAM_BOT_TOKEN)
         if not ok:
+            logger.warning("Telegram image send failed; falling back to text only.")
+        # Always send the full caption as a follow-up text message so it isn't
+        # truncated at the 1024-char photo-caption limit.
+        if caption and caption != short:
+            _tg_msg(TELEGRAM_CHAT_ID, caption, TELEGRAM_BOT_TOKEN)
+        elif not ok:
             _tg_msg(TELEGRAM_CHAT_ID, caption, TELEGRAM_BOT_TOKEN)
         if pdf_path and os.path.exists(pdf_path):
             try:
@@ -100,11 +176,21 @@ def _send(channel: str, image_path: str, caption: str,
 
     # WhatsApp → loop over recipients
     for phone in PHONE_NUMBERS:
-        if not phone: continue
-        ok = _wa_img(phone, image_path, caption,
+        if not phone:
+            continue
+        ok = _wa_img(phone, send_path, short,
                      GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL)
         if not ok:
-            _wa_msg(phone, caption, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL)
+            logger.warning(
+                f"WhatsApp image send failed for {phone}; sending text fallback."
+            )
+            _wa_msg(phone, caption,
+                    GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL)
+        else:
+            # Image went through — deliver the full (untruncated) text too.
+            if caption and caption != short:
+                _wa_msg(phone, caption,
+                        GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL)
         if pdf_path and os.path.exists(pdf_path):
             try:
                 from lib.whatsapp import send_document as _wa_doc  # type: ignore
@@ -280,6 +366,23 @@ def run_report(dry_run: bool = False, channel: str = "whatsapp",
         logger.info("Dry-run: skipping send. Image + PDF saved locally; console printed.")
     else:
         _send(channel, image, caption, pdf_path=pdf_path)
+
+    # 8. Archive the saved report JSON under logs/stock_analyzer/<date>/.
+    #    The PNG and PDF already live there because IMAGE_OUTPUT_PATH /
+    #    PDF_OUTPUT_PATH point at logs/.
+    try:
+        from lib.logging_setup import archive_artifacts
+        from .config import REPORTS_DIR
+        import glob as _glob, os as _os
+        latest_report = None
+        try:
+            reports = sorted(_glob.glob(_os.path.join(REPORTS_DIR, "*.json")))
+            latest_report = reports[-1] if reports else None
+        except Exception:
+            pass
+        archive_artifacts("stock_analyzer", [latest_report])
+    except Exception as exc:
+        logger.debug(f"artifact archival skipped: {exc}")
 
     logger.info("== Stock analyzer run complete ==")
     return {

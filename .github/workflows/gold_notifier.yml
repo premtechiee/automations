@@ -1,16 +1,14 @@
 name: Gold Price Notifier
 
 # ──────────────────────────────────────────────────────────────────────────
-# Schedules in UTC; IST = UTC + 5:30. Mon–Sat (gold trades on Saturday).
-# GitHub may delay scheduled runs by 5–30 min under load.
+# Schedule in UTC; IST = UTC + 5:30. Mon–Fri only.
+# GitHub may delay scheduled runs by 5–30 min under load — cron is set a
+# few minutes earlier than the desired IST time.
 # ──────────────────────────────────────────────────────────────────────────
 on:
   schedule:
-    - cron: '0 4 * * 1-6'    # 09:30 IST → morning briefing
-    - cron: '30 4 * * 1-6'   # 10:00 IST → mid-morning threshold check
-    - cron: '30 6 * * 1-6'   # 12:00 IST → midday threshold check
+    - cron: '30 2 * * 1-6'   # 08:00 IST → morning briefing
     - cron: '30 8 * * 1-6'   # 14:00 IST → afternoon drop check
-    - cron: '30 10 * * 1-6'  # 16:00 IST → evening threshold check
 
   workflow_dispatch:
     inputs:
@@ -61,22 +59,13 @@ jobs:
             echo "TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}"
           } >> "$GITHUB_ENV"
 
-      - name: Morning briefing (09:30 IST)
-        if: github.event_name == 'schedule' && github.event.schedule == '0 4 * * 1-6'
+      - name: Morning briefing (08:00 IST)
+        if: github.event_name == 'schedule' && github.event.schedule == '30 2 * * 1-5'
         run: python scripts/gold_notifier.py --morning --channel whatsapp
 
       - name: Afternoon drop check (14:00 IST)
-        if: github.event_name == 'schedule' && github.event.schedule == '30 8 * * 1-6'
+        if: github.event_name == 'schedule' && github.event.schedule == '30 8 * * 1-5'
         run: python scripts/gold_notifier.py --afternoon --channel whatsapp
-
-      - name: Threshold check (10:00 / 12:00 / 16:00 IST)
-        if: >
-          github.event_name == 'schedule' && (
-            github.event.schedule == '30 4 * * 1-6' ||
-            github.event.schedule == '30 6 * * 1-6' ||
-            github.event.schedule == '30 10 * * 1-6'
-          )
-        run: python scripts/gold_notifier.py --check --channel whatsapp
 
       - name: Manual run
         if: github.event_name == 'workflow_dispatch'

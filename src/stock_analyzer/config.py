@@ -9,6 +9,7 @@ for educational purposes only.
 
 from __future__ import annotations
 import os
+from datetime import datetime
 
 # ── Notification channels (reuse gold_notifier credentials) ────────────────
 PHONE_NUMBER       = os.environ.get("GOLD_PHONE_NUMBER",    "919790967892")
@@ -28,10 +29,17 @@ TELEGRAM_CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID",   "")
 # ── Output paths ────────────────────────────────────────────────────────────
 DATA_DIR          = "data"
 REPORTS_DIR       = f"{DATA_DIR}/stock_reports"
-IMAGE_OUTPUT_PATH = f"{DATA_DIR}/stock_report.png"
-PDF_OUTPUT_PATH   = f"{DATA_DIR}/stock_report.pdf"
-LOG_FILE          = f"{DATA_DIR}/stock_analyzer.log"
+# Per-automation, per-day log file + run directory under the top-level logs/ folder.
+LOG_DIR           = f"logs/stock_analyzer"
+_TODAY            = datetime.now().strftime("%Y-%m-%d")
+_RUN_DIR          = f"{LOG_DIR}/{_TODAY}"
+LOG_FILE          = f"{LOG_DIR}/{_TODAY}.log"
+# Generated artifacts live under logs/ so each run is self-contained.
+IMAGE_OUTPUT_PATH = f"{_RUN_DIR}/stock_report.png"
+PDF_OUTPUT_PATH   = f"{_RUN_DIR}/stock_report.pdf"
 WATCHLIST_FILE    = f"{DATA_DIR}/stock_watchlist.txt"
+import os as _os
+_os.makedirs(_RUN_DIR, exist_ok=True)
 
 # ── Theme ───────────────────────────────────────────────────────────────────
 IMAGE_THEME = os.environ.get("STOCK_IMAGE_THEME", "light").strip().lower()

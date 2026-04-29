@@ -7,6 +7,7 @@ environment variables or a .env file at the workspace root.
 """
 
 import os
+from datetime import datetime
 
 # ── WhatsApp / Green API ────────────────────────────────────────────────────
 PHONE_NUMBER       = os.environ.get("GOLD_PHONE_NUMBER",    "919790967892")
@@ -36,8 +37,15 @@ INDIA_SILVER_DUTY_FACTOR = 1.14
 DATA_DIR            = "data"
 PREDICTION_LOG_FILE = f"{DATA_DIR}/gold_prediction_model.json"
 ALERT_STATE_FILE    = f"{DATA_DIR}/gold_alert_state.json"
-LOG_FILE            = f"{DATA_DIR}/gold_notifier.log"
-IMAGE_OUTPUT_PATH   = f"{DATA_DIR}/gold_update.png"
+# Per-automation, per-day log file under the top-level logs/ folder.
+LOG_DIR             = f"logs/gold_notifier"
+_TODAY              = datetime.now().strftime("%Y-%m-%d")
+_RUN_DIR            = f"{LOG_DIR}/{_TODAY}"
+LOG_FILE            = f"{LOG_DIR}/{_TODAY}.log"
+# Generated artifacts also live under logs/ so each run is self-contained.
+IMAGE_OUTPUT_PATH   = f"{_RUN_DIR}/gold_update.png"
+import os as _os
+_os.makedirs(_RUN_DIR, exist_ok=True)
 
 # ── Image theme ──────────────────────────────────────────────────────────────
 # Set GOLD_IMAGE_THEME=dark in your .env or GitHub secret to switch to dark mode.

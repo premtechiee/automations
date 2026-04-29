@@ -392,22 +392,18 @@ def self_review(top_n: int = 5) -> dict[str, Any]:
 
 def expert_advice(buckets: dict, macro: dict, prior: dict,
                   weights: dict | None = None) -> str:
-    """
-    Synthesise everything into an advisor-style paragraph (max ~700 chars,
-    plain English).  Combines macro regime, top conviction pick, learned
-    accuracy, and a clear next action.
-    """
-    weights  = weights or _load_weights()
-    n_feats  = len(weights.get("features", {}))
-    samples  = sum(f.get("total", 0) for f in weights.get("features", {}).values())
+    """Crisp 2-3 line advisor headline (mood · top pick · stance).
 
-    regime   = macro.get("regime", "neutral")
-    geo_lvl  = (macro.get("geo") or {}).get("level", 50)
-    bias     = macro.get("bias", 0)
-    spy      = (macro.get("snapshot") or {}).get("SPY", {}).get("chg_pct")
-    vix      = (macro.get("snapshot") or {}).get("VIX", {}).get("last")
+    Designed to sit at the top of the WhatsApp message — under ~280 chars.
+    """
+    weights = weights or _load_weights()
+    samples = sum(f.get("total", 0) for f in weights.get("features", {}).values())
 
-    # Pick the highest-confidence intraday OR swing pick
+    regime  = macro.get("regime", "neutral")
+    bias    = macro.get("bias", 0)
+    geo_lvl = (macro.get("geo") or {}).get("level", 50)
+
+    # Highest-confidence directional pick from intraday/swing
     candidates: list[dict] = []
     for k in ("intraday", "swing"):
         for p in buckets.get(k, []):
@@ -417,60 +413,26 @@ def expert_advice(buckets: dict, macro: dict, prior: dict,
     candidates.sort(key=lambda x: x["conf"], reverse=True)
     top = candidates[0] if candidates else None
 
-    parts: list[str] = []
+    mood_emoji = {"risk-on": "🟢", "risk-off": "🔴", "neutral": "⚪"}.get(regime, "⚪")
+    stance = ("LONG (buy dips)" if bias >= 2
+              else "DEFENSIVE (raise cash)" if bias <= -2
+              else "BALANCED (stock-pick)")
+    geo_tag = " · ⚠️geo" if geo_lvl >= 65 else ""
 
-    # 1. Market mood
-    mood = {"risk-on":  "constructive — global risk appetite is healthy",
-            "risk-off": "cautious — global investors are de-risking",
-            "neutral":  "mixed — no strong global directional cue"}.get(regime, "mixed")
-    parts.append(f"📌 *Today's market read:* {mood}.")
-    if spy is not None:
-        parts.append(f"S&P 500 last closed {spy:+.1f}%; "
-                     f"VIX {vix:.0f}." if vix else f"S&P 500 {spy:+.1f}%.")
-    if geo_lvl >= 65:
-        parts.append("Geopolitical tape elevated — keep position sizes small.")
-    elif geo_lvl <= 35:
-        parts.append("Geopolitical mood improving.")
+    parts: list[str] = [f"{mood_emoji} *{regime.upper()}* · 🧭 {stance}{geo_tag}"]
 
-    # 2. Top conviction
     if top:
-        p  = top["pick"]
-        pr = p["predict"]
-        lv = p["levels"]
+        p   = top["pick"]
+        pr  = p["predict"]
+        lv  = p["levels"]
         sym = p["symbol"].replace(".NS", "")
-        tag = "same-day trade" if top["key"] == "intraday" else "short-term swing"
+        tag = "intraday" if top["key"] == "intraday" else "swing"
         parts.append(
-            f"🎯 *My top conviction is {sym}* as a {tag}: predicting "
-            f"{pr['direction']} with {pr['confidence']}% confidence. "
-            f"Buy near ₹{lv['entry']:,.2f}, stop-loss ₹{lv['sl']:,.2f}, "
-            f"target ₹{lv['target']:,.2f}."
+            f"🎯 *{sym}* {tag} {pr['direction']} {pr['confidence']}% · "
+            f"₹{lv['entry']:,.0f}→{lv['target']:,.0f} (SL {lv['sl']:,.0f})"
         )
-        if pr.get("reasons"):
-            parts.append(f"Why: {pr['reasons'][0]}.")
 
-    # 3. Learning footprint
     if samples > 0:
-        prior_avail = prior.get("available")
-        bucket_acc: list[str] = []
-        if prior_avail:
-            for b, info in prior["buckets"].items():
-                hr = info.get("hit_rate")
-                if hr is not None and info.get("count", 0) > 0:
-                    bucket_acc.append(f"{b} {hr:.0f}%")
-        acc_str = (", ".join(bucket_acc)) if bucket_acc else "calibrating"
-        parts.append(
-            f"📚 *Self-learning:* I have studied {samples} past picks across "
-            f"{n_feats} signals. Recent accuracy → {acc_str}. "
-            f"My weights have been auto-tuned accordingly."
-        )
+        parts.append(f"📚 Learned from {samples} picks.")
 
-    # 4. Net stance
-    if bias >= 2:
-        stance = "Lean LONG; favour buys on dips."
-    elif bias <= -2:
-        stance = "Lean DEFENSIVE; raise cash and trim weak holdings."
-    else:
-        stance = "Stay BALANCED; trade individual setups, not the index."
-    parts.append(f"🧭 *Stance:* {stance}")
-
-    return " ".join(parts)
+    return "\n".join(parts)

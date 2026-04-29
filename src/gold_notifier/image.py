@@ -232,13 +232,52 @@ def generate_price_image(
     bull_cnt   = (geo or {}).get("bull_count", 0)
     bear_cnt   = (geo or {}).get("bear_count", 0)
 
-    pred_dir   = (prediction or {}).get("direction", "FLAT")
+    pred_dir = (prediction or {}).get("direction")
+    if not pred_dir or pred_dir == "FLAT":
+        # Never display FLAT — fall back to the sign of the latest day's
+        # change so the call always reads as a directional lean.
+        try:
+            _last_chg = next((r.get("chg", 0) for r in (history or []) if r.get("trading")), 0)
+        except Exception:
+            _last_chg = 0
+        pred_dir = "UP" if _last_chg >= 0 else "DOWN"
     pred_score = float((prediction or {}).get("score", 0))
     geo_s      = float(geo_score)
     combined   = round(a_score + geo_s + pred_score * 0.3, 1)
 
     hist_rows = (history or [])[:10]
     wk_all    = (weekly_prediction or [])[:7]
+
+    # Pre-compute forecast arrays (used by both the new prediction chart
+    # section ③b and the legacy mini-chart inside section ③'s right panel).
+    fc_mids: list[int]  = []
+    fc_los:  list[int]  = []
+    fc_his:  list[int]  = []
+    fc_dirs: list[str]  = []
+    fc_dlbl: list[str]  = []
+    for _row in wk_all:
+        if _row.get("is_weekend"):
+            continue
+        _mid = _row.get("mid_22k") or round((_row.get("mid_inr", 0) or 0) * 22 / 24)
+        _lo  = _row.get("low_22k")  or round((_row.get("low_inr",  _mid) or _mid) * 22 / 24)
+        _hi  = _row.get("high_22k") or round((_row.get("high_inr", _mid) or _mid) * 22 / 24)
+        if not _mid:
+            continue
+        fc_mids.append(int(_mid))
+        fc_los.append(int(_lo))
+        fc_his.append(int(_hi))
+        fc_dir_raw = str(_row.get("direction", "")).upper()
+        if fc_dir_raw not in ("UP", "DOWN"):
+            # Force a directional lean even for legacy/weekend rows so the
+            # forecast chart never renders a neutral marker.
+            fc_dir_raw = "UP" if _mid >= (fc_mids[-1] if fc_mids else _mid) else "DOWN"
+        fc_dirs.append(fc_dir_raw)
+        _wd = str(_row.get("weekday", ""))[:3]
+        _dt = _row.get("date")
+        if hasattr(_dt, "strftime"):
+            fc_dlbl.append(_dt.strftime("%d %b").lstrip("0"))
+        else:
+            fc_dlbl.append(_wd or str(_dt or ""))
 
     ag_inr_kg = (silver or {}).get("price_inr_kg") or 0
     ag_inr_g  = (silver or {}).get("price_inr_g") or (ag_inr_kg / 1000 if ag_inr_kg else 0)
@@ -275,7 +314,7 @@ def generate_price_image(
                 pass
         return _dt.date.min
 
-    hist_sorted  = sorted(hist_rows, key=_parse_hist_date, reverse=True)[:10]
+    hist_sorted  = sorted(hist_rows, key=_parse_hist_date, reverse=True)[:30]
     hist_chart   = list(reversed(hist_sorted))   # oldest → newest for chart
 
     closings_22k = [r.get("22k", 0) for r in hist_chart]
@@ -306,10 +345,18 @@ def generate_price_image(
     H_HDR   = 180
     H_KPI_CARD = 215                              # height of each individual KPI card
     H_KPI   = H_KPI_CARD + (168 if grt_22k else 0)  # +168px GRT sub-row when available
-    H_HIST  = 56
-    H_CHART = 380
+    # Day-by-day changes are now drawn directly inside the combined chart
+    # (last 7 historic dots get a ▲/▼ ₹X label) — no separate strip.
+    H_HIST  = 0
+    # Combined chart spans the full width and now includes the indicator
+    # strip rendered as an overlay near the top of the chart, above the
+    # price line (no separate row underneath).
+    H_CHART = 0
+    H_PRED       = 460 if (len(closings_22k) >= 2 and len(fc_mids) >= 2) else (
+                   400 if len(closings_22k) >= 2 else 0)
+    H_PRED_INFO  = 0
     H_GAUGE = 440
-    H_TECH  = 156
+    H_TECH  = 380
     H_SIG   = (n_sig * 56 + 84) if n_sig else 0
     H_BUY   = 174
     H_GEO   = 140 + n_hl * 32
@@ -319,8 +366,8 @@ def generate_price_image(
     SH      = 64
     GAP     = 20
 
-    n_secs  = 5 + (1 if H_SIG else 0) + (1 if H_GRT else 0)
-    TOTAL_H = (H_HDR + H_KPI + H_HIST + H_CHART + H_GAUGE + H_TECH + H_SIG
+    n_secs  = 5 + (1 if H_SIG else 0) + (1 if H_GRT else 0) + (1 if H_PRED else 0)
+    TOTAL_H = (H_HDR + H_KPI + H_HIST + H_CHART + H_PRED + H_PRED_INFO + H_GAUGE + H_TECH + H_SIG
                + H_BUY + H_GEO + H_GRT + H_FTR + n_secs * SH + GAP * (n_secs + 5) + 30)
 
     img = Image.new("RGB", (W, TOTAL_H), BG)
@@ -677,177 +724,9 @@ def generate_price_image(
 
     y += H_KPI + GAP
 
-    # ── Per-day change strip (history bar) ─────────────────────────────────
-    if closings_22k and len(closings_22k) >= 2:
-        strip_h = H_HIST
-        drw.rounded_rectangle([(PAD, y), (W - PAD, y + strip_h)], radius=10, fill=PANEL)
-        drw.rounded_rectangle([(PAD, y), (PAD + 6, y + strip_h)], radius=4, fill=GLD)
-        drw.text((PAD + 18, y + 10), "DAY-BY-DAY PRICE CHANGES (22K)", font=F13, fill=MUT)
-        n_show  = min(len(closings_22k), 7)
-        cell_w  = (W - 2 * PAD - 26) // n_show
-        idxs    = list(range(max(0, len(closings_22k) - n_show), len(closings_22k)))
-        for j, ii in enumerate(idxs):
-            dc  = daily_chg_22k[ii]
-            col = GRN if dc >= 0 else RED
-            arr = "▲" if dc >= 0 else "▼"
-            dx  = PAD + 26 + j * cell_w
-            lbl_d = dates_lbl[ii] if ii < len(dates_lbl) else ""
-            drw.text((dx, y + 8), lbl_d, font=F13, fill=INK3)
-            drw.text((dx, y + 24), f"{arr}{abs(dc):,.0f}", font=F13, fill=col)
-        y += strip_h + GAP
-
-    # ======================================================== #
-    # ③ 10-DAY LINE + AREA CHART                               #
-    # ======================================================== #
-    if len(closings_22k) >= 2:
-        _sec("LAST 10 DAYS: GOLD PRICE TREND", "📈")
-        ch = H_CHART - 8
-        split_x = PAD + int((W - 2 * PAD) * 0.70)
-
-        # Chart background
-        drw.rounded_rectangle([(PAD, y), (split_x, y + ch)], radius=12, fill=PANEL)
-        _v_gradient(drw, PAD + 2, y + 2, split_x - 2, y + ch - 2, PANEL, CARD2, steps=40)
-
-        n_pts  = len(closings_22k)
-        cmin   = min(closings_22k); cmax = max(closings_22k)
-        pad_pct = 0.10
-        lo_ext = cmin - (cmax - cmin) * pad_pct
-        hi_ext = cmax + (cmax - cmin) * pad_pct
-        rng    = max(hi_ext - lo_ext, 1)
-
-        LP, RP, TP, BP = 82, 20, 26, 42
-        ax0 = PAD + LP; ax1 = split_x - RP
-        ay0 = y + TP;   ay1 = y + ch - BP
-
-        # evenly spaced x — point i sits at fraction i/(n-1)
-        def _cx(i): return int(ax0 + i * (ax1 - ax0) / max(1, n_pts - 1))
-        def _cy(p): return int(ay1 - (p - lo_ext) / rng * (ay1 - ay0))
-
-        # ── Horizontal grid lines + left price axis ───────────────────────
-        for gp in [0.0, 0.25, 0.5, 0.75, 1.0]:
-            gy  = int(ay1 - gp * (ay1 - ay0))
-            pv  = lo_ext + gp * rng
-            drw.line([(ax0, gy), (ax1, gy)], fill=DIV, width=1)
-            lbl_str = f"₹{pv:,.0f}"
-            drw.text((PAD + 2, gy - 9), lbl_str, font=F13, fill=MUT)
-
-        # ── Vertical day guide lines ──────────────────────────────────────
-        for i in range(n_pts):
-            gx = _cx(i)
-            drw.line([(gx, ay0), (gx, ay1)], fill=DIV, width=1)
-
-        # ── Gradient area fill (two-pass: deep bottom + lighter top) ─────
-        area_pts = [(_cx(0), ay1)]
-        for i, cl in enumerate(closings_22k):
-            area_pts.append((_cx(i), _cy(cl)))
-        area_pts.append((_cx(n_pts - 1), ay1))
-
-        # Deep fill (bottom half)
-        _alpha_poly(area_pts, (C_UP[0], C_UP[1], C_UP[2], 55))
-        # Lighter top wash for gradient feel
-        top_wash = [(_cx(0), int(ay0 + (ay1 - ay0) * 0.4))]
-        for i, cl in enumerate(closings_22k):
-            top_wash.append((_cx(i), _cy(cl)))
-        top_wash.append((_cx(n_pts - 1), int(ay0 + (ay1 - ay0) * 0.4)))
-        _alpha_poly(top_wash, (C_UP[0], C_UP[1], C_UP[2], 25))
-
-        # ── Smooth line ───────────────────────────────────────────────────
-        line_pts = [(_cx(i), _cy(cl)) for i, cl in enumerate(closings_22k)]
-        # overall trend colour: green if last > first, else red
-        trend_up  = closings_22k[-1] >= closings_22k[0]
-        line_col  = C_UP if trend_up else C_DN
-        if len(line_pts) >= 2:
-            drw.line(line_pts, fill=line_col, width=3)
-
-        # ── Data-point dots + per-day change labels ───────────────────────
-        for i, cl in enumerate(closings_22k):
-            px, py2 = _cx(i), _cy(cl)
-            is_up   = cl >= closings_22k[i - 1] if i > 0 else True
-            dot_col = C_UP if is_up else C_DN
-            # outer glow ring
-            drw.ellipse([(px - 8, py2 - 8), (px + 8, py2 + 8)], fill=PANEL)
-            # filled dot
-            drw.ellipse([(px - 5, py2 - 5), (px + 5, py2 + 5)], fill=dot_col)
-            # white centre pin
-            drw.ellipse([(px - 2, py2 - 2), (px + 2, py2 + 2)], fill=CARD)
-
-            # per-day change label above each point
-            if i > 0:
-                dc     = daily_chg_22k[i]
-                dc_col = C_UP if dc >= 0 else C_DN
-                dc_arr = "▲" if dc >= 0 else "▼"
-                dc_txt = f"{dc_arr}{abs(dc):,.0f}"
-                tw_dc  = _tw(dc_txt, F13)
-                label_y = py2 - 24
-                # keep label inside chart top
-                if label_y < ay0 + 2:
-                    label_y = py2 + 10
-                drw.text((px - tw_dc // 2, label_y), dc_txt, font=F13, fill=dc_col)
-
-            # date label below axis (every point)
-            if i < len(dates_lbl):
-                dl    = dates_lbl[i]
-                tw_dl = _tw(dl, F13)
-                drw.text((px - tw_dl // 2, ay1 + 6), dl, font=F13, fill=INK3)
-
-        # ── Current price callout tag ─────────────────────────────────────
-        lx, ly = _cx(n_pts - 1), _cy(closings_22k[-1])
-        pl  = f"₹{closings_22k[-1]:,}"
-        pw  = _tw(pl, F13) + 16
-        tag_x = max(ax0, lx - pw // 2)
-        drw.rounded_rectangle([(tag_x, ly - 26), (tag_x + pw, ly - 8)],
-                               radius=5, fill=GLD)
-        drw.text((tag_x + 8, ly - 25), pl, font=F13,
-                 fill=BG if sum(GLD) > 350 else INK)
-
-        # ── Stats panel ──────────────────────────────────────────────────
-        sx0 = split_x + 10
-        drw.rounded_rectangle([(sx0, y), (W - PAD, y + ch)], radius=12, fill=PANEL)
-        # Header
-        _h_gradient(drw, sx0, y, W - PAD, y + 44, GLD2, GLD, steps=30)
-        drw.rounded_rectangle([(sx0, y), (W - PAD, y + 44)], radius=10, outline=GLD2, width=0)
-        spx = sx0 + 18
-        drw.text((spx, y + 12), "WORLD GOLD PRICE", font=F14, fill=BG if sum(GLD) > 350 else INK)
-
-        sy = y + 56
-        if price_usd:
-            drw.text((spx, sy), f"${price_usd:,.1f}  /oz", font=F18b, fill=INK); sy += 34
-        for sl, sv, sc in [
-            ("Today's Change", f"₹{abs(chg_22k):,.0f}/g" if chg_22k is not None else "—",
-             GRN if (chg_22k or 0) >= 0 else RED),
-            ("7-Day Change",  f"{chg_7d:+.2f}%"  if chg_7d  else "—",
-             GRN if (chg_7d  or 0) > 0 else RED),
-            ("30-Day Change", f"{chg_30d:+.2f}%" if chg_30d else "—",
-             GRN if (chg_30d or 0) > 0 else RED),
-        ]:
-            drw.text((spx, sy), sl, font=F13, fill=INK3); sy += 18
-            drw.text((spx, sy), sv, font=F14, fill=sc); sy += 26
-        sy += 5
-        drw.line([(spx, sy), (W - PAD - 16, sy)], fill=DIV, width=1); sy += 13
-
-        # 22K vs yesterday
-        drw.text((spx, sy), "22K vs yesterday", font=F13, fill=INK3); sy += 18
-        if len(closings_22k) >= 2:
-            d1 = closings_22k[-1] - closings_22k[-2]
-            d1c = GRN if d1 >= 0 else RED
-            drw.text((spx, sy), f"{'▲' if d1>=0 else '▼'} ₹{abs(d1):,}/g",
-                     font=F14, fill=d1c); sy += 28
-        drw.line([(spx, sy), (W - PAD - 16, sy)], fill=DIV, width=1); sy += 10
-
-        # Multiples
-        if closings_22k:
-            cv = closings_22k[-1]
-            drw.text((spx, sy), "Bulk Buying Guide", font=F13, fill=INK3); sy += 18
-            for g, v in [(8, cv * 8), (10, cv * 10), (12, cv * 12)]:
-                drw.text((spx, sy), f"{g}g = ₹{v:,}", font=F13, fill=INK2); sy += 17
-
-        # Trend sparkline
-        if len(spark_22) >= 2:
-            sy += 10
-            drw.text((spx, sy), "10-Day Price Trend", font=F13, fill=INK3); sy += 18
-            _sparkline(drw, spx, sy, W - PAD - 18, sy + 42, spark_22, GRN, RED, bg=CARD2)
-
-        y += ch + GAP
+    # ── (Removed) Per-day change strip — day-by-day ▲/▼ values are now
+    # annotated directly on the last 7 historic dots inside the combined
+    # chart in section ③, so this standalone bar is no longer needed.
 
     # ======================================================== #
     # ④ SIGNAL GAUGE + 7-DAY FORECAST                          #
@@ -940,19 +819,18 @@ def generate_price_image(
     drw.line([(fx0 + 10, wry), (W - PAD - 10, wry)], fill=DIV, width=1)
     wry += 8
 
-    fc_mids, fc_los, fc_his, fc_dirs = [], [], [], []
-
     for row in wk_all[:7]:
         is_wk   = row.get("is_weekend", False)
         wd      = str(row.get("weekday", ""))[:3]
-        dirn    = str(row.get("direction", "FLAT")).upper()
+        dirn    = str(row.get("direction", "")).upper()
         mid_22  = row.get("mid_22k") or round((row.get("mid_inr", 0) or 0) * 22 / 24)
         lo_22   = row.get("low_22k") or round((row.get("low_inr",  mid_22) or mid_22) * 22 / 24)
         hi_22   = row.get("high_22k") or round((row.get("high_inr", mid_22) or mid_22) * 22 / 24)
 
-        if not is_wk and mid_22:
-            fc_mids.append(mid_22); fc_los.append(lo_22)
-            fc_his.append(hi_22);   fc_dirs.append(dirn)
+        # Force a directional lean — never render "FLAT" or unknown text.
+        if dirn not in ("UP", "DOWN"):
+            ref = closings_22k[-1] if closings_22k else mid_22
+            dirn = "UP" if (mid_22 or 0) >= ref else "DOWN"
 
         if wry < fy1 - 96:
             if is_wk:
@@ -998,102 +876,845 @@ def generate_price_image(
               .replace("⚪","").replace("🟠","").strip())
         drw.text((fx0 + 18, fy1 - 24), f"Market Outlook: {oc}"[:46], font=F13, fill=INK2)
 
-    y = ga_top + H_GAUGE
+    y = ga_top + H_GAUGE + GAP
 
     # ======================================================== #
-    # ⑤ TECHNICAL INDICATORS — DOT METERS                      #
+    # ③ COMBINED CHART — Last 30 days actual + 7-day forecast   #
     # ======================================================== #
-    _sec("PRICE HEALTH METERS", "📊")
-    drw.rounded_rectangle([(PAD, y), (W - PAD, y + H_TECH)], radius=10, fill=PANEL)
-    _h_gradient(drw, PAD + 2, y + 2, W - PAD - 2, y + 32, PANEL, CARD2, steps=40)
+    if H_PRED and len(closings_22k) >= 2:
+        has_forecast = len(fc_mids) >= 2
+        if has_forecast:
+            _sec("LAST 30 DAYS + 7-DAY PRICE FORECAST (22K /g)", "📈")
+        else:
+            _sec("LAST 30 DAYS — GOLD PRICE TREND (22K /g)", "📈")
 
-    cols  = 5
-    cw_ti = (W - 2 * PAD - 26) // cols
-    ti_items = [
-        ("Momentum", f"{rsi:.1f}" if rsi is not None else "—",
-         GRN if rsi and rsi < 45 else (RED if rsi and rsi > 70 else AMB),
-         (rsi or 50) / 100 if rsi else 0.5),
-        ("Trend Signal", f"{macd_val:+.2f}" if macd_val is not None else "—",
-         GRN if macd_cross and macd_cross > 0 else RED,
-         max(0.0, min(1.0, 0.5 + (macd_cross or 0) / 20))),
-        ("Price Position", f"{bb_pos * 100:.0f}%" if bb_pos is not None else "—",
-         GRN if bb_pos and bb_pos < 0.3 else (RED if bb_pos and bb_pos > 0.7 else AMB),
-         bb_pos or 0.5),
-        ("Tech Rating", f"{a_score:+d}",
-         GRN if a_score >= 2 else (RED if a_score <= -2 else AMB),
-         max(0.0, min(1.0, (a_score + 8) / 16))),
-        ("Overall Score", f"{net_score:+d}",
-         GRN if net_score >= 2 else (RED if net_score <= -2 else AMB),
-         max(0.0, min(1.0, (net_score + 10) / 20))),
-    ]
+        ph = H_PRED - 8
+        # Full width — no right sidebar; summary moves to a strip below.
+        chart_x1 = W - PAD
 
-    for ci, (lbl, val, vcol, pct) in enumerate(ti_items):
-        tx = PAD + 13 + ci * cw_ti
-        drw.text((tx, y + 12),  lbl, font=F13,  fill=INK3)
-        drw.text((tx, y + 32), val, font=F18b, fill=vcol)
-        n_d = 10
-        fil = max(0, min(n_d, round(pct * n_d)))
-        _dots(tx, y + H_TECH - 30, n=n_d, filled=fil, col_on=vcol, col_off=CARD3)
-        drw.text((tx, y + H_TECH - 12), f"{int(pct*100)}%", font=F13, fill=INK3)
-        if ci < cols - 1:
-            drw.line([(tx + cw_ti - 8, y + 16), (tx + cw_ti - 8, y + H_TECH - 16)],
-                     fill=DIV, width=1)
+        # Background panel
+        drw.rounded_rectangle([(PAD, y), (chart_x1, y + ph)], radius=12, fill=PANEL)
+        _v_gradient(drw, PAD + 2, y + 2, chart_x1 - 2, y + ph - 2, PANEL, CARD2, steps=40)
 
-    if sma20 and sma50 and price_usd:
-        sma_t = f"20-day Avg ${sma20:,.0f}  ·  50-day Avg ${sma50:,.0f}  ·  Now ${price_usd:,.0f}"
-        drw.text((PAD + 16, y + H_TECH - 4), sma_t, font=F13, fill=MUT)
+        n_h = len(closings_22k)
+        n_f = len(fc_mids) if has_forecast else 0
+        n_total = n_h + n_f
+
+        all_vals = list(closings_22k)
+        if has_forecast:
+            all_vals += fc_los + fc_his + fc_mids
+        pmin, pmax = min(all_vals), max(all_vals)
+        pad_pct = 0.10
+        plo = pmin - (pmax - pmin) * pad_pct
+        phi = pmax + (pmax - pmin) * pad_pct
+        prng = max(phi - plo, 1)
+
+        # Top inset is enlarged so the indicator cards can overlay above
+        # the price line without colliding with it. Bottom needs room for
+        # rotated date labels — compute from the longest label so they
+        # never get clipped.
+        _all_lbls = [str(s) for s in (dates_lbl + (fc_dlbl if has_forecast else [])) if s]
+        _max_lbl_w = max((_tw(s, F13) for s in _all_lbls), default=40)
+        # rotated tile height ≈ text width + small padding; reserve gap above + below
+        BP = max(80, _max_lbl_w + 32)
+        LP, RP, TP = 92, 32, 130
+        px0 = PAD + LP; px1 = chart_x1 - RP
+        py0 = y + TP;   py1 = y + ph - BP
+
+        def _px(i): return int(px0 + i * (px1 - px0) / max(1, n_total - 1))
+        def _py(v): return int(py1 - (v - plo) / prng * (py1 - py0))
+
+        # Y-axis grid + price labels (horizontal)
+        for gp in [0.0, 0.25, 0.5, 0.75, 1.0]:
+            gy = int(py1 - gp * (py1 - py0))
+            pv = plo + gp * prng
+            drw.line([(px0, gy), (px1, gy)], fill=DIV, width=1)
+            drw.text((PAD + 6, gy - 9), f"₹{pv:,.0f}", font=F13, fill=MUT)
+
+        # ── Vertical day guides — only every 5th day so the chart isn't
+        # buried under 37 dotted lines.
+        for i in range(n_total):
+            if i % 5 != 0 and i != n_total - 1 and i != n_h - 1:
+                continue
+            gx = _px(i)
+            for yy in range(py0, py1, 6):
+                drw.line([(gx, yy), (gx, yy + 2)], fill=DIV, width=1)
+
+        # ── Historic side: gradient area fill
+        hist_xs = [_px(i) for i in range(n_h)]
+        hist_ys = [_py(c) for c in closings_22k]
+        area_pts = [(hist_xs[0], py1)] + list(zip(hist_xs, hist_ys)) + \
+                   [(hist_xs[-1], py1)]
+        _alpha_poly(area_pts, (C_UP[0], C_UP[1], C_UP[2], 55))
+        top_wash = [(hist_xs[0], int(py0 + (py1 - py0) * 0.4))] + \
+                   list(zip(hist_xs, hist_ys)) + \
+                   [(hist_xs[-1], int(py0 + (py1 - py0) * 0.4))]
+        _alpha_poly(top_wash, (C_UP[0], C_UP[1], C_UP[2], 25))
+
+        # TODAY divider + label (only when forecast is shown)
+        if has_forecast:
+            today_x = (_px(n_h - 1) + _px(n_h)) // 2
+            for yy in range(py0, py1, 6):
+                drw.line([(today_x, yy), (today_x, yy + 3)], fill=GLD2, width=1)
+            _today_lbl = "TODAY"
+            tw_t = _tw(_today_lbl, F13)
+            # Position below the chart on the date-label band so it doesn't
+            # collide with the indicator overlay strip near the top.
+            drw.text((today_x - tw_t // 2, py1 + 6), _today_lbl, font=F13, fill=GLD)
+
+            # Confidence band (forecast low–high), anchored to last historic point
+            band_top = [(_px(n_h - 1), _py(closings_22k[-1]))] + \
+                       [(_px(n_h + i), _py(fc_his[i])) for i in range(n_f)]
+            band_bot = [(_px(n_h - 1), _py(closings_22k[-1]))] + \
+                       [(_px(n_h + i), _py(fc_los[i])) for i in range(n_f)]
+            _alpha_poly(band_top + list(reversed(band_bot)),
+                        (GLD[0], GLD[1], GLD[2], 55))
+
+        # Historic actual line + dots
+        hist_pts = list(zip(hist_xs, hist_ys))
+        if len(hist_pts) >= 2:
+            drw.line(hist_pts, fill=BLU, width=3)
+        for i, (xp, yp) in enumerate(hist_pts):
+            is_up = closings_22k[i] >= closings_22k[i - 1] if i > 0 else True
+            dot_col = C_UP if is_up else C_DN
+            # Smaller dots for 30-day density
+            drw.ellipse([(xp - 5, yp - 5), (xp + 5, yp + 5)], fill=PANEL)
+            drw.ellipse([(xp - 4, yp - 4), (xp + 4, yp + 4)], fill=dot_col)
+            drw.ellipse([(xp - 1, yp - 1), (xp + 1, yp + 1)], fill=CARD)
+
+        # Inline day-by-day change labels for the last 7 historic dots.
+        # Replaces the separate per-day strip — the ▲/▼ pill sits just
+        # above (or below) each dot so day-over-day changes are visible
+        # without leaving the chart.
+        try:
+            n_tag = min(7, len(hist_pts))
+            for k in range(len(hist_pts) - n_tag, len(hist_pts)):
+                if k <= 0:
+                    continue
+                dc = daily_chg_22k[k] if k < len(daily_chg_22k) else 0
+                if dc == 0:
+                    continue
+                xp, yp = hist_pts[k]
+                col = C_UP if dc >= 0 else C_DN
+                arr = "▲" if dc >= 0 else "▼"
+                txt = f"{arr}{abs(dc):,.0f}"
+                tw_t = _tw(txt, F11)
+                pw   = tw_t + 8
+                ph_t = 14
+                # Default above the dot; flip below if it would clip the
+                # top indicator strip area.
+                lx0 = xp - pw // 2
+                ly0 = yp - ph_t - 8
+                if ly0 < py0 + 70:  # leave room for in-chart indicator cards
+                    ly0 = yp + 10
+                lx1 = lx0 + pw
+                _alpha_rect(lx0, ly0, lx1, ly0 + ph_t,
+                            (PANEL[0], PANEL[1], PANEL[2], 220), radius=3)
+                drw.text((lx0 + 4, ly0 - 1), txt, font=F11, fill=col)
+        except Exception:
+            pass
+
+        # Forecast dashed line + markers + collision-aware price labels
+        if has_forecast:
+            fc_pts = [(_px(n_h - 1), _py(closings_22k[-1]))] + \
+                     [(_px(n_h + i), _py(fc_mids[i])) for i in range(n_f)]
+            for i in range(len(fc_pts) - 1):
+                x1a, y1a = fc_pts[i]
+                x2a, y2a = fc_pts[i + 1]
+                steps = max(4, int(((x2a - x1a) ** 2 + (y2a - y1a) ** 2) ** 0.5 / 8))
+                for s in range(steps):
+                    if s % 2 == 0:
+                        sx1 = int(x1a + (x2a - x1a) * s / steps)
+                        sy1 = int(y1a + (y2a - y1a) * s / steps)
+                        sx2 = int(x1a + (x2a - x1a) * (s + 1) / steps)
+                        sy2 = int(y1a + (y2a - y1a) * (s + 1) / steps)
+                        drw.line([(sx1, sy1), (sx2, sy2)], fill=GLD, width=3)
+
+            fc_marker_pts = []
+            for i in range(n_f):
+                xp, yp = _px(n_h + i), _py(fc_mids[i])
+                d = fc_dirs[i]
+                dc = C_UP if "UP" in d else (C_DN if "DOWN" in d else AMB)
+                drw.ellipse([(xp - 6, yp - 6), (xp + 6, yp + 6)], fill=PANEL)
+                drw.ellipse([(xp - 4, yp - 4), (xp + 4, yp + 4)], fill=dc)
+                drw.ellipse([(xp - 1, yp - 1), (xp + 1, yp + 1)], fill=CARD)
+                fc_marker_pts.append((xp, yp, dc))
+
+            # Forecast price labels — only highlight 3 milestones (first,
+            # mid, last) instead of one label per point, to keep the chart
+            # uncluttered.
+            milestones = {0, n_f // 2, n_f - 1}
+            for i, (xp, yp, dc) in enumerate(fc_marker_pts):
+                if i not in milestones:
+                    continue
+                lbl  = f"₹{fc_mids[i]:,}"
+                tw_l = _tw(lbl, F13)
+                pad_x, pad_y = 6, 3
+                pill_w = tw_l + 2 * pad_x
+                pill_h = 18
+                place_above = (i == n_f - 1)
+                ly = yp - 22 if place_above else yp + 12
+                if ly < py0 + 2:
+                    ly = yp + 12
+                if ly + pill_h > py1 - 2:
+                    ly = yp - 22
+                lx0 = xp - pill_w // 2
+                lx1 = lx0 + pill_w
+                _alpha_rect(lx0, ly, lx1, ly + pill_h,
+                            (PANEL[0], PANEL[1], PANEL[2], 230), radius=4)
+                drw.rounded_rectangle([(lx0, ly), (lx1, ly + pill_h)],
+                                       radius=4, outline=dc, width=1)
+                drw.text((lx0 + pad_x, ly + pad_y), lbl, font=F13, fill=dc)
+
+        # X-axis day labels — render rotated 90° to fit dense timelines.
+        # On a 30+7 day chart the per-column spacing is only ~20 px, so we
+        # show every 2nd historic date + every forecast date to avoid the
+        # rotated tiles overlapping each other.
+        def _draw_rot_label(cx: int, top_y: int, text: str, color):
+            # Measure the actual text bbox so descenders ("p" in Apr/Sep,
+            # "g" in Aug) are NEVER clipped during rotation.
+            try:
+                tx0, ty0, tx1, ty1 = F13.getbbox(text)
+            except Exception:
+                tx0, ty0 = 0, 0
+                tx1, ty1 = _tw(text, F13), 18
+            text_w = tx1 - tx0
+            text_h = ty1 - ty0
+            pad_x, pad_y = 4, 4
+            tile_w = text_w + pad_x * 2
+            tile_h = text_h + pad_y * 2
+            tile = Image.new("RGBA", (tile_w, tile_h), (0, 0, 0, 0))
+            ImageDraw.Draw(tile).text((pad_x - tx0, pad_y - ty0),
+                                      text, font=F13, fill=color)
+            tile = tile.rotate(90, expand=True, resample=Image.BICUBIC)
+            img.paste(tile, (cx - tile.width // 2, top_y), tile)
+
+        for i in range(n_h):
+            # Always keep the first and last historic dates; thin the rest
+            keep = (i == 0) or (i == n_h - 1) or (i % 2 == 0)
+            if not keep:
+                continue
+            if i < len(dates_lbl):
+                dl = dates_lbl[i]
+                if dl:
+                    _draw_rot_label(_px(i), py1 + 22, dl, INK3)
+        if has_forecast:
+            for i in range(n_f):
+                dl = fc_dlbl[i] if i < len(fc_dlbl) else ""
+                if not dl:
+                    continue
+                _draw_rot_label(_px(n_h + i), py1 + 22, dl, GLD2)
+
+        # Current price callout — placed beside the boundary dot
+        cur_x, cur_y = _px(n_h - 1), _py(closings_22k[-1])
+        cur_lbl = f"₹{closings_22k[-1]:,}"
+        cw = _tw(cur_lbl, F13) + 14
+        pill_x0 = cur_x - cw - 8
+        if pill_x0 < px0:
+            pill_x0 = cur_x + 12
+        pill_y0 = cur_y - 26
+        if pill_y0 < py0 + 2:
+            pill_y0 = cur_y + 10
+        drw.rounded_rectangle([(pill_x0, pill_y0),
+                                (pill_x0 + cw, pill_y0 + 18)], radius=5, fill=BLU)
+        drw.text((pill_x0 + 7, pill_y0 + 1), cur_lbl,
+                 font=F13, fill=BG if sum(BLU) > 350 else (255, 255, 255))
+
+        # ── In-chart indicator strip (inside the same panel) ──────────────
+        # Renders directly below the date axis, still inside the chart card.
+        if has_forecast:
+            d_today = pred_dir  # guaranteed UP or DOWN — see top of build_image
+            try:
+                c_today = float((prediction or {}).get("confidence", 0) or 0)
+            except (TypeError, ValueError):
+                c_today = 0.0
+            d_col = GRN if "UP" in d_today else (RED if "DOWN" in d_today else AMB)
+            d_arr = "▲" if "UP" in d_today else ("▼" if "DOWN" in d_today else "—")
+            move_pct = (fc_mids[-1] - closings_22k[-1]) / max(1, closings_22k[-1]) * 100
+            mv_col = GRN if move_pct >= 0 else RED
+            band_pct = (fc_his[-1] - fc_los[-1]) / max(1, fc_mids[-1]) * 100
+            cv = closings_22k[-1]
+            cards = [
+                ("Today's call",
+                 f"{d_arr} {d_today}",
+                 f"Confidence {c_today:.0f}%" if c_today else "—",
+                 d_col),
+                ("Expected 7-day move",
+                 f"{'+' if move_pct >= 0 else ''}{move_pct:.2f}%",
+                 f"₹{cv:,} → ₹{fc_mids[-1]:,}",
+                 mv_col),
+                ("Day-7 range",
+                 f"₹{fc_los[-1]:,} – ₹{fc_his[-1]:,}",
+                 f"±{band_pct/2:.1f}% band",
+                 GLD),
+                ("Bulk buying (22K)",
+                 f"10g = ₹{cv * 10:,}",
+                 f"8g ₹{cv*8:,}  ·  12g ₹{cv*12:,}",
+                 INK),
+            ]
+        else:
+            cv = closings_22k[-1]
+            chg22 = chg_22k or 0
+            cards = [
+                ("Today's price",
+                 f"₹{cv:,}/g",
+                 ("▲ " if chg22 >= 0 else "▼ ") + f"₹{abs(chg22):,.0f}/g",
+                 GRN if chg22 >= 0 else RED),
+                ("7-day change",
+                 f"{chg_7d:+.2f}%" if chg_7d else "—",
+                 "vs week ago",
+                 GRN if (chg_7d or 0) >= 0 else RED),
+                ("30-day change",
+                 f"{chg_30d:+.2f}%" if chg_30d else "—",
+                 "vs month ago",
+                 GRN if (chg_30d or 0) >= 0 else RED),
+                ("Bulk buying (22K)",
+                 f"10g = ₹{cv * 10:,}",
+                 f"8g ₹{cv*8:,}  ·  12g ₹{cv*12:,}",
+                 INK),
+            ]
+
+        # Strip is OVERLAID at the very top of the chart, above the price
+        # line, so the indicators sit visually inside the graph itself.
+        n_cards = len(cards)
+        gap_c   = 10
+        strip_h   = 64
+        strip_top = y + 14                # just under the section banner edge
+        avail_w = (chart_x1 - PAD) - 2 * 16 - (n_cards - 1) * gap_c
+        ccw     = avail_w // n_cards
+        for ci, (lbl, big, sub, col) in enumerate(cards):
+            cx0 = PAD + 16 + ci * (ccw + gap_c)
+            cx1 = cx0 + ccw
+            # Translucent backdrop so the chart bg shows through faintly
+            _alpha_rect(cx0, strip_top, cx1, strip_top + strip_h,
+                        (CARD2[0], CARD2[1], CARD2[2], 215), radius=8)
+            drw.rounded_rectangle([(cx0, strip_top), (cx1, strip_top + strip_h)],
+                                   radius=8, outline=DIV, width=1)
+            drw.rounded_rectangle([(cx0, strip_top), (cx0 + 4, strip_top + strip_h)],
+                                   radius=2, fill=col)
+            drw.text((cx0 + 12, strip_top + 6),  lbl, font=F13, fill=INK3)
+            drw.text((cx0 + 12, strip_top + 24), big, font=F18b, fill=col)
+            drw.text((cx0 + 12, strip_top + 46), sub, font=F13, fill=INK2)
+
+        y += ph + GAP
+
+    # ──────────────────────────────────────────────────────────────────────
+    # ③c (legacy) Compact info strip — merged into ③ above. Disabled.
+    # ──────────────────────────────────────────────────────────────────────
+    if False and H_PRED_INFO and len(closings_22k) >= 2:
+        has_forecast = len(fc_mids) >= 2
+        sh = H_PRED_INFO - 8
+
+        if has_forecast:
+            d_today = (prediction or {}).get("direction", "FLAT")
+            try:
+                c_today = float((prediction or {}).get("confidence", 0) or 0)
+            except (TypeError, ValueError):
+                c_today = 0.0
+            d_col = GRN if "UP" in d_today else (RED if "DOWN" in d_today else AMB)
+            d_arr = "▲" if "UP" in d_today else ("▼" if "DOWN" in d_today else "—")
+
+            move_pct = (fc_mids[-1] - closings_22k[-1]) / max(1, closings_22k[-1]) * 100
+            mv_col = GRN if move_pct >= 0 else RED
+            band_pct = (fc_his[-1] - fc_los[-1]) / max(1, fc_mids[-1]) * 100
+
+            cv = closings_22k[-1]
+            cards = [
+                ("Today's call",
+                 f"{d_arr} {d_today}",
+                 f"Confidence {c_today:.0f}%" if c_today else "—",
+                 d_col),
+                ("Expected 7-day move",
+                 f"{'+' if move_pct >= 0 else ''}{move_pct:.2f}%",
+                 f"₹{cv:,} → ₹{fc_mids[-1]:,}",
+                 mv_col),
+                ("Day-7 range",
+                 f"₹{fc_los[-1]:,} – ₹{fc_his[-1]:,}",
+                 f"±{band_pct/2:.1f}% band",
+                 GLD),
+                ("Bulk buying (22K)",
+                 f"10g = ₹{cv * 10:,}",
+                 f"8g ₹{cv*8:,}  ·  12g ₹{cv*12:,}",
+                 INK),
+            ]
+        else:
+            cv = closings_22k[-1]
+            chg22 = chg_22k or 0
+            cards = [
+                ("Today's price",
+                 f"₹{cv:,}/g",
+                 ("▲ " if chg22 >= 0 else "▼ ") + f"₹{abs(chg22):,.0f}/g",
+                 GRN if chg22 >= 0 else RED),
+                ("7-day change",
+                 f"{chg_7d:+.2f}%" if chg_7d else "—",
+                 "vs week ago",
+                 GRN if (chg_7d or 0) >= 0 else RED),
+                ("30-day change",
+                 f"{chg_30d:+.2f}%" if chg_30d else "—",
+                 "vs month ago",
+                 GRN if (chg_30d or 0) >= 0 else RED),
+                ("Bulk buying (22K)",
+                 f"10g = ₹{cv * 10:,}",
+                 f"8g ₹{cv*8:,}  ·  12g ₹{cv*12:,}",
+                 INK),
+            ]
+
+        n_cards = len(cards)
+        gap_c   = 12
+        cw      = (W - 2 * PAD - (n_cards - 1) * gap_c) // n_cards
+        for ci, (lbl, big, sub, col) in enumerate(cards):
+            cx0 = PAD + ci * (cw + gap_c)
+            cx1 = cx0 + cw
+            drw.rounded_rectangle([(cx0, y), (cx1, y + sh)], radius=10, fill=PANEL)
+            drw.rounded_rectangle([(cx0, y), (cx0 + 5, y + sh)], radius=3, fill=col)
+            drw.text((cx0 + 14, y + 12), lbl, font=F13, fill=INK3)
+            drw.text((cx0 + 14, y + 32), big, font=F18b, fill=col)
+            drw.text((cx0 + 14, y + 64), sub, font=F13, fill=INK2)
+
+        y += sh + GAP
+
+    # ======================================================== #
+    # ⑤ FULL GOLD PRICE HISTORY (5-year, 22K /g)               #
+    # ======================================================== #
+    _sec("FULL GOLD PRICE HISTORY — 5 YEARS (22K /g)", "📈")
+    # Modern card: subtle gradient backdrop + soft inner border
+    _shadow_rect(drw, PAD, y, W - PAD, y + H_TECH, PANEL,
+                 radius=14, soff=4, scol=SHD)
+    _v_gradient(drw, PAD + 2, y + 2, W - PAD - 2, y + H_TECH - 2,
+                CARD2, PANEL, steps=60)
+    drw.rounded_rectangle([(PAD, y), (W - PAD, y + H_TECH)],
+                          radius=14, outline=DIV, width=1)
+
+    # Try to fetch up to 5 years of COMEX gold history; convert to 22K INR /g.
+    long_series: list[tuple] = []   # (date, price_22k)
+    try:
+        import yfinance as _yf
+        _h = _yf.Ticker("GC=F").history(period="5y")
+        if _h is not None and len(_h) >= 30:
+            for _dt, _row in _h.iterrows():
+                _usd = float(_row["Close"])
+                _inr_24k = _usd * usd_inr / 31.1035 * INDIA_GOLD_DUTY_FACTOR
+                _inr_22k = _inr_24k * 22 / 24
+                long_series.append((_dt.date(), round(_inr_22k)))
+    except Exception as _exc:
+        logger.warning(f"Long history fetch failed, using 30d series: {_exc}")
+
+    # Fallback: reuse the 30-day 22K closings already computed
+    if len(long_series) < 30 and closings_22k:
+        from datetime import date as _date, timedelta as _td
+        _today = _date.today()
+        long_series = [(_today - _td(days=len(closings_22k) - i - 1), v)
+                       for i, v in enumerate(closings_22k)]
+
+    if len(long_series) >= 2:
+        from datetime import date as _date2, timedelta as _td2
+
+        # ── KPI strip (Now / 1Y / 3Y / 5Y / ATH) ────────────────────────
+        vals_all = [v for _, v in long_series]
+        dates_all = [d for d, _ in long_series]
+        cur_v = vals_all[-1]
+        cur_d = dates_all[-1]
+
+        def _val_n_days_ago(days: int):
+            target = cur_d - _td2(days=days)
+            for i, d in enumerate(dates_all):
+                if d >= target:
+                    return vals_all[i]
+            return vals_all[0]
+
+        v1y = _val_n_days_ago(365)
+        v3y = _val_n_days_ago(365 * 3)
+        v5y = vals_all[0]
+        ath_idx = vals_all.index(max(vals_all))
+        atl_idx = vals_all.index(min(vals_all))
+        ath_v, ath_d = vals_all[ath_idx], dates_all[ath_idx]
+
+        def _pct(a, b):
+            return (a - b) / max(1, b) * 100
+
+        kpis = [
+            ("Now (22K /g)",  f"₹{cur_v:,}",
+             cur_d.strftime("%d %b %Y"), GLD),
+            ("1-Year change", f"{_pct(cur_v, v1y):+.1f}%",
+             f"₹{v1y:,} → ₹{cur_v:,}",
+             GRN if cur_v >= v1y else RED),
+            ("3-Year change", f"{_pct(cur_v, v3y):+.1f}%",
+             f"₹{v3y:,} → ₹{cur_v:,}",
+             GRN if cur_v >= v3y else RED),
+            ("5-Year change", f"{_pct(cur_v, v5y):+.1f}%",
+             f"₹{v5y:,} → ₹{cur_v:,}",
+             GRN if cur_v >= v5y else RED),
+            ("All-time high", f"₹{ath_v:,}",
+             ath_d.strftime("%d %b %Y"), AMB),
+        ]
+        n_k    = len(kpis)
+        gap_k  = 10
+        kpi_h  = 64
+        kpi_x0 = PAD + 16
+        kpi_x1 = W - PAD - 16
+        kpi_y0 = y + 12
+        avail  = (kpi_x1 - kpi_x0) - (n_k - 1) * gap_k
+        kw     = avail // n_k
+        for ki, (lbl, big, sub, col) in enumerate(kpis):
+            kx0 = kpi_x0 + ki * (kw + gap_k)
+            kx1 = kx0 + kw
+            _alpha_rect(kx0, kpi_y0, kx1, kpi_y0 + kpi_h,
+                        (CARD2[0], CARD2[1], CARD2[2], 220), radius=10)
+            drw.rounded_rectangle([(kx0, kpi_y0), (kx1, kpi_y0 + kpi_h)],
+                                  radius=10, outline=DIV, width=1)
+            drw.rounded_rectangle([(kx0, kpi_y0), (kx0 + 4, kpi_y0 + kpi_h)],
+                                  radius=2, fill=col)
+            drw.text((kx0 + 14, kpi_y0 + 6),  lbl, font=F11,  fill=INK3)
+            drw.text((kx0 + 14, kpi_y0 + 22), big, font=F18b, fill=col)
+            drw.text((kx0 + 14, kpi_y0 + 46), sub, font=F11,  fill=INK2)
+
+        # ── Plot area (below KPI strip, above year axis) ────────────────
+        LP, RP, TP, BP = 78, 28, 12 + kpi_h + 18, 56
+        ax0, ay0 = PAD + LP, y + TP
+        ax1, ay1 = W - PAD - RP, y + H_TECH - BP
+
+        vals = vals_all
+        vmin, vmax = min(vals), max(vals)
+        # Pad range a bit so line never hugs the edges
+        pad = (vmax - vmin) * 0.06 if vmax > vmin else 1
+        plo = vmin - pad
+        phi = vmax + pad
+        prng = max(phi - plo, 1)
+        n = len(long_series)
+
+        def _xp(i): return int(ax0 + (ax1 - ax0) * i / max(1, n - 1))
+        def _yp(v): return int(ay1 - (ay1 - ay0) * (v - plo) / prng)
+
+        # Y-axis: 5 dotted gridlines + price labels
+        for k in range(5):
+            yk = ay0 + (ay1 - ay0) * k // 4
+            for xx in range(ax0, ax1, 6):
+                drw.line([(xx, yk), (xx + 2, yk)], fill=DIV, width=1)
+            v_g = phi - prng * k / 4
+            drw.text((PAD + 8, yk - 7), f"₹{int(v_g):,}", font=F11, fill=MUT)
+
+        # Year boundaries — pill labels + dotted vertical guides
+        last_year = None
+        year_xs   = []
+        for i, (d, _) in enumerate(long_series):
+            if d.year != last_year:
+                last_year = d.year
+                year_xs.append((i, d.year))
+        for i_yr, yr in year_xs:
+            xk = _xp(i_yr)
+            for yy in range(ay0, ay1, 6):
+                drw.line([(xk, yy), (xk, yy + 2)], fill=DIV, width=1)
+            yl = str(yr)
+            tw_y = _tw(yl, F11)
+            ly0 = ay1 + 8
+            lx0 = max(ax0, xk - tw_y // 2 - 6)
+            lx1 = min(ax1, lx0 + tw_y + 12)
+            _alpha_rect(lx0, ly0, lx1, ly0 + 18,
+                        (CARD2[0], CARD2[1], CARD2[2], 220), radius=4)
+            drw.text((lx0 + 6, ly0 + 2), yl, font=F11, fill=INK2)
+
+        # ── Multi-stop gradient area fill below the price line ─────────
+        try:
+            line_pts = [(_xp(i), _yp(v)) for i, (_, v) in enumerate(long_series)]
+            # Build 3 stacked bands of decreasing opacity for a smooth wash
+            for alpha in (90, 55, 28):
+                poly = [(line_pts[0][0], ay1)] + line_pts + [(line_pts[-1][0], ay1)]
+                _alpha_poly(poly, (GLD[0], GLD[1], GLD[2], alpha))
+        except Exception:
+            line_pts = [(_xp(i), _yp(v)) for i, (_, v) in enumerate(long_series)]
+
+        # 200-day MA first (so 50-day MA sits on top), thinner & dim
+        if n >= 200:
+            ma2_pts = []
+            for i in range(199, n):
+                avg2 = sum(vals[i - 199:i + 1]) / 200
+                ma2_pts.append((_xp(i), _yp(avg2)))
+            if len(ma2_pts) >= 2:
+                drw.line(ma2_pts, fill=AMB, width=2)
+
+        if n >= 50:
+            ma_pts = []
+            for i in range(49, n):
+                avg = sum(vals[i - 49:i + 1]) / 50
+                ma_pts.append((_xp(i), _yp(avg)))
+            if len(ma_pts) >= 2:
+                drw.line(ma_pts, fill=BLU, width=2)
+
+        # Main price line — slightly thicker with a subtle outer glow
+        if len(line_pts) >= 2:
+            try:
+                _alpha_lines = line_pts
+                # Soft outer glow: draw same line with translucent gold
+                # (PIL doesn't blur lines; emulate by widening a faint stroke).
+                glow_overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
+                ImageDraw.Draw(glow_overlay).line(
+                    _alpha_lines, fill=(GLD[0], GLD[1], GLD[2], 70), width=7)
+                img.paste(glow_overlay, (0, 0), glow_overlay)
+            except Exception:
+                pass
+            drw.line(line_pts, fill=GLD, width=3)
+
+        # 5-year high / low markers with dotted guideline down to axis
+        for i_m, label, col in [(ath_idx, f"5Y HIGH ₹{vals[ath_idx]:,}", GRN),
+                                (atl_idx, f"5Y LOW ₹{vals[atl_idx]:,}",   RED)]:
+            xm, ym = _xp(i_m), _yp(vals[i_m])
+            for yy in range(ym, ay1, 5):
+                drw.line([(xm, yy), (xm, yy + 2)], fill=col, width=1)
+            drw.ellipse([(xm - 7, ym - 7), (xm + 7, ym + 7)], fill=PANEL)
+            drw.ellipse([(xm - 5, ym - 5), (xm + 5, ym + 5)], fill=col)
+            drw.ellipse([(xm - 2, ym - 2), (xm + 2, ym + 2)], fill=CARD)
+            tw_l = _tw(label, F11)
+            place_above = ym - 26 >= ay0 + 2
+            ly = ym - 24 if place_above else ym + 10
+            lx = max(ax0, min(ax1 - tw_l - 12, xm - tw_l // 2 - 6))
+            _alpha_rect(lx, ly, lx + tw_l + 12, ly + 18,
+                        (PANEL[0], PANEL[1], PANEL[2], 235), radius=5)
+            drw.rounded_rectangle([(lx, ly), (lx + tw_l + 12, ly + 18)],
+                                  radius=5, outline=col, width=1)
+            drw.text((lx + 6, ly + 2), label, font=F11, fill=col)
+
+        # Current price pill at the right edge
+        cx, cy = _xp(n - 1), _yp(vals[-1])
+        cur_lbl = f"NOW ₹{vals[-1]:,}"
+        cw = _tw(cur_lbl, F13) + 16
+        drw.ellipse([(cx - 7, cy - 7), (cx + 7, cy + 7)], fill=PANEL)
+        drw.ellipse([(cx - 5, cy - 5), (cx + 5, cy + 5)], fill=BLU)
+        px0_p = max(ax0, cx - cw - 8)
+        py0_p = max(ay0 + 2, cy - 28)
+        drw.rounded_rectangle([(px0_p, py0_p), (px0_p + cw, py0_p + 20)],
+                              radius=6, fill=BLU)
+        drw.text((px0_p + 8, py0_p + 2), cur_lbl, font=F13,
+                 fill=BG if sum(BLU) > 350 else (255, 255, 255))
+
+        # Footer summary band
+        first_v = vals[0]
+        chg_pct = (vals[-1] - first_v) / max(1, first_v) * 100
+        chg_col = GRN if chg_pct >= 0 else RED
+        chg_arr = "▲" if chg_pct >= 0 else "▼"
+        summary = (f"{n} trading days  ·  "
+                   f"Range ₹{vmin:,} – ₹{vmax:,}  ·  "
+                   f"5Y change {chg_arr} {abs(chg_pct):.1f}%")
+        drw.text((PAD + 16, y + H_TECH - 24), summary, font=F13, fill=chg_col)
+
+        # Mini-legend (right side of footer)
+        leg_x = ax1 - 240
+        leg_y = y + H_TECH - 26
+        drw.line([(leg_x, leg_y + 8), (leg_x + 22, leg_y + 8)], fill=GLD, width=3)
+        drw.text((leg_x + 28, leg_y + 2), "Price", font=F11, fill=INK3)
+        drw.line([(leg_x + 80, leg_y + 8), (leg_x + 102, leg_y + 8)], fill=BLU, width=2)
+        drw.text((leg_x + 108, leg_y + 2), "50d MA", font=F11, fill=INK3)
+        drw.line([(leg_x + 160, leg_y + 8), (leg_x + 182, leg_y + 8)], fill=AMB, width=2)
+        drw.text((leg_x + 188, leg_y + 2), "200d MA", font=F11, fill=INK3)
+    else:
+        drw.text((PAD + 18, y + 18), "Insufficient history available.", font=F13, fill=MUT)
 
     y += H_TECH + GAP
 
-    # ======================================================== #
-    # ⑥ BUYING GUIDE                                           #
-    # ======================================================== #
-    _sec("BUYING GUIDE & RECOMMENDATION", "💡")
-    drw.rounded_rectangle([(PAD, y), (W - PAD, y + H_BUY)], radius=10, fill=PANEL)
+    # ============================================================ #
+    # ⑥ BUYING GUIDE  +  ⑧ GRT TODAY'S OFFERS  (collage, 2-column) #
+    # ============================================================ #
+    has_grt_offers = bool(grt_22k and grt_offers)
 
-    cw3  = (W - 2 * PAD - 26) // 3
-    pg1  = PAD + 18
+    # Left side: 3 KPI cards in a horizontal strip
+    L_KPI_H     = 156                     # height of each KPI tile
+    L_MIN_H     = L_KPI_H + 24            # tile + top/bot pad
+    # Right side: GRT offers as a 2-column small-card grid
+    R_HEADER_H   = 34
+    R_FOOT_PAD   = 12
+    R_CARD_H     = 72
+    R_CARD_GAP   = 8
+    R_CARD_COLS  = 2
+    R_CARD_ROWS  = ((len(grt_offers) + R_CARD_COLS - 1) // R_CARD_COLS
+                    if has_grt_offers else 0)
+    R_NEED_H     = (R_HEADER_H
+                    + R_CARD_ROWS * (R_CARD_H + R_CARD_GAP)
+                    - (R_CARD_GAP if R_CARD_ROWS else 0)
+                    + R_FOOT_PAD * 2
+                    if has_grt_offers else 0)
+    H_COLLAGE    = max(L_MIN_H, R_NEED_H) if has_grt_offers else L_MIN_H
 
-    # Col 1 – Best day
-    drw.text((pg1, y + 14), "Best Day to Buy", font=F13, fill=INK3)
-    if best_day:
-        drw.text((pg1, y + 34), f"📅 {_ordinal(best_day)} of month", font=F18b, fill=GLD)
-        if win_label:
-            drw.text((pg1, y + 70), f"Window: {win_label}", font=F13, fill=INK2)
-        if top3_days:
-            drw.text((pg1, y + 90), f"Top 3: {', '.join(_ordinal(d) for d in top3_days)}",
-                     font=F13, fill=MUT)
-    drw.line([(PAD + cw3 + 8, y + 14), (PAD + cw3 + 8, y + H_BUY - 14)], fill=DIV, width=1)
-
-    # Col 2 – Month low 22K
-    pg2 = PAD + cw3 + 26
-    drw.text((pg2, y + 14), "Cheapest Day This Month (22K)", font=F13, fill=INK3)
-    if ml_day:
-        drw.text((pg2, y + 34), f"📉 {_ordinal(ml_day)}", font=F18b, fill=GRN)
-        if ml_price_22k:
-            drw.text((pg2, y + 70), f"₹{ml_price_22k:,}/g", font=F15, fill=INK2)
-        if ml_trend:
-            tc = GRN if ml_trend == "falling" else (RED if ml_trend == "rising" else INK2)
-            drw.text((pg2, y + 96), f"Trend: {ml_trend}", font=F13, fill=tc)
+    if has_grt_offers:
+        _sec("BUYING GUIDE & TODAY'S OFFERS", "💡")
     else:
-        drw.text((pg2, y + 34), "Calculating…", font=F15, fill=MUT)
-    drw.line([(PAD + cw3 * 2 + 13, y + 14), (PAD + cw3 * 2 + 13, y + H_BUY - 14)], fill=DIV, width=1)
+        _sec("BUYING GUIDE & RECOMMENDATION", "💡")
 
-    # Col 3 – Recommendation
-    pg3 = PAD + cw3 * 2 + 28
-    drw.text((pg3, y + 14), "Today's Recommendation", font=F13, fill=INK3)
+    # 60 / 40 split for breathing room (left has 3 KPI tiles)
+    LCW = int((W - 2 * PAD - 14) * 0.60) if has_grt_offers else (W - 2 * PAD)
+    lx0 = PAD
+    lx1 = lx0 + LCW
+    rx0 = lx1 + 14
+    rx1 = W - PAD
+
+    # ── LEFT: Buying Guide as 3 KPI cards ────────────────────────────────
+    drw.rounded_rectangle([(lx0, y), (lx1, y + H_COLLAGE)], radius=10, fill=PANEL)
+    _v_gradient(drw, lx0 + 2, y + 2, lx1 - 2, y + H_COLLAGE - 2,
+                PANEL, CARD2, steps=40)
+    drw.rounded_rectangle([(lx0, y), (lx1, y + H_COLLAGE)],
+                          radius=10, outline=DIV, width=1)
+
+    # 3 tiles side-by-side
+    L_INNER_PAD = 12
+    L_GAP       = 10
+    tile_w      = (LCW - 2 * L_INNER_PAD - 2 * L_GAP) // 3
+    tile_y0     = y + (H_COLLAGE - L_KPI_H) // 2
+    tile_y1     = tile_y0 + L_KPI_H
+
+    def _draw_kpi_tile(col_idx: int, accent, label: str,
+                       big_val: str, big_col,
+                       sub1: str = "", sub2: str = ""):
+        tx0 = lx0 + L_INNER_PAD + col_idx * (tile_w + L_GAP)
+        tx1 = tx0 + tile_w
+        # Tile body — subtle vertical gradient
+        drw.rounded_rectangle([(tx0, tile_y0), (tx1, tile_y1)],
+                              radius=10, fill=CARD2)
+        _v_gradient(drw, tx0 + 1, tile_y0 + 1, tx1 - 1, tile_y1 - 1,
+                    CARD2, PANEL, steps=24)
+        drw.rounded_rectangle([(tx0, tile_y0), (tx1, tile_y1)],
+                              radius=10, outline=DIV, width=1)
+        # Top accent bar
+        _h_gradient(drw, tx0, tile_y0, tx1, tile_y0 + 4, accent, accent, steps=2)
+        drw.rounded_rectangle([(tx0, tile_y0), (tx1, tile_y0 + 4)],
+                              radius=2, fill=accent)
+        # Label
+        drw.text((tx0 + 12, tile_y0 + 12), label[:30], font=F13, fill=INK3)
+        # Big value (auto-shrunk to fit width)
+        bv = big_val[:32]
+        bv_font = F22b
+        if _tw(bv, bv_font) > tile_w - 24:
+            bv_font = F18b
+        if _tw(bv, bv_font) > tile_w - 24:
+            bv = bv[:18] + "…"
+        drw.text((tx0 + 12, tile_y0 + 40), bv, font=bv_font, fill=big_col)
+        # Sub-lines
+        if sub1:
+            drw.text((tx0 + 12, tile_y0 + 86), sub1[:48], font=F13, fill=INK2)
+        if sub2:
+            drw.text((tx0 + 12, tile_y0 + 112), sub2[:50], font=F11, fill=MUT)
+
+    # Tile 1 — Best Day to Buy
+    bd_sub1 = f"Window: {win_label}" if win_label else ""
+    bd_sub2 = (f"Top 3: {', '.join(_ordinal(d) for d in top3_days)}"
+               if top3_days else "")
+    _draw_kpi_tile(
+        0, GLD, "Best Day to Buy",
+        f"📅 {_ordinal(best_day)}" if best_day else "—",
+        GLD, bd_sub1, bd_sub2,
+    )
+
+    # Tile 2 — Cheapest Day This Month (22K)
+    if ml_day:
+        m2_sub1 = f"₹{ml_price_22k:,}/g" if ml_price_22k else ""
+        m2_sub2 = f"Trend: {ml_trend}" if ml_trend else ""
+        _draw_kpi_tile(
+            1, GRN, "Cheapest This Month",
+            f"📉 {_ordinal(ml_day)}", GRN, m2_sub1, m2_sub2,
+        )
+    else:
+        _draw_kpi_tile(1, GRN, "Cheapest This Month",
+                       "Calculating…", MUT, "", "")
+
+    # Tile 3 — Today's Recommendation
     if a_rec:
         rc = (a_rec.replace("🟢","").replace("🔴","").replace("🟡","")
-             .replace("⚪","").replace("🟠","").strip())
-        rcol = GRN if "BUY" in a_rec.upper() else (RED if any(
-            w in a_rec.upper() for w in ("AVOID","WAIT","SELL")) else AMB)
+              .replace("⚪","").replace("🟠","").strip())
+        rcol = GRN if "BUY" in a_rec.upper() else (
+               RED if any(w in a_rec.upper() for w in ("AVOID","WAIT","SELL")) else AMB)
         parts = rc.split(" – ")
-        drw.text((pg3, y + 34), parts[0][:24], font=F18b, fill=rcol)
-        if len(parts) > 1:
-            drw.text((pg3, y + 70), parts[1][:32], font=F13, fill=INK2)
-    drw.text((pg3, y + 106), f"Signal Score: {pred_dir}  ({pred_score:+.1f})", font=F13, fill=INK2)
+        head = parts[0]
+        sub  = parts[1] if len(parts) > 1 else ""
+    else:
+        head, sub, rcol = "—", "", AMB
+    _draw_kpi_tile(
+        2, rcol, "Today's Recommendation",
+        head, rcol, sub,
+        f"Signal: {pred_dir}  ({pred_score:+.1f})",
+    )
 
-    y += H_BUY + GAP
+    # ── RIGHT: GRT offers as a 2-column small-card grid ──────────────────
+    if has_grt_offers:
+        drw.rounded_rectangle([(rx0, y), (rx1, y + H_COLLAGE)], radius=10, fill=PANEL)
+        _v_gradient(drw, rx0 + 2, y + R_HEADER_H, rx1 - 2, y + H_COLLAGE - 2,
+                    PANEL, CARD2, steps=40)
+        drw.rounded_rectangle([(rx0, y), (rx1, y + H_COLLAGE)],
+                              radius=10, outline=DIV, width=1)
+
+        # Header strip
+        _h_gradient(drw, rx0, y, rx1, y + R_HEADER_H, GLD2, GLD, steps=28)
+        ttl     = "GRT JEWELLERS — TODAY'S OFFERS"
+        ttl_col = BG if sum(GLD) > 380 else INK
+        drw.text((rx0 + 14, y + 9), ttl, font=F14, fill=ttl_col)
+
+        off_section_colours = [AMB, BLU, GRN2, GLD2, SIL]
+        off_seen: dict[str, int] = {}
+
+        grid_x0 = rx0 + R_FOOT_PAD
+        grid_x1 = rx1 - R_FOOT_PAD
+        grid_y0 = y + R_HEADER_H + R_FOOT_PAD
+        card_w  = (grid_x1 - grid_x0 - R_CARD_GAP * (R_CARD_COLS - 1)) // R_CARD_COLS
+
+        for oi, off in enumerate(grt_offers):
+            row = oi // R_CARD_COLS
+            col = oi %  R_CARD_COLS
+            cx0 = grid_x0 + col * (card_w + R_CARD_GAP)
+            cy0 = grid_y0 + row * (R_CARD_H + R_CARD_GAP)
+            cx1 = cx0 + card_w
+            cy1 = cy0 + R_CARD_H
+            if cy1 > y + H_COLLAGE - 4:
+                break
+
+            sec = off.get("section", "")
+            if sec not in off_seen:
+                off_seen[sec] = len(off_seen) % len(off_section_colours)
+            scol = off_section_colours[off_seen[sec]]
+
+            # Card body + soft gradient
+            drw.rounded_rectangle([(cx0, cy0), (cx1, cy1)], radius=8, fill=CARD2)
+            _v_gradient(drw, cx0 + 1, cy0 + 1, cx1 - 1, cy1 - 1,
+                        CARD2, PANEL, steps=18)
+            drw.rounded_rectangle([(cx0, cy0), (cx1, cy1)],
+                                  radius=8, outline=DIV, width=1)
+            # Top accent bar (section colour)
+            drw.rounded_rectangle([(cx0, cy0), (cx1, cy0 + 4)],
+                                  radius=2, fill=scol)
+
+            # Section abbreviation
+            abv = (sec[:14] if sec else "Offer").upper()
+            drw.text((cx0 + 10, cy0 + 10), abv, font=F11, fill=scol)
+
+            # Title — wrap to 2 lines if needed
+            title   = off.get("title", "")
+            avail_w = card_w - 20
+            # crude word-wrap
+            words   = title.split()
+            line1, line2, cur = "", "", ""
+            for w in words:
+                trial = (cur + " " + w).strip()
+                if _tw(trial, F13) <= avail_w:
+                    cur = trial
+                else:
+                    if not line1:
+                        line1 = cur
+                        cur   = w
+                    else:
+                        line2 = cur
+                        cur   = w
+                        break
+            if not line1:
+                line1 = cur
+                cur   = ""
+            if not line2:
+                line2 = cur
+            # truncate line2 with ellipsis if more text remains
+            remaining = title[len((line1 + " " + line2).strip()):].strip()
+            if remaining and line2:
+                while line2 and _tw(line2 + " …", F13) > avail_w:
+                    line2 = line2[:-1]
+                line2 = (line2 + " …").strip()
+            drw.text((cx0 + 10, cy0 + 30), line1, font=F13, fill=INK)
+            if line2:
+                drw.text((cx0 + 10, cy0 + 50), line2, font=F13, fill=INK2)
+
+    y += H_COLLAGE + GAP
 
     # ======================================================== #
     # ⑦ GEOPOLITICAL SENTIMENT                                 #
@@ -1118,45 +1739,7 @@ def generate_price_image(
 
     y += H_GEO + GAP
 
-    # ======================================================== #
-    # ⑧ GRT TODAY'S OFFERS  (prices are in KPI sub-row above) #
-    # ======================================================== #
-    if grt_22k and grt_offers:
-        _sec("GRT JEWELLERS — TODAY'S OFFERS", "💍")
-        # Compact 2-column pill-row layout — each offer = one tight row
-        g_off_cols  = 2
-        g_off_col_w = (W - 2 * PAD - 8) // g_off_cols
-        g_off_row_h = 28
-        g_off_n     = len(grt_offers)
-        g_off_rows  = (g_off_n + g_off_cols - 1) // g_off_cols
-        g_off_h     = g_off_rows * g_off_row_h + 12
-
-        drw.rounded_rectangle([(PAD, y), (W - PAD, y + g_off_h)], radius=8, fill=PANEL)
-
-        off_section_colours = [AMB, BLU, GRN2, GLD2, SIL]
-        off_seen: dict[str, int] = {}
-        for oi, off in enumerate(grt_offers):
-            sec = off.get("section", "")
-            if sec not in off_seen:
-                off_seen[sec] = len(off_seen) % len(off_section_colours)
-            scol  = off_section_colours[off_seen[sec]]
-            oc    = oi % g_off_cols
-            or_   = oi // g_off_cols
-            ox    = PAD + 4 + oc * g_off_col_w
-            oy    = y + 6 + or_ * g_off_row_h
-
-            # tiny colour dot
-            drw.ellipse([(ox + 4, oy + 9), (ox + 14, oy + 19)], fill=scol)
-            # short section abbreviation in accent color
-            abv = (sec[:8] if sec else "Offer").upper()
-            drw.text((ox + 20, oy + 5), abv, font=F11, fill=scol)
-            abv_w = _tw(abv, F11)
-            # offer title (truncated to fit remaining width)
-            title = off.get("title", "")
-            max_chars = (g_off_col_w - abv_w - 42) // max(1, _tw("W", F11) // 2)
-            drw.text((ox + 24 + abv_w, oy + 5), title[:max_chars], font=F11, fill=INK)
-
-        y += g_off_h + GAP
+    # (Section ⑧ GRT offers is rendered above as part of the collage.)
 
     # ======================================================== #
     # ⑨ FOOTER                                                 #

@@ -279,7 +279,8 @@ def _decide(picks: dict[str, list[dict]],
              state: TraderState,
              ltps: dict[str, dict],
              funds: dict,
-             cfg: TraderConfig) -> list[Action]:
+             cfg: TraderConfig,
+             at_eod: bool = False) -> list[Action]:
     actions: list[Action] = []
 
     # 1. Exit checks on every open trade (SL / target / EOD).
@@ -288,6 +289,12 @@ def _decide(picks: dict[str, list[dict]],
         live = ltps.get(t.symbol) or {}
         ltp  = float(live.get("ltp") or 0)
         if ltp <= 0:
+            # No live price — can only force-close at EOD using last known
+            # entry price as a fallback so the trade doesn't leak forever.
+            if at_eod and t.bucket == "intraday":
+                actions.append(Action("CLOSE_EOD", trade=t, qty=t.qty,
+                                       price=t.entry_price,
+                                       reason="EOD close (no LTP, flat)"))
             continue
         if t.side == "BUY":
             if ltp <= t.sl:
@@ -296,9 +303,20 @@ def _decide(picks: dict[str, list[dict]],
             elif ltp >= t.target:
                 actions.append(Action("CLOSE_TGT", trade=t, qty=t.qty,
                                        price=ltp, reason=f"target @ {ltp:.2f}"))
+            elif at_eod and t.bucket == "intraday":
+                actions.append(Action("CLOSE_EOD", trade=t, qty=t.qty,
+                                       price=ltp,
+                                       reason=f"EOD square-off @ {ltp:.2f}"))
 
-    # 2. New-entry checks. Skip if halted, full, or this symbol already open.
+    # 2. New-entry checks. Skip if halted, full, this symbol already open,
+    #    or we're in the EOD pass / outside market hours.
     if state.halted:
+        return actions
+    if at_eod:
+        return actions
+    if not is_market_open():
+        # Don't open new positions pre-market or post-close — LTPs may be
+        # stale (e.g. last close from previous session) and would mis-fire.
         return actions
     if len(state.open_trades) >= cfg.max_positions:
         return actions
@@ -352,7 +370,7 @@ def _place(action: Action, cfg: TraderConfig) -> dict:
             order_type="MARKET", product="INTRADAY",
             dry_run=cfg.dry_run,
         )
-    if action.kind in ("CLOSE_SL", "CLOSE_TGT"):
+    if action.kind in ("CLOSE_SL", "CLOSE_TGT", "CLOSE_EOD"):
         return a.place_order(
             symbol=action.trade.symbol, side="SELL", qty=action.qty,
             order_type="MARKET", product="INTRADAY",
@@ -391,10 +409,12 @@ def _apply(action: Action, result: dict, state: TraderState,
         return (f"✅ [{tag}] OPEN {t.symbol} qty={t.qty} @ ₹{action.price:.2f} "
                 f"SL₹{t.sl:.2f} TGT₹{t.target:.2f} (order={oid})")
 
-    if action.kind in ("CLOSE_SL", "CLOSE_TGT"):
+    if action.kind in ("CLOSE_SL", "CLOSE_TGT", "CLOSE_EOD"):
         t = action.trade
         pnl = (action.price - t.entry_price) * t.qty
-        t.status       = "CLOSED_SL" if action.kind == "CLOSE_SL" else "CLOSED_TGT"
+        t.status       = ("CLOSED_SL"  if action.kind == "CLOSE_SL"  else
+                          "CLOSED_TGT" if action.kind == "CLOSE_TGT" else
+                          "CLOSED_EOD")
         t.closed_at    = now
         t.exit_price   = action.price
         t.realised_pnl = round(pnl, 2)
@@ -410,7 +430,9 @@ def _apply(action: Action, result: dict, state: TraderState,
             state.halted        = True
             state.halted_reason = (f"daily loss limit hit "
                                    f"(₹{state.realised_pnl:,.0f})")
-        emoji = "🛑" if action.kind == "CLOSE_SL" else "🎯"
+        emoji = ("🛑" if action.kind == "CLOSE_SL"  else
+                 "🎯" if action.kind == "CLOSE_TGT" else
+                 "🕔")
         return (f"{emoji} [{tag}] CLOSE {t.symbol} qty={t.qty} @ ₹{action.price:.2f} "
                 f"P&L ₹{pnl:+,.0f} ({action.reason})")
 
@@ -429,8 +451,13 @@ def is_market_open() -> bool:
     return True
 
 
-def tick(cfg: TraderConfig | None = None) -> dict:
-    """One iteration of the trading loop. Safe to call from cron."""
+def tick(cfg: TraderConfig | None = None, at_eod: bool = False) -> dict:
+    """One iteration of the trading loop. Safe to call from cron.
+
+    When ``at_eod`` is True, all open *intraday* positions are squared off at
+    the current LTP (or last entry price if LTP unavailable) and no new
+    entries are taken — use this for the 15:30/15:45 IST EOD job.
+    """
     cfg = cfg or TraderConfig.from_env()
     state = TraderState.load(cfg.state_file, paper=cfg.paper)
 
@@ -467,7 +494,7 @@ def tick(cfg: TraderConfig | None = None) -> dict:
         if live:
             ltps[s] = live
 
-    actions = _decide(picks, state, ltps, funds, cfg)
+    actions = _decide(picks, state, ltps, funds, cfg, at_eod=at_eod)
     msgs: list[str] = []
     for act in actions:
         result = _place(act, cfg)

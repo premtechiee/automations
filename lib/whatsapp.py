@@ -60,6 +60,12 @@ def send_image(
 
     url = f"{api_url}/waInstance{instance}/sendFileByUpload/{token}"
     try:
+        size = os.path.getsize(image_path)
+        logger.info(
+            f"Sending image to {phone} via Green API "
+            f"({os.path.basename(image_path)}, {size/1024:.0f} KB, "
+            f"caption {len(caption or '')} chars) …"
+        )
         with open(image_path, "rb") as fh:
             resp = requests.post(
                 url,
@@ -68,7 +74,12 @@ def send_image(
                 timeout=60,
                 proxies=proxies or {},
             )
-        resp.raise_for_status()
+        if resp.status_code >= 400:
+            logger.error(
+                f"Green API HTTP {resp.status_code} on sendFileByUpload: "
+                f"{resp.text[:500]}"
+            )
+            return False
         result = resp.json()
         if result.get("idMessage"):
             logger.info(f"Image sent (id: {result['idMessage']}).")

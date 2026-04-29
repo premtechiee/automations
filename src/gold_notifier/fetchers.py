@@ -389,7 +389,7 @@ def get_price_history_10d(usd_inr: float) -> list[dict]:
             None,
         )
         rows = []
-        for offset in range(10):
+        for offset in range(30):
             day = today - timedelta(days=offset)
             if day in price_by_date:
                 p24, p24_prev = price_by_date[day]

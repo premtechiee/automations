@@ -11,6 +11,7 @@ from .config import (
     PHONE_NUMBER, PHONE_NUMBERS, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL,
     TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID,
     INDIA_GOLD_DUTY_FACTOR, PREDICTION_LOG_FILE, IMAGE_THEME,
+    IMAGE_OUTPUT_PATH,
 )
 from .fetchers import (
     get_gold_price, get_silver_price, get_price_history_10d,
@@ -220,7 +221,7 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
             grt=grt,
             theme=theme,
         )
-        print(f"Image saved as data/gold_update.png  (theme={theme})")
+        print(f"Image saved as {IMAGE_OUTPUT_PATH}  (theme={theme})")
     else:
         img_path = generate_price_image(
             data, analysis, payment, geo, history,
@@ -230,6 +231,16 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
             theme=theme,
         )
         _notify(message, img_path, channel, trigger)
+
+    # Archive runtime JSON state (predictions, alerts) under logs/<date>/.
+    # The PNG already lives there because IMAGE_OUTPUT_PATH points at logs/.
+    try:
+        from lib.logging_setup import archive_artifacts
+        from .config import PREDICTION_LOG_FILE, ALERT_STATE_FILE
+        archive_artifacts("gold_notifier",
+                          [PREDICTION_LOG_FILE, ALERT_STATE_FILE])
+    except Exception as exc:
+        logger.debug(f"artifact archival skipped: {exc}")
 
 
 def send_test_message(channel: str = "whatsapp") -> None:

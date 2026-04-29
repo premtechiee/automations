@@ -211,8 +211,14 @@ def build_report(state: TraderState | None = None,
 
 
 def save_report(text: str) -> Path:
-    """Write the report to `data/paper_reports/<timestamp>.txt`."""
+    """Write the report to `data/paper_reports/<timestamp>.txt` and mirror a
+    copy under `logs/stock_analyzer/<date>/` for the per-run audit trail."""
     _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     p = _REPORTS_DIR / f"{datetime.now():%Y-%m-%d_%H%M}.txt"
     p.write_text(text, encoding="utf-8")
+    try:
+        from lib.logging_setup import archive_artifact
+        archive_artifact("stock_analyzer", p, subdir="paper_reports")
+    except Exception:
+        pass
     return p

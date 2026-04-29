@@ -195,8 +195,9 @@ def _cmd_paper_trade(args, log) -> int:
              f"max_positions={cfg.max_positions} "
              f"max_pct={cfg.max_pct_per_trade:.0%} "
              f"buckets={cfg.buckets} state=data/paper_trader_state.json")
-    if args.once:
-        log.info(f"tick result: {tick(cfg)}")
+    at_eod = getattr(args, "at_eod", False)
+    if args.once or at_eod:
+        log.info(f"tick result: {tick(cfg, at_eod=at_eod)}")
     else:
         run_loop(cfg)
     return 0
@@ -323,6 +324,9 @@ def _build_parser() -> argparse.ArgumentParser:
                     help="Re-run the analyzer to regenerate today's picks before trading")
     pt.add_argument("--refresh-if-stale", action="store_true",
                     help="Run the analyzer only if no picks exist for today yet")
+    pt.add_argument("--at-eod", action="store_true",
+                    help="Square off all open intraday positions at current LTP "
+                         "and skip new entries. Use for the 15:30 IST EOD job.")
 
     sub.add_parser("paper-summary",
                    help="Quick paper-trading P&L + win-rate summary")

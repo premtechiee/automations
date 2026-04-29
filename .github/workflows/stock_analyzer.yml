@@ -136,8 +136,8 @@ jobs:
       - name: End-of-day paper report → WhatsApp (15:45 IST)
         if: github.event_name == 'schedule' && github.event.schedule == '15 10 * * 1-5'
         run: |
-          # Final tick so EOD positions/closures are reflected, then send report.
-          python scripts/stock_analyzer.py --angel paper-trade --once || true
+          # Square off all open intraday positions at current LTP, then send report.
+          python scripts/stock_analyzer.py --angel paper-trade --once --at-eod || true
           python scripts/stock_analyzer.py --angel paper-report --send --channel whatsapp
 
       - name: Manual run

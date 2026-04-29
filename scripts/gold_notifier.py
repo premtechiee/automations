@@ -52,6 +52,9 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--channel",
         choices=["whatsapp", "telegram"],
+
+
+        
         default="whatsapp",
         help="Notification channel to use (default: whatsapp).",
     )

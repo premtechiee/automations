@@ -24,6 +24,9 @@ _DEFAULT_WEIGHTS: dict = {
     "vix": 1.1, "risk_assets": 1.0, "oil": 0.9, "silver_ratio": 0.8,
     "copper": 0.9, "eur_usd": 0.8, "etf_flow": 1.1, "gold_momentum": 1.0,
     "regime": 1.4,
+    # New self-learned signals
+    "ema_trend":   1.3,   # short-term EMA(5) vs EMA(20) crossover
+    "streak_bias": 0.8,   # recent N-day directional persistence
 }
 
 
@@ -165,10 +168,13 @@ def _verify_past_predictions(predictions: list) -> tuple[list, dict, dict]:
             continue
 
         pct = (actual_price - saved_price) / saved_price * 100
-        if   pct >  0.15: actual = "UP"
-        elif pct < -0.15: actual = "DOWN"
-        else:             actual = "FLAT"
+        # Predictions are always UP or DOWN (never FLAT), so the verifier
+        # must classify the actual move the same way — by sign of pct.
+        # The previous ±0.15 % FLAT band penalised correct directional
+        # leans on quiet days and corrupted the per-signal accuracy table.
+        actual = "UP" if pct >= 0 else "DOWN"
         p["actual_direction"] = actual
+        p["actual_pct"]       = round(pct, 3)
         p["correct"]          = (p["direction"] == actual)
         verified_count += 1
         status = "✅" if p["correct"] else "❌"
@@ -250,7 +256,7 @@ def _recompute_weights(predictions: list) -> dict:
     (was 30) and a lower minimum of 1.5 weighted points (was 5 raw counts).
     """
     weights  = dict(_DEFAULT_WEIGHTS)
-    verified = [p for p in predictions if p.get("correct") is not None][-60:]
+    verified = [p for p in predictions if p.get("correct") is not None][-90:]
     if len(verified) < 3:
         return weights
     n       = len(verified)
@@ -262,16 +268,19 @@ def _recompute_weights(predictions: list) -> dict:
             if vote == 0:
                 continue
             actual_up = (p.get("actual_direction") == "UP")
-            rw = recency[i]
+            # Magnitude-weighted reward: a correct call on a 0.8 % move
+            # earns more than on a 0.05 % move (and vice-versa for wrong).
+            mag = max(0.5, min(3.0, abs(p.get("actual_pct", 0.30)) / 0.30))
+            rw  = recency[i] * mag
             if (vote > 0) == actual_up:
                 w_correct += rw
             else:
                 w_wrong   += rw
         total = w_correct + w_wrong
-        if total >= 1.5:   # ~2 recent data points minimum (was 5 raw counts)
+        if total >= 1.0:   # lower bar for faster learning
             acc = w_correct / total
-            # acc=0 → 0.20, acc=0.50 → 1.35, acc=1.0 → 2.50
-            weights[sig] = round(max(0.20, min(2.50, 0.20 + acc * 2.30)), 3)
+            # acc=0 → 0.20, acc=0.50 → 1.50, acc=1.0 → 2.80 (cap raised)
+            weights[sig] = round(max(0.20, min(2.80, 0.20 + acc * 2.60)), 3)
     return weights
 
 
@@ -406,17 +415,72 @@ def get_price_prediction(
     elif vote < 0: reasons_down.append("Falling oil – lower inflation, mild gold drag")
     signal_votes["oil"] = vote; score += vote * W.get("oil", 1.0)
 
+    # 12. EMA(5) vs EMA(20) trend — short-term trend continuation
+    vote = 0
+    if history:
+        trading_rows = [r for r in history if r.get("trading") is True]
+        prices = [r.get("price") for r in trading_rows if r.get("price")]
+        if len(prices) >= 20:
+            # `history` is newest-first in this codebase, so reverse for EMA
+            series = list(reversed(prices))
+            def _ema(seq, n):
+                k = 2 / (n + 1)
+                e = seq[0]
+                for v in seq[1:]:
+                    e = v * k + e * (1 - k)
+                return e
+            ema5  = _ema(series[-15:], 5)
+            ema20 = _ema(series[-20:], 20)
+            spread_pct = (ema5 - ema20) / max(1.0, ema20) * 100
+            if   spread_pct >  0.40: vote =  2; reasons_up.append(f"EMA(5) {spread_pct:+.2f}% above EMA(20) – strong uptrend")
+            elif spread_pct >  0.10: vote =  1; reasons_up.append(f"EMA(5) {spread_pct:+.2f}% above EMA(20) – mild uptrend")
+            elif spread_pct < -0.40: vote = -2; reasons_down.append(f"EMA(5) {spread_pct:+.2f}% below EMA(20) – strong downtrend")
+            elif spread_pct < -0.10: vote = -1; reasons_down.append(f"EMA(5) {spread_pct:+.2f}% below EMA(20) – mild downtrend")
+    signal_votes["ema_trend"] = vote; score += vote * W.get("ema_trend", 1.0)
+
+    # 13. Streak / persistence — recent N consecutive same-direction days
+    vote = 0
+    if history:
+        trading_rows = [r for r in history if r.get("trading") is True]
+        if len(trading_rows) >= 4:
+            # newest-first: count consecutive same-sign chgs from index 0
+            sign0 = 1 if trading_rows[0].get("chg", 0) >= 0 else -1
+            streak = 1
+            for r in trading_rows[1:6]:
+                s = 1 if r.get("chg", 0) >= 0 else -1
+                if s == sign0:
+                    streak += 1
+                else:
+                    break
+            if streak >= 3:
+                vote = sign0 * (1 if streak == 3 else 2)
+                txt = f"{streak}-day {'up' if sign0 > 0 else 'down'} streak – persistence bias"
+                (reasons_up if sign0 > 0 else reasons_down).append(txt)
+    signal_votes["streak_bias"] = vote; score += vote * W.get("streak_bias", 1.0)
+
     s = float(score)
+    # Direction is always UP or DOWN — the sign of the composite score decides
+    # the lean even when the absolute magnitude is small. If the score is
+    # exactly 0 (rare, no active signals), fall back to the latest 3-day net
+    # change in history so we never emit FLAT for a trading-day call.
+    if s == 0.0 and history:
+        try:
+            tr = [r for r in history if r.get("trading") is True][:3]
+            net3 = sum(r.get("chg", 0) for r in tr)
+            s = 0.5 if net3 >= 0 else -0.5
+        except Exception:
+            s = 0.5  # last-resort lean
     if   s >= 5.0:  direction, emoji, confidence = "UP",   "🟢", "High"
     elif s >= 2.5:  direction, emoji, confidence = "UP",   "🟡", "Moderate"
     elif s >= 1.0:  direction, emoji, confidence = "UP",   "⚪", "Low"
     elif s <= -5.0: direction, emoji, confidence = "DOWN", "🔴", "High"
     elif s <= -2.5: direction, emoji, confidence = "DOWN", "🟠", "Moderate"
     elif s <= -1.0: direction, emoji, confidence = "DOWN", "⚪", "Low"
-    else:           direction, emoji, confidence = "FLAT", "⚪", "Uncertain"
+    elif s >= 0:    direction, emoji, confidence = "UP",   "⚪", "Uncertain"
+    else:           direction, emoji, confidence = "DOWN", "⚪", "Uncertain"
 
     active = sum(1 for v in signal_votes.values() if v != 0)
-    logger.info(f"Prediction: {direction} ({confidence})  score={s:.2f}  active_signals={active}/11")
+    logger.info(f"Prediction: {direction} ({confidence})  score={s:.2f}  active_signals={active}/13")
     return {
         "direction":    direction,
         "emoji":        emoji,
@@ -646,13 +710,20 @@ def get_weekly_prediction(
             ci_half       = vol_usd * ci_multiplier * ci_scale
 
             if is_weekend:
+                # Spot bullion does not trade on weekends, but for display
+                # continuity we carry forward the cumulative directional lean
+                # so the report never shows a misleading "FLAT" pill.
+                lean_usd = proj_usd - anchor_usd
+                if   lean_usd >  vol_usd * 0.05: w_dir, w_emoji = "UP",   "⚪"
+                elif lean_usd < -vol_usd * 0.05: w_dir, w_emoji = "DOWN", "⚪"
+                else:                            w_dir, w_emoji = ("UP", "⚪") if lean_usd >= 0 else ("DOWN", "⚪")
                 mid_inr = inr_per_g(proj_usd)
                 rows.append({
                     "date":       day,
                     "weekday":    day.strftime("%a"),
-                    "direction":  "FLAT",
-                    "emoji":      "⚪",
-                    "confidence": "N/A",
+                    "direction":  w_dir,
+                    "emoji":      w_emoji,
+                    "confidence": "Closed",
                     "mid_inr":    mid_inr,
                     "low_inr":    inr_per_g(proj_usd - ci_half),
                     "high_inr":   inr_per_g(proj_usd + ci_half),
@@ -691,11 +762,13 @@ def get_weekly_prediction(
             anchor_pull = (anchor_usd - proj_usd) * 0.20
             proj_usd    = proj_usd + day_drift + anchor_pull
 
-            # Direction determination
+            # Direction determination — always UP or DOWN; the per-day drift
+            # sign decides the lean even when its magnitude is tiny.
             thr = vol_usd * 0.04   # ≈ 4 % of daily vol
-            if   day_drift > thr:  direction, day_emoji = "UP",   "🟢"
+            if   day_drift >  thr: direction, day_emoji = "UP",   "🟢"
             elif day_drift < -thr: direction, day_emoji = "DOWN", "🔴"
-            else:                  direction, day_emoji = "FLAT", "⚪"
+            elif day_drift >= 0:   direction, day_emoji = "UP",   "⚪"
+            else:                  direction, day_emoji = "DOWN", "⚪"
 
             # Confidence label based on signal strength + regime
             sig_abs   = abs(signal)
