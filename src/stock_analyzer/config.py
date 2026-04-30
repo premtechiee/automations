@@ -9,7 +9,12 @@ for educational purposes only.
 
 from __future__ import annotations
 import os
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+# All wall-clock decisions (which day's pick file, which day's log file)
+# are pinned to IST so the analyzer behaves identically on a Windows dev
+# box, a Linux server, and a UTC-timezoned GitHub Actions runner.
+_IST = timezone(timedelta(hours=5, minutes=30))
 
 # ── Notification channels (reuse gold_notifier credentials) ────────────────
 PHONE_NUMBER       = os.environ.get("GOLD_PHONE_NUMBER",    "919790967892")
@@ -31,7 +36,7 @@ DATA_DIR          = "data"
 REPORTS_DIR       = f"{DATA_DIR}/stock_reports"
 # Per-automation, per-day log file + run directory under the top-level logs/ folder.
 LOG_DIR           = f"logs/stock_analyzer"
-_TODAY            = datetime.now().strftime("%Y-%m-%d")
+_TODAY            = datetime.now(_IST).strftime("%Y-%m-%d")
 _RUN_DIR          = f"{LOG_DIR}/{_TODAY}"
 LOG_FILE          = f"{LOG_DIR}/{_TODAY}.log"
 # Generated artifacts live under logs/ so each run is self-contained.

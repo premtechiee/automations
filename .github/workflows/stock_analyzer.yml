@@ -10,7 +10,8 @@ on:
     - cron: '30 2 * * 1-5'        # 08:00 IST → PRE-OPEN briefing
     - cron: '0 4 * * 1-5'         # 09:30 IST → MARKET-OPEN confirmation
     - cron: '30 8 * * 1-5'        # 14:00 IST → MID-SESSION update
-    - cron: '*/15 3-9 * * 1-5'    # 09:15–15:30 IST → paper-trade tick (every 15 min)
+    - cron: '*/15 3-9 * * 1-5'    # UTC 03:00–09:45 → IST 08:30–15:15 paper-trade tick
+    - cron: '0 10 * * 1-5'        # UTC 10:00 → IST 15:30 final intra-day tick
     - cron: '15 10 * * 1-5'       # 15:45 IST → end-of-day paper report → WhatsApp
 
   workflow_dispatch:
@@ -28,6 +29,7 @@ on:
           - '--dry-run'
           - '--test'
           - '--angel paper-trade --once --refresh-if-stale'
+          - '--angel paper-trade-and-report'
           - '--angel paper-report --send'
           - '--angel paper-summary'
           - '--angel auto-trade-status'
@@ -123,14 +125,23 @@ jobs:
 
       - name: Market-open confirmation (09:30 IST)
         if: github.event_name == 'schedule' && github.event.schedule == '0 4 * * 1-5'
-        run: python scripts/stock_analyzer.py --morning --channel whatsapp
+        run: |
+          # First refresh picks + tick once so we trade on the 09:30 candle,
+          # then push a paper-trade report so you see live entries on WhatsApp.
+          python scripts/stock_analyzer.py --morning --channel whatsapp
+          python scripts/stock_analyzer.py --angel paper-trade --once --refresh-if-stale || true
+          python scripts/stock_analyzer.py --angel paper-report --send --channel whatsapp || true
 
       - name: Mid-session check (14:00 IST)
         if: github.event_name == 'schedule' && github.event.schedule == '30 8 * * 1-5'
-        run: python scripts/stock_analyzer.py --afternoon --channel whatsapp
+        run: |
+          python scripts/stock_analyzer.py --afternoon --channel whatsapp
+          # Tick once with live LTPs to pick up any SL/TGT hits, then send report.
+          python scripts/stock_analyzer.py --angel paper-trade --once --refresh-if-stale || true
+          python scripts/stock_analyzer.py --angel paper-report --send --channel whatsapp || true
 
-      - name: Paper-trade tick (every 15 min)
-        if: github.event_name == 'schedule' && github.event.schedule == '*/15 3-9 * * 1-5'
+      - name: Paper-trade tick (every 15 min, silent)
+        if: github.event_name == 'schedule' && (github.event.schedule == '*/15 3-9 * * 1-5' || github.event.schedule == '0 10 * * 1-5')
         run: python scripts/stock_analyzer.py --angel paper-trade --once --refresh-if-stale
 
       - name: End-of-day paper report → WhatsApp (15:45 IST)
@@ -142,7 +153,16 @@ jobs:
 
       - name: Manual run
         if: github.event_name == 'workflow_dispatch'
-        run: python scripts/stock_analyzer.py ${{ github.event.inputs.command }} --channel whatsapp
+        run: |
+          # Special composite command: tick paper-trader once with LTP-driven
+          # decisions, then push the report to WhatsApp. Useful for ad-hoc
+          # snapshots from the Actions UI.
+          if [ "${{ github.event.inputs.command }}" = "--angel paper-trade-and-report" ]; then
+            python scripts/stock_analyzer.py --angel paper-trade --once --refresh-if-stale
+            python scripts/stock_analyzer.py --angel paper-report --send --channel whatsapp
+          else
+            python scripts/stock_analyzer.py ${{ github.event.inputs.command }} --channel whatsapp
+          fi
 
       # ─── Persist updated paper-trader state to the state branch ───
       # Dedicated orphan branch keeps runtime noise out of master history.

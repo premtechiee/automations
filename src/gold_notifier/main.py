@@ -20,10 +20,12 @@ from .fetchers import (
 from .analysis import (
     get_gold_analysis, get_geopolitical_analysis,
     get_global_market_signals, get_best_payment_date,
+    get_scheme_payment_recommendation,
 )
 from .prediction import (
     load_prediction_model, save_prediction_model, save_weekly_forecast,
     _verify_past_predictions, _verify_weekly_forecasts, _recompute_weights,
+    _compute_directional_bias,
     get_price_prediction, get_weekly_prediction, get_monthly_low_prediction,
     get_model_accuracy_stats,
 )
@@ -96,9 +98,13 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
     if price_now_usd > 0:
         model["predictions"], _ph_usd, _ph_inr = _verify_past_predictions(model["predictions"])
         _verify_weekly_forecasts(model, _ph_inr)
-        model["weights"]  = _recompute_weights(model["predictions"])
-        model["accuracy"] = get_model_accuracy_stats(model["predictions"])
-        logger.info(f"Model accuracy: {model['accuracy']}")
+        model["weights"]         = _recompute_weights(model["predictions"])
+        model["bias_correction"] = _compute_directional_bias(model["predictions"])
+        model["accuracy"]        = get_model_accuracy_stats(model["predictions"])
+        logger.info(
+            f"Model accuracy: {model['accuracy']}  "
+            f"learned_bias={model['bias_correction']:+.2f}"
+        )
 
     logger.info("Fetching geopolitical news …")
     geo = get_geopolitical_analysis()
@@ -140,17 +146,33 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
             f"24K=₹{most_recent['24k']:,}/g  22K=₹{most_recent['22k']:,}/g"
         )
 
-    # Derive this month's actual low from goodreturns full history
+    # Derive this month's actual low from goodreturns full history. On
+    # the first 1–2 days of a new month, this-month rows are very sparse
+    # (often just today), which produces a misleading "low == today" reading
+    # and an empty "Cheapest This Month" tile. When fewer than 5 rows exist
+    # for the current calendar month, fall back to a rolling 22-trading-day
+    # window so the user always sees a meaningful recent low.
     if payment:
         today_yr = date.today().year
         today_mo = date.today().month
         gr_full  = _fetch_goodreturns_history()
-        month_rows = []
+        month_rows: list = []
         if gr_full:
             for row in gr_full:
                 row_d = row["date"]
                 if row_d.month == today_mo and row_d.year == today_yr:
                     month_rows.append((row_d, row["22k"]))
+
+        # Fallback: rolling last-22-days window if current month is sparse
+        if len(month_rows) < 5 and gr_full:
+            recent_22 = [(r["date"], r["22k"]) for r in gr_full[:22] if r.get("22k")]
+            if len(recent_22) >= 5:
+                month_rows = recent_22
+                logger.info(
+                    f"Current month sparse ({today_mo}/{today_yr}) — using "
+                    f"rolling 22-day window for monthly low"
+                )
+
         if month_rows:
             low_date_gr, low_22k_gr = min(month_rows, key=lambda x: x[1])
             payment["current_month_low_inr22k"] = low_22k_gr
@@ -169,14 +191,23 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
                 payment["current_month_low_inr22k"] = existing_22k
 
     logger.info("Generating price prediction …")
+    # Inject learned directional bias so get_price_prediction can shift the
+    # score against systematic over-prediction (the explicit feedback loop).
+    if data is not None:
+        data["bias_correction"] = float(model.get("bias_correction", 0.0))
     prediction = get_price_prediction(
         analysis, geo, history,
         global_signals=global_signals,
         weights=model["weights"],
+        data=data,
     )
 
     logger.info("Generating 7-day price forecast …")
-    weekly_prediction = get_weekly_prediction(analysis, geo, usd_inr, global_signals, model=model)
+    weekly_prediction = get_weekly_prediction(
+        analysis, geo, usd_inr, global_signals,
+        model=model,
+        today_prediction=prediction,
+    )
     if weekly_prediction:
         logger.info(f"7-day forecast: {[r['direction'] for r in weekly_prediction]}")
         save_weekly_forecast(model, weekly_prediction, date.today().isoformat())
@@ -197,6 +228,37 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
         analysis, geo, usd_inr, payment, global_signals
     )
 
+    logger.info("Computing scheme-payment recommendation …")
+    current_22k = (
+        (data or {}).get("gr_chennai", {}).get("22k")
+        or ((data or {}).get("ibja") or {}).get("22k")
+    )
+    scheme_reco = get_scheme_payment_recommendation(
+        payment, analysis, current_22k_inr=current_22k
+    )
+    if scheme_reco:
+        logger.info(
+            f"Scheme reco: {scheme_reco['action']} "
+            f"(score={scheme_reco['score']}, conf={scheme_reco['confidence']}, "
+            f"pay_by={scheme_reco['pay_by_label']})"
+        )
+
+    # ── Build learning-status payload (shown in the report) ─────────────
+    _bias  = float(model.get("bias_correction", 0.0))
+    _shift = -_bias * 6.0   # mirrors prediction.py logic
+    learning_status = {
+        "bias":         _bias,
+        "score_shift":  _shift,
+        "acc":          (model.get("accuracy") or {}).get("acc_14")
+                        or (model.get("accuracy") or {}).get("acc_30")
+                        or (model.get("accuracy") or {}).get("acc_7"),
+        "n":            (model.get("accuracy") or {}).get("n_14")
+                        or (model.get("accuracy") or {}).get("n_30")
+                        or (model.get("accuracy") or {}).get("n_7", 0),
+        "flipped":      [k for k, v in (model.get("weights") or {}).items()
+                         if isinstance(v, (int, float)) and v < 0],
+    }
+
     message = format_message(
         data, analysis, payment, geo, history,
         prediction, weekly_prediction,
@@ -205,6 +267,8 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
         silver=silver,
         channel=channel,
         model_stats=model.get("accuracy"),
+        scheme_reco=scheme_reco,
+        learning_status=learning_status,
     )
 
     channel_label = channel.capitalize()
@@ -219,7 +283,9 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
             prediction, weekly_prediction, global_signals,
             monthly_low_pred=monthly_low_pred, silver=silver,
             grt=grt,
+            scheme_reco=scheme_reco,
             theme=theme,
+            learning_status=learning_status,
         )
         print(f"Image saved as {IMAGE_OUTPUT_PATH}  (theme={theme})")
     else:
@@ -228,7 +294,9 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
             prediction, weekly_prediction, global_signals,
             monthly_low_pred=monthly_low_pred, silver=silver,
             grt=grt,
+            scheme_reco=scheme_reco,
             theme=theme,
+            learning_status=learning_status,
         )
         _notify(message, img_path, channel, trigger)
 

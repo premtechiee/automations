@@ -25,8 +25,19 @@ _DEFAULT_WEIGHTS: dict = {
     "copper": 0.9, "eur_usd": 0.8, "etf_flow": 1.1, "gold_momentum": 1.0,
     "regime": 1.4,
     # New self-learned signals
-    "ema_trend":   1.3,   # short-term EMA(5) vs EMA(20) crossover
-    "streak_bias": 0.8,   # recent N-day directional persistence
+    "ema_trend":     1.3,   # short-term EMA(5) vs EMA(20) crossover
+    "streak_bias":   0.8,   # recent N-day directional persistence
+    # Newly added (April 2026 enhancement) — capture short-term reversals
+    # and long-term trend context.
+    "stoch_rsi":     1.4,   # stochastic RSI: faster turning-point signal
+    "adx_trend":     1.0,   # ADX trend-strength gate
+    "ma_cross":      1.2,   # 50d / 200d golden / death cross
+    "reversal_2d":   1.5,   # 2-day mean-reversion / bounce after sharp move
+    "intraday":      1.6,   # today's actual % move (live)
+    "gap":           1.0,   # today's open vs previous close
+    "btc":           0.9,   # bitcoin inverse safe-haven proxy
+    "inflation_exp": 1.2,   # TIP/IEF inflation expectations
+    "usd_inr":       0.8,   # rupee strength
 }
 
 
@@ -44,10 +55,11 @@ def load_prediction_model() -> dict:
                 "predictions":      data.get("predictions", []),
                 "weekly_forecasts": data.get("weekly_forecasts", []),
                 "accuracy":         data.get("accuracy", {}),
+                "bias_correction":  float(data.get("bias_correction", 0.0)),
             }
     except Exception as exc:
         logger.warning(f"Prediction model load failed: {exc}")
-    return {"weights": dict(_DEFAULT_WEIGHTS), "predictions": [], "weekly_forecasts": [], "accuracy": {}}
+    return {"weights": dict(_DEFAULT_WEIGHTS), "predictions": [], "weekly_forecasts": [], "accuracy": {}, "bias_correction": 0.0}
 
 
 def save_prediction_model(model: dict, entry: dict) -> None:
@@ -65,6 +77,7 @@ def save_prediction_model(model: dict, entry: dict) -> None:
                     "predictions":      preds,
                     "weekly_forecasts": model.get("weekly_forecasts", []),
                     "accuracy":         model.get("accuracy", {}),
+                    "bias_correction":  float(model.get("bias_correction", 0.0)),
                     "last_updated":     datetime.now().isoformat(),
                 },
                 fh, indent=2, default=str,
@@ -250,10 +263,15 @@ def _verify_weekly_forecasts(model: dict, price_inr: dict) -> None:
 
 def _recompute_weights(predictions: list) -> dict:
     """
-    Recalculate per-signal accuracy weights with exponential recency bias.
-    Decay factor 0.93/step means recent wrong calls penalise a signal much more
-    than mistakes from 30+ trading days ago.  Uses up to 60 verified predictions
-    (was 30) and a lower minimum of 1.5 weighted points (was 5 raw counts).
+    Recalculate per-signal accuracy weights with exponential recency bias and
+    "signal flipping" — a signal that is reliably WRONG (accuracy < 40 %) gets a
+    NEGATIVE weight so its vote actively counter-contributes to the score.
+    This is the core mechanism that lets the model genuinely learn from past
+    mistakes instead of just down-weighting bad signals to a small positive.
+
+    Decay 0.93/step means recent calls dominate; uses up to 90 verified
+    predictions and a low minimum of 1.0 weighted points so learning kicks
+    in within ~10 days of fresh signal data.
     """
     weights  = dict(_DEFAULT_WEIGHTS)
     verified = [p for p in predictions if p.get("correct") is not None][-90:]
@@ -277,11 +295,46 @@ def _recompute_weights(predictions: list) -> dict:
             else:
                 w_wrong   += rw
         total = w_correct + w_wrong
-        if total >= 1.0:   # lower bar for faster learning
-            acc = w_correct / total
-            # acc=0 → 0.20, acc=0.50 → 1.50, acc=1.0 → 2.80 (cap raised)
-            weights[sig] = round(max(0.20, min(2.80, 0.20 + acc * 2.60)), 3)
+        if total >= 1.0:
+            acc = w_correct / total                # accuracy in [0, 1]
+            # Map accuracy → signed weight:
+            #   acc=1.00 → +2.50  (strongly trust)
+            #   acc=0.60 → +1.00  (default-ish)
+            #   acc=0.50 → +0.30  (near random → tiny positive)
+            #   acc=0.40 → -0.40  (start counter-voting)
+            #   acc=0.00 → -2.00  (strongly invert)
+            if acc >= 0.50:
+                w = 0.30 + (acc - 0.50) * 4.40       # 0.30 … +2.50
+            else:
+                w = (acc - 0.50) * 4.80              # 0   … -2.40
+            # Confidence shrink when sample is thin: pull toward default 1.0
+            confidence = min(1.0, total / 6.0)
+            w = w * confidence + 1.0 * (1.0 - confidence)
+            weights[sig] = round(max(-2.50, min(2.80, w)), 3)
     return weights
+
+
+def _compute_directional_bias(predictions: list, lookback: int = 30) -> float:
+    """
+    Detect systematic over-prediction in one direction.
+    Returns a bias value in roughly [-1, +1]:
+      *  positive → model leans UP too often (subtract from score)
+      *  negative → model leans DOWN too often (add to score)
+
+    Concretely: if over the last `lookback` verified days the model called UP
+    80 % of the time but reality was UP only 50 %, bias = 0.30. Applying
+    `score -= bias * 6.0` to today's prediction shifts the threshold so
+    today's UP call now needs strictly more evidence — effectively the
+    automation has "learned its mistake".
+    """
+    verified = [p for p in predictions if p.get("correct") is not None][-lookback:]
+    if len(verified) < 5:
+        return 0.0
+    pred_up   = sum(1 for p in verified if p.get("direction")        == "UP")
+    actual_up = sum(1 for p in verified if p.get("actual_direction") == "UP")
+    n         = len(verified)
+    bias      = (pred_up - actual_up) / n
+    return round(bias, 3)
 
 
 def get_model_accuracy_stats(predictions: list) -> dict:
@@ -323,23 +376,31 @@ def get_price_prediction(
     history: list | None,
     global_signals: dict | None = None,
     weights: dict | None = None,
+    data: dict | None = None,
 ) -> dict:
-    """Multi-factor weighted prediction of today's gold price direction (11 signals)."""
+    """Multi-factor weighted prediction of today's gold price direction (20+ signals).
+
+    `data` (optional) is the live price dict from `get_gold_price()`; when
+    supplied, today's intraday %change feeds the `intraday` signal.
+    """
     W            = weights or _DEFAULT_WEIGHTS
     score        = 0.0
     signal_votes: dict = {}
     reasons_up   = []
     reasons_down = []
 
-    # 1. RSI
+    # 1. RSI — symmetric bands centred on 50 to avoid an UP-biased neutral zone.
+    # Previous version voted +1 for any RSI<50 (including 42–50), but only voted
+    # −1 for RSI>58. That asymmetry produced a structural UP lean every day.
     vote = 0
     if analysis:
         rsi = analysis["rsi"]
         if   rsi < 30: vote =  3; reasons_up.append(f"RSI {rsi:.0f} – deeply oversold, strong bounce likely")
-        elif rsi < 42: vote =  2; reasons_up.append(f"RSI {rsi:.0f} – oversold, upward pressure building")
-        elif rsi < 50: vote =  1; reasons_up.append(f"RSI {rsi:.0f} – below midline, mild bullish bias")
+        elif rsi < 40: vote =  2; reasons_up.append(f"RSI {rsi:.0f} – oversold, upward pressure building")
+        elif rsi < 45: vote =  1; reasons_up.append(f"RSI {rsi:.0f} – below midline, mild bullish bias")
         elif rsi > 70: vote = -3; reasons_down.append(f"RSI {rsi:.0f} – overbought, pullback likely")
-        elif rsi > 58: vote = -1; reasons_down.append(f"RSI {rsi:.0f} – above midline, mild bearish bias")
+        elif rsi > 60: vote = -2; reasons_down.append(f"RSI {rsi:.0f} – overbought, reversal pressure")
+        elif rsi > 55: vote = -1; reasons_down.append(f"RSI {rsi:.0f} – above midline, mild bearish bias")
     signal_votes["rsi"] = vote; score += vote * W.get("rsi", 1.0)
 
     # 2. MACD
@@ -349,14 +410,17 @@ def get_price_prediction(
         elif analysis["macd_cross"] < 0: vote = -1; reasons_down.append("MACD bearish crossover – downtrend signal")
     signal_votes["macd"] = vote; score += vote * W.get("macd", 1.0)
 
-    # 3. Bollinger Band
+    # 3. Bollinger Band — only fire at the EXTREMES (bounce/reversal zones).
+    # Previous bands at <30 and >70 fired most days during normal trading,
+    # producing a permanent positive lean whenever price drifted in the
+    # lower half of the band for an extended period.
     vote = 0
     if analysis:
         bb = analysis["bb_pos"] * 100
-        if   bb < 15: vote =  2; reasons_up.append(f"Bollinger {bb:.0f}% – at lower band, bounce zone")
-        elif bb < 30: vote =  1; reasons_up.append(f"Bollinger {bb:.0f}% – near lower band, upside bias")
-        elif bb > 85: vote = -2; reasons_down.append(f"Bollinger {bb:.0f}% – at upper band, reversal risk")
-        elif bb > 70: vote = -1; reasons_down.append(f"Bollinger {bb:.0f}% – near upper band, resistance")
+        if   bb <  8: vote =  2; reasons_up.append(f"Bollinger {bb:.0f}% – at lower band, bounce zone")
+        elif bb < 18: vote =  1; reasons_up.append(f"Bollinger {bb:.0f}% – near lower band, upside bias")
+        elif bb > 92: vote = -2; reasons_down.append(f"Bollinger {bb:.0f}% – at upper band, reversal risk")
+        elif bb > 82: vote = -1; reasons_down.append(f"Bollinger {bb:.0f}% – near upper band, resistance")
     signal_votes["bb"] = vote; score += vote * W.get("bb", 1.0)
 
     # 4. 3-day momentum
@@ -378,11 +442,13 @@ def get_price_prediction(
         elif gs <= -1: vote = -1; reasons_down.append("Easing geopolitical risk – reduced safe-haven demand")
     signal_votes["geo"] = vote; score += vote * W.get("geo", 1.0)
 
-    # 6. Day-of-week
+    # 6. Day-of-week — symmetric: Monday tends to gap-fill UP after weekend
+    # geopolitical news; Friday sees profit-taking. Net DOW contribution
+    # averages to zero across the week, removing structural bias.
     vote = 0
     dow = date.today().weekday()
-    if dow == 0: reasons_down.append("Monday – watch for weekend gap risk")
-    if dow == 4: vote = -1; reasons_down.append("Friday – profit-taking tendency")
+    if   dow == 0: vote =  1; reasons_up.append("Monday – weekend safe-haven bid often lifts open")
+    elif dow == 4: vote = -1; reasons_down.append("Friday – profit-taking tendency")
     signal_votes["dow"] = vote; score += vote * W.get("dow", 1.0)
 
     # 7. DXY
@@ -414,6 +480,100 @@ def get_price_prediction(
     if   vote > 0: reasons_up.append("Rising oil – inflation hedge demand for gold")
     elif vote < 0: reasons_down.append("Falling oil – lower inflation, mild gold drag")
     signal_votes["oil"] = vote; score += vote * W.get("oil", 1.0)
+
+    # ── New signals (April 2026 enhancement) ─────────────────────────
+    # 11a. Stochastic RSI — faster turning-point detection than RSI alone
+    vote = 0
+    if analysis and "stoch_rsi" in analysis:
+        sr = float(analysis["stoch_rsi"])
+        if   sr <= 0.10: vote =  3; reasons_up.append(f"StochRSI {sr:.2f} – deeply oversold, bounce imminent")
+        elif sr <= 0.20: vote =  2; reasons_up.append(f"StochRSI {sr:.2f} – oversold, turn likely")
+        elif sr <= 0.35: vote =  1; reasons_up.append(f"StochRSI {sr:.2f} – low, mild bullish bias")
+        elif sr >= 0.90: vote = -3; reasons_down.append(f"StochRSI {sr:.2f} – deeply overbought, pullback likely")
+        elif sr >= 0.80: vote = -2; reasons_down.append(f"StochRSI {sr:.2f} – overbought, reversal risk")
+        elif sr >= 0.65: vote = -1; reasons_down.append(f"StochRSI {sr:.2f} – elevated, mild bearish")
+    signal_votes["stoch_rsi"] = vote; score += vote * W.get("stoch_rsi", 1.0)
+
+    # 11b. ADX trend-strength gate (boosts other directional votes)
+    vote = 0
+    if analysis and "adx" in analysis:
+        adx_v = float(analysis["adx"])
+        if adx_v >= 30:
+            # Strong trend: amplify direction implied by EMA / momentum
+            chg2 = float(analysis.get("chg_2d", 0.0))
+            if   chg2 >  0.5: vote =  1; reasons_up.append(f"ADX {adx_v:.0f} – strong trend, momentum aligned UP")
+            elif chg2 < -0.5: vote = -1; reasons_down.append(f"ADX {adx_v:.0f} – strong trend, momentum aligned DOWN")
+    signal_votes["adx_trend"] = vote; score += vote * W.get("adx_trend", 1.0)
+
+    # 11c. MA50 / MA200 cross — RECENT crossover events only.
+    # Previously this voted on the steady-state (50d above/below 200d), which
+    # in a multi-month uptrend pinned a permanent +1/+2 UP every single day.
+    # Now we only fire when the spread is small (within ±1 % of price), i.e.
+    # near an actual crossover — then the sign of the spread indicates which
+    # side is taking control.
+    vote = 0
+    if analysis and analysis.get("gold_cross_signal") is not None:
+        sma50  = analysis.get("sma50")
+        sma200 = analysis.get("sma200")
+        price  = analysis.get("price_now_usd") or sma50
+        if sma50 and sma200 and price:
+            spread_pct = (sma50 - sma200) / sma200 * 100
+            # Only act when the two MAs are close (cross zone): |spread| < 1.5 %
+            if abs(spread_pct) < 1.5:
+                if   spread_pct >  0.0: vote =  1; reasons_up.append(f"50d crossing above 200d (+{spread_pct:.2f}%) – emerging golden cross")
+                elif spread_pct <  0.0: vote = -1; reasons_down.append(f"50d crossing below 200d ({spread_pct:.2f}%) – emerging death cross")
+    signal_votes["ma_cross"] = vote; score += vote * W.get("ma_cross", 1.0)
+
+    # 11d. 2-day reversal / bounce signal — KEY for catching dip recoveries
+    vote = 0
+    if analysis and "chg_2d" in analysis:
+        chg2 = float(analysis["chg_2d"])
+        rsi_v = float(analysis.get("rsi", 50))
+        # After a sharp 2-day drop, mean-reversion + bottom-fishing buyers
+        # typically produce a bounce — particularly when RSI is also low.
+        if   chg2 <= -2.0 and rsi_v < 45: vote =  3; reasons_up.append(f"Sharp 2-day drop {chg2:+.2f}% with RSI {rsi_v:.0f} – bounce highly likely")
+        elif chg2 <= -1.2:                vote =  2; reasons_up.append(f"2-day drop {chg2:+.2f}% – mean-reversion bounce probable")
+        elif chg2 <= -0.6:                vote =  1; reasons_up.append(f"2-day drop {chg2:+.2f}% – mild oversold bounce expected")
+        elif chg2 >=  2.0 and rsi_v > 60: vote = -3; reasons_down.append(f"Sharp 2-day rally {chg2:+.2f}% with RSI {rsi_v:.0f} – pullback likely")
+        elif chg2 >=  1.2:                vote = -2; reasons_down.append(f"2-day rally {chg2:+.2f}% – pullback risk")
+        elif chg2 >=  0.6:                vote = -1; reasons_down.append(f"2-day rally {chg2:+.2f}% – mild profit-taking risk")
+    signal_votes["reversal_2d"] = vote; score += vote * W.get("reversal_2d", 1.0)
+
+    # 11e. Live intraday move (today's actual change vs prev close)
+    vote = 0
+    if data and data.get("change_pct") is not None:
+        cp = float(data["change_pct"])
+        if   cp <= -1.5: vote =  2; reasons_up.append(f"Today already down {cp:+.2f}% – discount window open now")
+        elif cp <= -0.6: vote =  1; reasons_up.append(f"Today down {cp:+.2f}% – early dip")
+        elif cp >=  1.5: vote = -2; reasons_down.append(f"Today already up {cp:+.2f}% – premium, wait for retrace")
+        elif cp >=  0.6: vote = -1; reasons_down.append(f"Today up {cp:+.2f}% – partial run-up already booked")
+    signal_votes["intraday"] = vote; score += vote * W.get("intraday", 1.0)
+
+    # 11f. Opening gap (today's open vs prev close)
+    vote = 0
+    if analysis and "gap_pct" in analysis:
+        gp = float(analysis["gap_pct"])
+        if   gp <= -0.7: vote =  1; reasons_up.append(f"Gap-down open {gp:+.2f}% – often filled, bounce likely")
+        elif gp >=  0.7: vote = -1; reasons_down.append(f"Gap-up open {gp:+.2f}% – often filled, fade likely")
+    signal_votes["gap"] = vote; score += vote * W.get("gap", 1.0)
+
+    # 11g. Bitcoin inverse safe-haven proxy
+    vote = global_signals.get("votes", {}).get("btc", 0) if global_signals else 0
+    if   vote > 0: reasons_up.append("BTC weakness – risk-off bid into gold")
+    elif vote < 0: reasons_down.append("BTC rally – risk-on rotation away from gold")
+    signal_votes["btc"] = vote; score += vote * W.get("btc", 1.0)
+
+    # 11h. Inflation expectations (TIP/IEF)
+    vote = global_signals.get("votes", {}).get("inflation_exp", 0) if global_signals else 0
+    if   vote > 0: reasons_up.append("Inflation expectations rising – gold inflation hedge in demand")
+    elif vote < 0: reasons_down.append("Inflation expectations falling – less inflation hedge demand")
+    signal_votes["inflation_exp"] = vote; score += vote * W.get("inflation_exp", 1.0)
+
+    # 11i. USD/INR — affects INR-priced gold even when USD gold flat
+    vote = global_signals.get("votes", {}).get("usd_inr", 0) if global_signals else 0
+    if   vote > 0: reasons_up.append("Rupee weakening vs USD – INR gold price gets a tailwind")
+    elif vote < 0: reasons_down.append("Rupee strengthening vs USD – INR gold price headwind")
+    signal_votes["usd_inr"] = vote; score += vote * W.get("usd_inr", 1.0)
 
     # 12. EMA(5) vs EMA(20) trend — short-term trend continuation
     vote = 0
@@ -458,6 +618,64 @@ def get_price_prediction(
                 (reasons_up if sign0 > 0 else reasons_down).append(txt)
     signal_votes["streak_bias"] = vote; score += vote * W.get("streak_bias", 1.0)
 
+    # ── Macro-stack saturation cap ──────────────────────────────────────
+    # In a sustained regime (e.g. weak USD + falling yields + rising oil)
+    # most macro signals naturally align in the same direction. Without a
+    # cap, their combined weighted contribution can dominate the prediction
+    # for weeks regardless of what gold's own price action is doing.
+    # We cap the sum of the macro group to ±4.0 (was ±6.0) so technical
+    # and reversal signals can still flip the sign on dip days.
+    _MACRO_KEYS = {"dxy", "yields", "vix", "risk_assets", "oil", "silver_ratio",
+                   "copper", "eur_usd", "etf_flow", "gold_momentum",
+                   "btc", "inflation_exp", "usd_inr", "real_yield", "yield_curve"}
+    macro_score = 0.0
+    for _sig, _vote in signal_votes.items():
+        if _sig in _MACRO_KEYS and _vote != 0:
+            macro_score += _vote * W.get(_sig, 1.0)
+    macro_cap = 4.0
+    if abs(macro_score) > macro_cap:
+        # Scale down macro contribution proportionally
+        excess = macro_score - (macro_cap if macro_score > 0 else -macro_cap)
+        score -= excess
+        logger.info(f"Macro cap applied: macro_score={macro_score:+.2f} → trimmed by {excess:+.2f}")
+
+    # ── Per-signal weight clamp ─────────────────────────────────────────
+    # Adaptive learning can inflate a single weight (e.g. learned bb=2.8)
+    # which then dominates every prediction. We re-normalise by capping the
+    # absolute effective weight of any individual signal at 2.0 — i.e. no
+    # single vote can contribute more than ±6 score points (vote magnitude
+    # max 3). Negative weights are also clamped to -2.0 so flipped signals
+    # can't dominate either.
+    excess_w = 0.0
+    for _sig, _vote in signal_votes.items():
+        if _vote == 0:
+            continue
+        w = W.get(_sig, 1.0)
+        if w > 2.0:
+            excess_w += _vote * (w - 2.0)
+        elif w < -2.0:
+            excess_w += _vote * (w - (-2.0))
+    if excess_w != 0.0:
+        score -= excess_w
+        logger.info(f"Weight clamp applied: trimmed {excess_w:+.2f} from over-weighted signals")
+
+    # ── Learned directional-bias correction ──────────────────────────
+    # If recent verified predictions show the model has been calling UP
+    # systematically more often than reality warranted (or vice-versa),
+    # subtract that bias from today's score. This is the explicit
+    # "learn from past mistakes" lever — e.g. if last 30 days were
+    # 80 % predicted-UP but only 50 % actually UP, today's score is
+    # shifted down by 0.30 × 6.0 = 1.8 points before classification.
+    bias = float((weights or {}).get("_bias", 0.0)) if weights and isinstance(weights.get("_bias"), (int, float)) else 0.0
+    # Bias is delivered separately via `data['bias_correction']` so it
+    # doesn't pollute the per-signal weight dict; fall back to zero.
+    if data and isinstance(data.get("bias_correction"), (int, float)):
+        bias = float(data["bias_correction"])
+    if abs(bias) >= 0.05:    # ignore tiny biases (within sampling noise)
+        bias_shift = bias * 6.0
+        score -= bias_shift
+        logger.info(f"Bias correction applied: bias={bias:+.2f} → score shifted {-bias_shift:+.2f}")
+
     s = float(score)
     # Direction is always UP or DOWN — the sign of the composite score decides
     # the lean even when the absolute magnitude is small. If the score is
@@ -467,20 +685,24 @@ def get_price_prediction(
         try:
             tr = [r for r in history if r.get("trading") is True][:3]
             net3 = sum(r.get("chg", 0) for r in tr)
-            s = 0.5 if net3 >= 0 else -0.5
+            s = 0.5 if net3 > 0 else (-0.5 if net3 < 0 else 0.0)
         except Exception:
-            s = 0.5  # last-resort lean
-    if   s >= 5.0:  direction, emoji, confidence = "UP",   "🟢", "High"
-    elif s >= 2.5:  direction, emoji, confidence = "UP",   "🟡", "Moderate"
+            s = 0.0
+        # If still 0, lean DOWN — the model has historically over-called UP
+        # so a true tiebreaker should NOT default to UP.
+        if s == 0.0:
+            s = -0.5
+    if   s >= 7.0:  direction, emoji, confidence = "UP",   "🟢", "High"
+    elif s >= 3.5:  direction, emoji, confidence = "UP",   "🟡", "Moderate"
     elif s >= 1.0:  direction, emoji, confidence = "UP",   "⚪", "Low"
-    elif s <= -5.0: direction, emoji, confidence = "DOWN", "🔴", "High"
-    elif s <= -2.5: direction, emoji, confidence = "DOWN", "🟠", "Moderate"
+    elif s <= -7.0: direction, emoji, confidence = "DOWN", "🔴", "High"
+    elif s <= -3.5: direction, emoji, confidence = "DOWN", "🟠", "Moderate"
     elif s <= -1.0: direction, emoji, confidence = "DOWN", "⚪", "Low"
     elif s >= 0:    direction, emoji, confidence = "UP",   "⚪", "Uncertain"
     else:           direction, emoji, confidence = "DOWN", "⚪", "Uncertain"
 
     active = sum(1 for v in signal_votes.values() if v != 0)
-    logger.info(f"Prediction: {direction} ({confidence})  score={s:.2f}  active_signals={active}/13")
+    logger.info(f"Prediction: {direction} ({confidence})  score={s:.2f}  active_signals={active}/{len(signal_votes)}")
     return {
         "direction":    direction,
         "emoji":        emoji,
@@ -581,6 +803,7 @@ def get_weekly_prediction(
     usd_inr: float,
     global_signals: dict | None = None,
     model: dict | None = None,
+    today_prediction: dict | None = None,
 ) -> list[dict] | None:
     """
     Self-learning 7-calendar-day gold price forecast.
@@ -657,6 +880,12 @@ def get_weekly_prediction(
         raw_tech   = (analysis or {}).get("score", 0)
         tech_norm  = max(-1.0, min(1.0, raw_tech / 7.0))
 
+        # Today's full multi-signal prediction score (range roughly -25..+25
+        # with 23 weighted signals). This is the strongest aggregate signal
+        # we have today, so it dominates the early forecast days.
+        today_score = float((today_prediction or {}).get("score", 0.0))
+        today_norm  = max(-1.0, min(1.0, today_score / 12.0))
+
         geo_norm   = max(-1.0, min(1.0, ((geo or {}).get("geo_score", 0)) / 2.0))
 
         macro_raw  = (global_signals or {}).get("net_score", 0)
@@ -689,8 +918,10 @@ def get_weekly_prediction(
         # Fraction of max_drift applied (0 = market closed)
         dow_adj = {0: 0.85, 1: 1.00, 2: 1.05, 3: 1.00, 4: 0.75, 5: 0.0, 6: 0.0}
 
-        # Max daily drift: 0.25 × vol (realistic; old was 0.28 × ATR)
-        max_drift_usd = vol_usd * 0.25
+        # Max daily drift: 0.45 × vol — widened so a strong directional
+        # signal actually moves the projected price by something visible
+        # over a 7-day horizon. Was 0.25 (forecast looked flat).
+        max_drift_usd = vol_usd * 0.45
 
         def inr_per_g(usd_oz: float) -> int:
             return round(max(0.0, usd_oz) * safe_usd_inr / 31.1035 * INDIA_GOLD_DUTY_FACTOR)
@@ -745,7 +976,13 @@ def get_weekly_prediction(
             rev_w   = min(0.30, 0.06 * t)   # mean-reversion grows with time
 
             # Composite directional signal
+            # `today_norm` represents today's full multi-signal call but it
+            # decays quickly: a strong UP signal today should not pin every
+            # day of the next 7 days as UP. Decay 35 % per trading day so
+            # by t=4 it contributes < 20 % of its initial weight.
+            today_w = max(0.05, 0.45 * (0.65 ** (t - 1)))
             signal = (
+                today_w * today_norm                       +
                 tech_w  * tech_norm  * w_tech  * mom_decay +
                 macro_w * macro_norm * w_macro             +
                 0.10    * geo_norm   * w_geo               +
@@ -754,17 +991,31 @@ def get_weekly_prediction(
             )
             signal = max(-1.0, min(1.0, signal))
 
+            # Cumulative-drift mean reversion: the further proj_usd has run
+            # from anchor_usd in one direction, the more the next day's signal
+            # is pulled the opposite way. Prevents 7 monotone UP days when
+            # today's signal is strongly UP.
+            cum_drift_pct = (proj_usd - anchor_usd) / max(1.0, anchor_usd)
+            if abs(cum_drift_pct) > 0.005:   # > 0.5 % accumulated
+                signal -= cum_drift_pct * 30.0   # damping factor
+                signal = max(-1.0, min(1.0, signal))
+
             # Day drift with DOW seasonality and regime multiplier
             day_drift = signal * max_drift_usd * drift_factor * dow_adj.get(dow, 1.0)
 
-            # Price-path anchoring: 20% pull back toward anchor each day
-            # This prevents runaway-drift on day 5+ long forecasts
-            anchor_pull = (anchor_usd - proj_usd) * 0.20
+            # Price-path anchoring: light 7 % pull back toward anchor each day.
+            # Earlier 20 % pull was too aggressive — it cancelled directional
+            # drift, making the forecast look almost flat day-to-day even
+            # when the underlying signal was strongly UP/DOWN.
+            anchor_pull = (anchor_usd - proj_usd) * 0.07
             proj_usd    = proj_usd + day_drift + anchor_pull
 
             # Direction determination — always UP or DOWN; the per-day drift
-            # sign decides the lean even when its magnitude is tiny.
-            thr = vol_usd * 0.04   # ≈ 4 % of daily vol
+            # sign decides the lean even when its magnitude is tiny. The
+            # threshold for a "colored" emoji (🟢/🔴) is intentionally low
+            # so that as long as the composite signal is meaningfully one-sided
+            # the day shows a confident lean, not a neutral ⚪.
+            thr = vol_usd * 0.015   # ≈ 1.5 % of daily vol
             if   day_drift >  thr: direction, day_emoji = "UP",   "🟢"
             elif day_drift < -thr: direction, day_emoji = "DOWN", "🔴"
             elif day_drift >= 0:   direction, day_emoji = "UP",   "⚪"
@@ -845,8 +1096,10 @@ def get_monthly_low_prediction(
             (geo["geo_score"]                if geo            else 0.0) +
             (global_signals.get("net_score", 0) if global_signals else 0.0)
         )
-        raw_drift    = atr_usd * (base_score / 20.0)
-        daily_drift  = max(-atr_usd * 0.4, min(atr_usd * 0.4, raw_drift))
+        # Per-day directional drift derived from today's signals. Capped at
+        # a small fraction of ATR so trend extrapolation never dominates.
+        raw_drift    = atr_usd * (base_score / 30.0)
+        daily_drift  = max(-atr_usd * 0.20, min(atr_usd * 0.20, raw_drift))
         dow_mult     = {0:0.95, 1:1.0, 2:1.05, 3:1.05, 4:0.90, 5:0.0, 6:0.0}
 
         def inr_per_g(usd_oz):
@@ -857,23 +1110,43 @@ def get_monthly_low_prediction(
         num_ranked   = max(1, len(rank_pos))
 
         def hist_adj_usd(cal_day):
+            # Boosted from ±0.20*ATR to ±0.80*ATR so the historically-cheapest
+            # day-of-month seasonality is the *primary* differentiator across
+            # candidate days, instead of being overwhelmed by today's trend.
             if cal_day not in rank_pos:
                 return 0.0
-            norm = rank_pos[cal_day] / (num_ranked - 1)
-            return atr_usd * (norm - 0.5) * 0.4
+            norm = rank_pos[cal_day] / max(1, num_ranked - 1)
+            return atr_usd * (norm - 0.5) * 1.6
 
         today_dt   = date.today()
         month_end  = _cal.monthrange(today_dt.year, today_dt.month)[1]
-        proj_usd   = price_now_usd
+        days_left  = month_end - today_dt.day
         candidates = []
 
-        for offset in range(1, month_end - today_dt.day + 1):
+        for offset in range(1, days_left + 1):
             target    = today_dt + timedelta(days=offset)
             dow       = target.weekday()
-            day_drift = daily_drift * dow_mult.get(dow, 1.0)
-            proj_usd += day_drift
-            adj_usd   = proj_usd + hist_adj_usd(target.day)
-            half_rng  = atr_usd * 0.55
+
+            # 1. Damped trend extrapolation — trend predictability decays with
+            #    horizon. Beyond ~10 days, today's directional signal contributes
+            #    nothing and seasonality + reversion dominate. Crucially, this
+            #    is NOT compounded day-over-day; we use the offset directly so
+            #    a strong UP signal can't make every future day rise monotonically.
+            trend_decay = max(0.0, 1.0 - offset / 10.0)
+            trend_usd   = daily_drift * dow_mult.get(dow, 1.0) * offset * trend_decay
+
+            # 2. Mean-reversion / pullback expectation. In any month gold
+            #    typically prints at least one ~ATR-sized dip from its recent
+            #    high. Model that as a sinusoidal expected-low envelope that
+            #    troughs around mid-window.
+            if days_left > 0:
+                cycle_phase = offset / max(1, days_left)
+                pullback_usd = -atr_usd * 0.6 * (4 * cycle_phase * (1 - cycle_phase))
+            else:
+                pullback_usd = 0.0
+
+            adj_usd  = price_now_usd + trend_usd + pullback_usd + hist_adj_usd(target.day)
+            half_rng = atr_usd * 0.55
 
             mid_inr  = inr_per_g(adj_usd)
             candidates.append({
@@ -894,7 +1167,10 @@ def get_monthly_low_prediction(
         if not candidates:
             return None
 
-        sorted_cands = sorted(candidates, key=lambda x: x["adj_usd"])
+        # Exclude weekends from "best buy day" selection — Indian retail
+        # gold market doesn't transact on Sundays (and Saturdays are limited).
+        weekday_cands = [c for c in candidates if not c["is_weekend"]] or candidates
+        sorted_cands = sorted(weekday_cands, key=lambda x: x["adj_usd"])
         best = sorted_cands[0]
         top3 = sorted_cands[:3]
 

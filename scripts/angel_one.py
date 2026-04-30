@@ -146,9 +146,8 @@ def _refresh_picks(log, force: bool = False) -> bool:
     Returns True if a fresh report was produced. With force=False, skips the
     run when today's picks already exist on disk.
     """
-    from datetime import datetime
-    from src.stock_analyzer.auto_trader import _REPORTS_IDX, _REPORTS_DIR
-    today = datetime.now().strftime("%Y-%m-%d")
+    from src.stock_analyzer.auto_trader import _REPORTS_IDX, _REPORTS_DIR, _now_ist
+    today = _now_ist().strftime("%Y-%m-%d")
     if not force and _REPORTS_IDX.exists():
         try:
             import json as _json

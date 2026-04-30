@@ -90,6 +90,8 @@ def format_message(
     silver: dict | None = None,
     channel: str = "whatsapp",
     model_stats: dict | None = None,
+    scheme_reco: dict | None = None,
+    learning_status: dict | None = None,
 ) -> str:
     now   = datetime.now().strftime("%d %b %Y, %I:%M %p")
     today = date.today()
@@ -213,6 +215,33 @@ def format_message(
                     acc_line += f"  •  ⚠️ Missed last {streak} in a row — treat with caution"
                 lines.append(acc_line)
 
+        # Self-learning status: shows the bias correction the model applied
+        # to today's score after observing past mistakes. Negative bias means
+        # the model used to over-call DOWN; positive means it over-called UP.
+        if learning_status:
+            ls   = learning_status
+            bias = float(ls.get("bias", 0.0) or 0.0)
+            sh   = float(ls.get("score_shift", 0.0) or 0.0)
+            flipped = ls.get("flipped") or []
+            if abs(bias) >= 0.05:
+                arrow = "↓" if sh < 0 else "↑"
+                lean  = "over-called UP" if bias > 0 else "over-called DOWN"
+                lines.append(
+                    f"  🧠 Self-learning: was {lean} "
+                    f"→ today's score adjusted {arrow}{abs(sh):.1f} pts "
+                    f"(bias {bias:+.2f})"
+                )
+            elif (ls.get("n") or 0) >= 3:
+                lines.append(
+                    f"  🧠 Self-learning: model is calibrated (no bias correction needed)"
+                )
+            if flipped:
+                shown = ", ".join(flipped[:4])
+                more  = f" (+{len(flipped) - 4} more)" if len(flipped) > 4 else ""
+                lines.append(
+                    f"  🔄 Inverted misleading signals: {shown}{more}"
+                )
+
         if prediction:
             d     = prediction["direction"]
             conf  = prediction["confidence"]
@@ -303,7 +332,7 @@ def format_message(
                         "rising": "already going back up — the low is probably behind us",
                         "flat":   "not moving much — stable"}
             t_lbl = t_map.get(trend or "", "")
-            lines.append(f"  Cheapest 22K price this month : ₹{lo_inr22:,}/g  on {d_lbl}")
+            lines.append(f"  Last cheapest date : {d_lbl}  •  ₹{lo_inr22:,}/g (22K)")
             if t_lbl:
                 lines.append(f"  Price trend now : {t_lbl}")
 
@@ -337,6 +366,64 @@ def format_message(
         ]
         if scheme_note:
             lines.append(f"  {scheme_note}")
+
+        # Day-of-week & average monthly swing (added)
+        best_dow_name  = payment.get("best_dow_name")
+        worst_dow_name = payment.get("worst_dow_name")
+        avg_swing      = payment.get("avg_monthly_swing_pct")
+        if best_dow_name and worst_dow_name:
+            lines.append(
+                f"  Cheapest day of the week : {best_dow_name}   "
+                f"•  Most expensive : {worst_dow_name}"
+            )
+        if avg_swing:
+            lines.append(
+                f"  Typical monthly swing : ~{avg_swing}%  "
+                f"(gap between high and low within a month)"
+            )
+
+    # ── Gold Scheme Payment Recommendation (forward-looking) ──
+    if scheme_reco:
+        action = scheme_reco["action"]
+        conf   = scheme_reco["confidence"]
+        pay_by = scheme_reco.get("pay_by_label", "—")
+        reasons = scheme_reco.get("reasons") or []
+        save_g  = scheme_reco.get("est_savings_inr_g")
+        save_p  = scheme_reco.get("est_savings_pct")
+        tva     = scheme_reco.get("today_vs_avg_pct")
+
+        action_label = {
+            "PAY_NOW":      "🟢 PAY NOW — today is a good window",
+            "PAY_BY_DATE":  "🟡 PAY BY THE TARGET DATE",
+            "WAIT_FOR_DIP": "🟠 WAIT — better entry likely in a few days",
+        }.get(action, action)
+
+        conf_emoji = {"High":"🟢","Moderate":"🟡","Low":"⚪"}.get(conf, "⚪")
+
+        lines += [DIV, "💰 *Gold Scheme — When to Pay This Month*"]
+        lines.append(f"  Recommendation : {action_label}")
+        lines.append(f"  Target payment date : {pay_by}")
+        lines.append(f"  Confidence : {conf_emoji} {conf}")
+        if tva is not None:
+            if tva <= -0.5:
+                lines.append(f"  Today is ~{abs(tva):.1f}% cheaper than this month's average")
+            elif tva >= 0.5:
+                lines.append(f"  Today is ~{tva:.1f}% above this month's average")
+            else:
+                lines.append("  Today is roughly at the month's average price")
+        if save_g and save_p:
+            lines.append(
+                f"  Paying on the right day can save ~₹{save_g:,}/g  "
+                f"(≈ {save_p}% vs the worst-day-of-month historically)"
+            )
+        if reasons:
+            lines.append("  Why:")
+            for r in reasons[:5]:
+                lines.append(f"    • {r}")
+        lines.append(
+            "  💡 Gold-scheme rule of thumb: you accumulate MORE grams when "
+            "the price is LOW — pay on dips, not on rallies."
+        )
 
     # Last 10 days
     if history:

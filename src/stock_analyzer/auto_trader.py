@@ -42,11 +42,20 @@ import logging
 import os
 import time
 from dataclasses import dataclass, field, asdict
-from datetime import datetime, time as dtime
+from datetime import datetime, time as dtime, timezone, timedelta
 from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
+# Indian Standard Time (UTC + 5:30). Used everywhere a wall-clock decision
+# is made so the auto-trader behaves identically on a Windows dev box,
+# a Linux server, and a UTC-timezoned GitHub Actions runner.
+_IST = timezone(timedelta(hours=5, minutes=30))
+
+
+def _now_ist() -> datetime:
+    return datetime.now(_IST)
 
 # Lazy imports so this module remains importable without Angel creds.
 def _angel():
@@ -202,7 +211,7 @@ class TraderState:
 
 
 def _today() -> str:
-    return datetime.now().strftime("%Y-%m-%d")
+    return _now_ist().strftime("%Y-%m-%d")
 
 
 # ── Picks loader ─────────────────────────────────────────────────────────────
@@ -384,7 +393,7 @@ def _place(action: Action, cfg: TraderConfig) -> dict:
 def _apply(action: Action, result: dict, state: TraderState,
             cfg: TraderConfig) -> str:
     """Update state in-place and return a human-readable message."""
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    now = _now_ist().strftime("%Y-%m-%d %H:%M:%S")
     tag = "DRY" if cfg.dry_run else "LIVE"
     if not result.get("ok"):
         return f"❌ [{tag}] {action.kind} {action.reason} → {result.get('message')}"
@@ -442,11 +451,14 @@ def _apply(action: Action, result: dict, state: TraderState,
 # ── Main entry points ───────────────────────────────────────────────────────
 
 def is_market_open() -> bool:
-    now = datetime.now().time()
-    if now < _MARKET_OPEN or now > _MARKET_CLOSE:
+    # Always evaluate against IST — Indian markets run 09:15–15:30 IST
+    # regardless of the runner's local timezone (e.g. UTC on GitHub Actions).
+    now_ist = _now_ist()
+    t = now_ist.time()
+    if t < _MARKET_OPEN or t > _MARKET_CLOSE:
         return False
     # Skip weekends. Indian markets are closed Sat/Sun.
-    if datetime.now().weekday() >= 5:
+    if now_ist.weekday() >= 5:
         return False
     return True
 

@@ -78,8 +78,10 @@ def generate_price_image(
     monthly_low_pred: dict | None = None,
     silver: dict | None = None,
     grt: dict | None = None,
+    scheme_reco: dict | None = None,
     theme: str = IMAGE_THEME,
     out_path: str = IMAGE_OUTPUT_PATH,
+    learning_status: dict | None = None,
 ) -> str | None:
     try:
         from PIL import Image, ImageDraw, ImageFont
@@ -298,8 +300,16 @@ def generate_price_image(
     top3_days    = (payment or {}).get("top3_days", [])
     win_label    = (payment or {}).get("this_month_window", "")
     ml_day       = (payment or {}).get("current_month_low_day")
+    ml_date      = (payment or {}).get("current_month_low_date")
     ml_price_22k = (payment or {}).get("current_month_low_inr22k")
     ml_trend     = (payment or {}).get("current_month_trend", "")
+    best_dow     = (payment or {}).get("best_dow_name")
+
+    sr_action    = (scheme_reco or {}).get("action")
+    sr_pay_label = (scheme_reco or {}).get("pay_by_label", "")
+    sr_conf      = (scheme_reco or {}).get("confidence", "")
+    sr_save_g    = (scheme_reco or {}).get("est_savings_inr_g")
+    sr_save_pct  = (scheme_reco or {}).get("est_savings_pct")
 
     # price history series — Sort newest-first so [:10] always gives the last 10 days,
     # then reverse for chart rendering (oldest on left, newest on right).
@@ -1621,26 +1631,54 @@ def generate_price_image(
         if sub2:
             drw.text((tx0 + 12, tile_y0 + 112), sub2[:50], font=F11, fill=MUT)
 
-    # Tile 1 — Best Day to Buy
-    bd_sub1 = f"Window: {win_label}" if win_label else ""
-    bd_sub2 = (f"Top 3: {', '.join(_ordinal(d) for d in top3_days)}"
-               if top3_days else "")
-    _draw_kpi_tile(
-        0, GLD, "Best Day to Buy",
-        f"📅 {_ordinal(best_day)}" if best_day else "—",
-        GLD, bd_sub1, bd_sub2,
-    )
+    # Tile 1 — Gold Scheme Pay-By recommendation (actionable)
+    if sr_action:
+        sr_color = {
+            "PAY_NOW":      GRN,
+            "PAY_BY_DATE":  AMB,
+            "WAIT_FOR_DIP": RED,
+        }.get(sr_action, GLD)
+        sr_label = {
+            "PAY_NOW":      "Scheme: PAY NOW",
+            "PAY_BY_DATE":  "Scheme: Pay By",
+            "WAIT_FOR_DIP": "Scheme: Wait",
+        }.get(sr_action, "Scheme Payment")
+        big_val = f"📅 {sr_pay_label}" if sr_pay_label else (
+            f"📅 {_ordinal(best_day)}" if best_day else "—"
+        )
+        if sr_save_g and sr_save_pct:
+            sr_sub1 = f"Save ~₹{sr_save_g:,}/g  ({sr_save_pct:.1f}%)"
+        else:
+            sr_sub1 = f"Window: {win_label}" if win_label else ""
+        hist_bits = []
+        if best_day: hist_bits.append(f"Hist best: {_ordinal(best_day)}")
+        if best_dow: hist_bits.append(best_dow)
+        sr_sub2 = (f"Confidence: {sr_conf}  •  " if sr_conf else "") + "  ·  ".join(hist_bits)
+        _draw_kpi_tile(0, sr_color, sr_label, big_val, sr_color, sr_sub1, sr_sub2)
+    else:
+        bd_sub1 = f"Window: {win_label}" if win_label else ""
+        bd_sub2 = (f"Top 3: {', '.join(_ordinal(d) for d in top3_days)}"
+                   if top3_days else "")
+        _draw_kpi_tile(
+            0, GLD, "Best Day to Buy",
+            f"📅 {_ordinal(best_day)}" if best_day else "—",
+            GLD, bd_sub1, bd_sub2,
+        )
 
-    # Tile 2 — Cheapest Day This Month (22K)
+    # Tile 2 — Last Cheapest Date (22K)
     if ml_day:
+        if ml_date:
+            big_lbl = f"📉 {_ordinal(ml_date.day)} {ml_date.strftime('%b')}"
+        else:
+            big_lbl = f"📉 {_ordinal(ml_day)}"
         m2_sub1 = f"₹{ml_price_22k:,}/g" if ml_price_22k else ""
         m2_sub2 = f"Trend: {ml_trend}" if ml_trend else ""
         _draw_kpi_tile(
-            1, GRN, "Cheapest This Month",
-            f"📉 {_ordinal(ml_day)}", GRN, m2_sub1, m2_sub2,
+            1, GRN, "Last Cheapest Date",
+            big_lbl, GRN, m2_sub1, m2_sub2,
         )
     else:
-        _draw_kpi_tile(1, GRN, "Cheapest This Month",
+        _draw_kpi_tile(1, GRN, "Last Cheapest Date",
                        "Calculating…", MUT, "", "")
 
     # Tile 3 — Today's Recommendation
@@ -1787,6 +1825,25 @@ def generate_price_image(
     drw.text((W - PAD - _tw(ts, F13), fy + 22), ts, font=F13, fill=INK3)
     drw.text((PAD, fy + 46), "✦ premtechiee/automations  |  Gold Notifier Bot",
              font=F13, fill=MUT)
+
+    # Self-learning status (right side of footer row 2). Shows that the
+    # model is actively correcting itself based on past prediction outcomes.
+    if learning_status:
+        bias = float(learning_status.get("bias", 0.0) or 0.0)
+        sh   = float(learning_status.get("score_shift", 0.0) or 0.0)
+        acc  = learning_status.get("acc")
+        n    = learning_status.get("n") or 0
+        if abs(bias) >= 0.05:
+            arrow = "↓" if sh < 0 else "↑"
+            ls_txt = (
+                f"🧠 Learning: bias {bias:+.2f}  →  score {arrow}{abs(sh):.1f} pts"
+            )
+        elif n >= 3 and acc is not None:
+            ls_txt = f"🧠 Learning: calibrated (acc {acc}% over {n} days)"
+        else:
+            ls_txt = ""
+        if ls_txt:
+            drw.text((W - PAD - _tw(ls_txt, F13), fy + 46), ls_txt, font=F13, fill=GLD3)
 
     # ── Save ────────────────────────────────────────────────────────────────
     final_h = min(TOTAL_H, y + H_FTR + 10)

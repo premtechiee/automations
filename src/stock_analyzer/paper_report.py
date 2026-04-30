@@ -22,7 +22,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
-from .auto_trader import TraderState, _PAPER_STATE_FILE, OpenTrade
+from .auto_trader import TraderState, _PAPER_STATE_FILE, OpenTrade, _now_ist
 
 _REPORTS_DIR = Path("data") / "paper_reports"
 
@@ -104,7 +104,7 @@ def build_report(state: TraderState | None = None,
     out: list[str] = []
     out.append(_line("═"))
     out.append(f"  PAPER-TRADING PERFORMANCE REPORT".center(64))
-    out.append(f"  generated {datetime.now():%Y-%m-%d %H:%M}".center(64))
+    out.append(f"  generated {_now_ist():%Y-%m-%d %H:%M IST}".center(64))
     out.append(_line("═"))
 
     # ── Capital ──
@@ -214,7 +214,7 @@ def save_report(text: str) -> Path:
     """Write the report to `data/paper_reports/<timestamp>.txt` and mirror a
     copy under `logs/stock_analyzer/<date>/` for the per-run audit trail."""
     _REPORTS_DIR.mkdir(parents=True, exist_ok=True)
-    p = _REPORTS_DIR / f"{datetime.now():%Y-%m-%d_%H%M}.txt"
+    p = _REPORTS_DIR / f"{_now_ist():%Y-%m-%d_%H%M}.txt"
     p.write_text(text, encoding="utf-8")
     try:
         from lib.logging_setup import archive_artifact
