@@ -60,11 +60,11 @@ jobs:
           } >> "$GITHUB_ENV"
 
       - name: Morning briefing (08:00 IST)
-        if: github.event_name == 'schedule' && github.event.schedule == '30 2 * * 1-5'
+        if: github.event_name == 'schedule' && github.event.schedule == '30 2 * * 1-6'
         run: python scripts/gold_notifier.py --morning --channel whatsapp
 
       - name: Afternoon drop check (14:00 IST)
-        if: github.event_name == 'schedule' && github.event.schedule == '30 8 * * 1-5'
+        if: github.event_name == 'schedule' && github.event.schedule == '30 8 * * 1-6'
         run: python scripts/gold_notifier.py --afternoon --channel whatsapp
 
       - name: Manual run
