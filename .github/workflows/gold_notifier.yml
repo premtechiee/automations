@@ -1,14 +1,16 @@
 name: Gold Price Notifier
 
 # ──────────────────────────────────────────────────────────────────────────
-# Schedule in UTC; IST = UTC + 5:30. Mon–Fri only.
+# Schedule in UTC; IST = UTC + 5:30. Mon–Sat (1-6).
 # GitHub may delay scheduled runs by 5–30 min under load — cron is set a
 # few minutes earlier than the desired IST time.
+# Note: scheduled triggers fire only from the repository's DEFAULT branch
+# and are auto-disabled after 60 days of repo inactivity.
 # ──────────────────────────────────────────────────────────────────────────
 on:
   schedule:
-    - cron: '30 2 * * 1-6'   # 08:00 IST → morning briefing
-    - cron: '30 8 * * 1-6'   # 14:00 IST → afternoon drop check
+    - cron: '20 2 * * 1-6'   # ~08:00 IST → morning briefing  (UTC 02:20)
+    - cron: '20 8 * * 1-6'   # ~14:00 IST → afternoon drop check (UTC 08:20)
 
   workflow_dispatch:
     inputs:
@@ -59,14 +61,22 @@ jobs:
             echo "TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}"
           } >> "$GITHUB_ENV"
 
-      - name: Morning briefing (08:00 IST)
-        if: github.event_name == 'schedule' && github.event.schedule == '30 2 * * 1-6'
-        run: python scripts/gold_notifier.py --morning --channel whatsapp
+      - name: Decide run mode
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "args=${{ github.event.inputs.command }}" >> "$GITHUB_OUTPUT"
+          else
+            # Scheduled run — pick morning vs afternoon by current UTC hour.
+            # Morning cron fires near 02:xx UTC (~08:00 IST).
+            # Afternoon cron fires near 08:xx UTC (~14:00 IST).
+            HOUR=$(date -u +%H)
+            if [ "$HOUR" -lt 6 ]; then
+              echo "args=--morning" >> "$GITHUB_OUTPUT"
+            else
+              echo "args=--afternoon" >> "$GITHUB_OUTPUT"
+            fi
+          fi
 
-      - name: Afternoon drop check (14:00 IST)
-        if: github.event_name == 'schedule' && github.event.schedule == '30 8 * * 1-6'
-        run: python scripts/gold_notifier.py --afternoon --channel whatsapp
-
-      - name: Manual run
-        if: github.event_name == 'workflow_dispatch'
-        run: python scripts/gold_notifier.py ${{ github.event.inputs.command }} --channel whatsapp
+      - name: Run notifier
+        run: python scripts/gold_notifier.py ${{ steps.mode.outputs.args }} --channel whatsapp
