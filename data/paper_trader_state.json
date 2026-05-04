@@ -1,6 +1,7 @@
 {
-  "date": "2026-05-01",
-  "open_trades": [
+  "date": "2026-05-04",
+  "open_trades": [],
+  "closed_today": [
     {
       "symbol": "BAJAJ-AUTO.NS",
       "bucket": "intraday",
@@ -11,10 +12,10 @@
       "target": 10039.38,
       "order_id": null,
       "opened_at": "2026-05-01 12:02:12",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-05-04 11:41:16",
+      "exit_price": 10209.0,
+      "realised_pnl": 215.0
     },
     {
       "symbol": "KPITTECH.NS",
@@ -26,10 +27,10 @@
       "target": 761.27,
       "order_id": null,
       "opened_at": "2026-05-01 12:02:12",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-05-04 11:41:16",
+      "exit_price": 771.95,
+      "realised_pnl": 141.9
     },
     {
       "symbol": "BAJFINANCE.NS",
@@ -41,10 +42,10 @@
       "target": 944.46,
       "order_id": null,
       "opened_at": "2026-05-01 12:02:12",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-05-04 11:41:16",
+      "exit_price": 960.65,
+      "realised_pnl": 189.2
     },
     {
       "symbol": "CHOLAFIN.NS",
@@ -56,10 +57,10 @@
       "target": 1602.39,
       "order_id": null,
       "opened_at": "2026-05-01 12:02:12",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-05-04 11:41:16",
+      "exit_price": 1618.6,
+      "realised_pnl": 222.8
     },
     {
       "symbol": "ADANIPORTS.NS",
@@ -71,18 +72,17 @@
       "target": 1729.09,
       "order_id": null,
       "opened_at": "2026-05-01 12:02:12",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-05-04 11:41:16",
+      "exit_price": 1742.9,
+      "realised_pnl": 342.4
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "realised_pnl": 1111.3,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": 0.0,
-  "cumulative_wins": 0,
+  "cumulative_pnl": 1111.3,
+  "cumulative_wins": 5,
   "cumulative_losses": 0,
   "history": []
 }
