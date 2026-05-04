@@ -47,21 +47,6 @@
       "realised_pnl": 0.0
     },
     {
-      "symbol": "BHEL.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 18,
-      "entry_price": 396.75,
-      "sl": 382.81,
-      "target": 416.02,
-      "order_id": null,
-      "opened_at": "2026-05-04 12:04:05",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0
-    },
-    {
       "symbol": "AMBUJACEM.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -152,13 +137,28 @@
       "closed_at": "2026-05-04 11:41:16",
       "exit_price": 1742.9,
       "realised_pnl": 342.4
+    },
+    {
+      "symbol": "BHEL.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 18,
+      "entry_price": 396.75,
+      "sl": 382.81,
+      "target": 416.02,
+      "order_id": null,
+      "opened_at": "2026-05-04 12:04:05",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-05-04 14:14:00",
+      "exit_price": 382.6,
+      "realised_pnl": -254.7
     }
   ],
-  "realised_pnl": 1111.3,
+  "realised_pnl": 856.6,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": 1111.3,
+  "cumulative_pnl": 856.6,
   "cumulative_wins": 5,
-  "cumulative_losses": 0,
+  "cumulative_losses": 1,
   "history": []
 }
