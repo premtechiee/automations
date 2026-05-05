@@ -1,5 +1,5 @@
 {
-  "date": "2026-05-04",
+  "date": "2026-05-05",
   "open_trades": [
     {
       "symbol": "HAL.NS",
@@ -47,6 +47,23 @@
       "realised_pnl": 0.0
     },
     {
+      "symbol": "IRCTC.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 11,
+      "entry_price": 570.9,
+      "sl": 556.33,
+      "target": 591.88,
+      "order_id": null,
+      "opened_at": "2026-05-05 11:11:58",
+      "status": "OPEN",
+      "closed_at": null,
+      "exit_price": null,
+      "realised_pnl": 0.0
+    }
+  ],
+  "closed_today": [
+    {
       "symbol": "AMBUJACEM.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -56,13 +73,19 @@
       "target": 461.53,
       "order_id": null,
       "opened_at": "2026-05-04 12:04:05",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0
+      "status": "CLOSED_SL",
+      "closed_at": "2026-05-05 11:11:58",
+      "exit_price": 434.3,
+      "realised_pnl": -295.4
     }
   ],
-  "closed_today": [
+  "realised_pnl": -295.4,
+  "halted": false,
+  "halted_reason": "",
+  "cumulative_pnl": 561.2,
+  "cumulative_wins": 5,
+  "cumulative_losses": 2,
+  "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
       "bucket": "intraday",
@@ -153,12 +176,5 @@
       "exit_price": 382.6,
       "realised_pnl": -254.7
     }
-  ],
-  "realised_pnl": 856.6,
-  "halted": false,
-  "halted_reason": "",
-  "cumulative_pnl": 856.6,
-  "cumulative_wins": 5,
-  "cumulative_losses": 1,
-  "history": []
+  ]
 }
