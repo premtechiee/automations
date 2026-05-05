@@ -12,6 +12,11 @@ and emits four buckets — Intraday / Swing / Holding / Sell — plus a
 ranked mutual-fund table. A PNG report is generated and optionally
 sent via WhatsApp or Telegram.
 
+This script is **standalone** — it only runs the analyzer. Anything
+broker-related (paper-trading, live trading, portfolio inspection)
+lives in `scripts/angel_one.py`, which loads the picks this script
+produces (`data/stock_reports/`) and acts on them.
+
 Usage:
     python scripts/stock_analyzer.py --dry-run          # no send, full console log
     python scripts/stock_analyzer.py --now              # send via WhatsApp
@@ -19,11 +24,10 @@ Usage:
     python scripts/stock_analyzer.py --test             # send a ping to verify delivery
     python scripts/stock_analyzer.py --theme light      # override theme
 
-Angel One commands are delegated to scripts/angel_one.py:
-    python scripts/stock_analyzer.py --angel status
-    python scripts/stock_analyzer.py --angel paper-trade --once
-    python scripts/stock_analyzer.py --angel paper-report
-(or call scripts/angel_one.py directly for the same result)
+For paper trading on the picks generated here, use:
+    python scripts/angel_one.py paper-trade --once --refresh-if-stale
+    python scripts/angel_one.py paper-trade-and-report
+    python scripts/angel_one.py paper-report --send
 """
 
 import argparse
@@ -85,13 +89,6 @@ def _build_parser() -> argparse.ArgumentParser:
                     help="Mid-session update (14:00 IST) — trend update + hold/sell guidance.")
     ex.add_argument("--dry-run",   action="store_true", help="Run analysis, print to console, do NOT send.")
     ex.add_argument("--test",      action="store_true", help="Send a test ping only.")
-
-    # ── Angel One commands (delegated to scripts/angel_one.py) ────────────
-    ex.add_argument("--angel", nargs=argparse.REMAINDER, metavar="ARGS",
-                    help="Run an Angel One sub-command. Everything after --angel "
-                         "is forwarded to scripts/angel_one.py. "
-                         "Examples:  --angel status  |  --angel portfolio  |  "
-                         "--angel paper-trade --once  |  --angel paper-report --send")
     return p
 
 
@@ -113,10 +110,6 @@ def main() -> None:
 
     if args.test:
         send_test_message(channel=args.channel)
-    elif args.angel is not None:
-        from scripts.angel_one import main as angel_main
-        rc = angel_main(args.angel)
-        sys.exit(rc or 0)
     elif args.dry_run:
         run_report(dry_run=True,  channel=args.channel, theme=args.theme,
                    watchlist_path=args.watchlist, make_pdf=not args.no_pdf)

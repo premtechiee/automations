@@ -161,6 +161,7 @@
     <li><a href="#paper-trade">paper-trade</a></li>
     <li><a href="#paper-summary">paper-summary</a></li>
     <li><a href="#paper-report">paper-report</a></li>
+    <li><a href="#paper-trade-and-report">paper-trade-and-report</a></li>
 
     <li class="section-label">Engine</li>
     <li><a href="#trader-config">Trader Config</a></li>
@@ -172,6 +173,7 @@
     <li><a href="#workflow-paper">Paper-trading workflow</a></li>
     <li><a href="#workflow-live">Live-trading workflow</a></li>
     <li><a href="#integration">Stock-analyzer bridge</a></li>
+    <li><a href="#actions">GitHub Actions</a></li>
 
     <li class="section-label">Operations</li>
     <li><a href="#troubleshoot">Troubleshooting</a></li>
@@ -200,12 +202,16 @@
 <ul>
   <li><strong>Inspection</strong> — <code>status</code>, <code>portfolio</code></li>
   <li><strong>Manual</strong> — <code>order</code></li>
-  <li><strong>Engine</strong> — <code>auto-trade</code>, <code>paper-trade</code>, <code>*-status</code>, <code>paper-summary</code>, <code>paper-report</code></li>
+  <li><strong>Engine</strong> — <code>auto-trade</code>, <code>paper-trade</code>, <code>*-status</code>, <code>paper-summary</code>, <code>paper-report</code>, <code>paper-trade-and-report</code></li>
 </ul>
 <div class="callout">
-  All sub-commands also work via the <code>--angel</code> passthrough on
-  <a href="stock_analyzer.html"><code>stock_analyzer.py</code></a>. The two
-  scripts share the same code path; pick whichever is more convenient.
+  This script and <a href="stock_analyzer.html"><code>stock_analyzer.py</code></a>
+  are now fully decoupled. <code>stock_analyzer.py</code> only runs the
+  analysis and writes picks to <code>data/stock_reports/</code>;
+  <code>angel_one.py</code> consumes those picks and acts on them. Use
+  <code>paper-trade-and-report</code> for a single command that gathers picks
+  (running the analyzer if stale), ticks the paper-trader, and pushes the
+  report image to WhatsApp or Telegram.
 </div>
 </section>
 
@@ -243,6 +249,7 @@
 <a class="cmd-anchor" href="#paper-trade"><code>paper-trade [--once] [--refresh|--refresh-if-stale]</code><span>Run the paper-trader (never transmits)</span></a>
 <a class="cmd-anchor" href="#paper-summary"><code>paper-summary</code><span>Quick paper-trading P&amp;L summary</span></a>
 <a class="cmd-anchor" href="#paper-report"><code>paper-report [--send --channel ...]</code><span>Full performance report (saved &amp; printed)</span></a>
+<a class="cmd-anchor" href="#paper-trade-and-report"><code>paper-trade-and-report [--at-eod] [--refresh] [--channel ...]</code><span>Composite: refresh picks → tick paper-trader → push report image</span></a>
 </section>
 
 <section id="status">
@@ -388,6 +395,44 @@ python scripts/angel_one.py paper-report --send --channel telegram</code></pre>
 </table>
 </section>
 
+<section id="paper-trade-and-report">
+<h2><code>paper-trade-and-report</code></h2>
+<p>One-shot composite that owns the full <em>analyze → trade → report</em>
+loop. This is the canonical command for ad-hoc snapshots and is what the
+GitHub Actions workflow uses for every market-touch event:</p>
+<ol>
+  <li>If today's picks don't yet exist in <code>data/stock_reports/</code>, runs
+      <code>stock_analyzer.run_report()</code> internally to generate them.</li>
+  <li>Ticks the paper-trader once with live LTPs (Angel One). Any entries
+      hit, SLs hit, or targets hit are recorded into
+      <code>data/paper_trader_state.json</code>.</li>
+  <li>Renders the compact report PNG and pushes it through the configured
+      channel (WhatsApp by default).</li>
+</ol>
+<table>
+  <tr><th>Flag</th><th>Default</th><th>Purpose</th></tr>
+  <tr><td><code>--channel {whatsapp,telegram}</code></td><td><code>whatsapp</code></td><td>Where to push the report image</td></tr>
+  <tr><td><code>--refresh</code></td><td><em>off</em></td><td>Force re-run of the analyzer even if today's picks already exist</td></tr>
+  <tr><td><code>--at-eod</code></td><td><em>off</em></td><td>EOD pass: square off all open intraday positions and skip new entries</td></tr>
+</table>
+<pre><code># Default ad-hoc snapshot (refresh-if-stale, tick, send to WhatsApp)
+python scripts/angel_one.py paper-trade-and-report
+
+# Push to Telegram instead
+python scripts/angel_one.py paper-trade-and-report --channel telegram
+
+# 15:30 IST end-of-day square-off + final report
+python scripts/angel_one.py paper-trade-and-report --at-eod
+
+# Force a fresh analyzer run even if today's picks exist
+python scripts/angel_one.py paper-trade-and-report --refresh</code></pre>
+<div class="callout ok">
+  Equivalent to running <code>paper-trade --once --refresh-if-stale</code>
+  followed by <code>paper-report --send</code>, but as a single atomic step
+  with one cleaner invocation.
+</div>
+</section>
+
 <section id="trader-config">
 <h2>Trader Config</h2>
 <p>All env-driven via <code>TraderConfig.from_env()</code>:</p>
@@ -494,14 +539,86 @@ python scripts/angel_one.py auto-trade --refresh</code></pre>
 
 <section id="integration">
 <h2>Stock-Analyzer Bridge</h2>
-<p>Every command on this page is also reachable through the analyser's
-<code>--angel</code> passthrough:</p>
-<pre><code>python scripts/stock_analyzer.py --angel status
-python scripts/stock_analyzer.py --angel paper-trade --once
-python scripts/stock_analyzer.py --angel paper-report --send --channel telegram</code></pre>
-<p>Internally <code>stock_analyzer.py</code> simply calls
-<code>angel_one.main(args.angel)</code>, so behaviour is identical and only one
-source of truth is maintained.</p>
+<p>The analyzer (<a href="stock_analyzer.html"><code>stock_analyzer.py</code></a>)
+and this script are decoupled and both standalone:</p>
+<ul>
+  <li><code>stock_analyzer.py</code> only runs the analysis and writes picks to
+      <code>data/stock_reports/</code> (plus optional report image / PDF).</li>
+  <li><code>angel_one.py</code> reads those picks and acts on them — paper or
+      live trading, portfolio inspection, manual orders.</li>
+</ul>
+<p>The composite <code>paper-trade-and-report</code> command runs the analyzer
+internally if today's picks are missing, so a single invocation handles the
+full flow:</p>
+<pre><code># Analyzer-only (writes data/stock_reports/&lt;today&gt;.json)
+python scripts/stock_analyzer.py --dry-run
+
+# Paper trade against the latest picks (refreshes via analyzer if stale)
+python scripts/angel_one.py paper-trade --once --refresh-if-stale
+
+# Single command: gather picks → tick paper trader → push report image
+python scripts/angel_one.py paper-trade-and-report</code></pre>
+</section>
+
+<section id="actions">
+<h2>GitHub Actions</h2>
+<p>The automations ship with two independent workflows under
+<code>.github/workflows/</code>. They are deliberately decoupled so the
+analyzer can be re-used by other consumers without dragging in broker
+code.</p>
+
+<table>
+  <tr><th>Workflow</th><th>Purpose</th><th>What it runs</th></tr>
+  <tr>
+    <td><code>stock_analyzer.yml</code></td>
+    <td>Analyzer briefings only — pre-open, market-open, mid-session.
+        No trading, no broker secrets, no shared state.</td>
+    <td><code>scripts/stock_analyzer.py --preopen|--morning|--afternoon</code></td>
+  </tr>
+  <tr>
+    <td><code>angel_one.yml</code></td>
+    <td>All trading — paper-trader ticks, market-touch reports, EOD
+        square-off + report. Owns the <code>paper-trader-state</code>
+        branch and all Angel One credentials.</td>
+    <td><code>scripts/angel_one.py paper-trade*</code></td>
+  </tr>
+</table>
+
+<h3>angel_one.yml — schedule (Mon–Fri)</h3>
+<table>
+  <tr><th>Cron (UTC)</th><th>IST</th><th>Step</th></tr>
+  <tr><td><code>0 4 * * 1-5</code></td><td>09:30</td><td>Market-open <code>paper-trade-and-report</code> (refreshes picks via analyzer if stale, ticks once, sends image report)</td></tr>
+  <tr><td><code>30 8 * * 1-5</code></td><td>14:00</td><td>Mid-session <code>paper-trade-and-report</code></td></tr>
+  <tr><td><code>*/15 4-9 * * 1-5</code></td><td>09:30–15:30 every 15 min</td><td>Silent <code>paper-trade --once --refresh-if-stale</code> tick (no message)</td></tr>
+  <tr><td><code>0 10 * * 1-5</code></td><td>15:30</td><td>EOD square-off + report (<code>--at-eod</code>)</td></tr>
+  <tr><td><code>15 10 * * 1-5</code></td><td>15:45</td><td>Trailing report (catches any post-close fill)</td></tr>
+</table>
+
+<h3>State persistence</h3>
+<p>Paper-trader state (<code>data/paper_trader_state.json</code> + the
+<code>data/paper_reports/</code> archive) is persisted across runs by
+committing to a dedicated orphan branch — <code>paper-trader-state</code> —
+at the end of every job. This keeps runtime noise out of <code>master</code>
+history while still making state survive across days/weekends. The
+<code>concurrency.group: angel-one-trader</code> setting serializes runs so
+two schedules can never overwrite each other's state.</p>
+
+<h3>Manual dispatch</h3>
+<p>Both workflows expose <code>workflow_dispatch</code> with a dropdown of
+vetted commands. <code>angel_one.yml</code> additionally supports a
+<code>reset_paper_state=yes</code> input which wipes the state branch's
+data files at job start — useful when you want to re-seed cash or start a
+fresh paper-trading window.</p>
+
+<h3>Required secrets / vars</h3>
+<ul>
+  <li><strong>angel_one.yml only:</strong> <code>ANGEL_API_KEY</code>,
+      <code>ANGEL_CLIENT_CODE</code>, <code>ANGEL_MPIN</code>,
+      <code>ANGEL_TOTP_SECRET</code>, <code>vars.PAPER_STARTING_CASH</code></li>
+  <li><strong>both workflows:</strong> <code>GOLD_PHONE_NUMBER</code>,
+      <code>GREEN_API_INSTANCE</code>, <code>GREEN_API_TOKEN</code>,
+      <code>TELEGRAM_BOT_TOKEN</code>, <code>TELEGRAM_CHAT_ID</code></li>
+</ul>
 </section>
 
 <section id="troubleshoot">

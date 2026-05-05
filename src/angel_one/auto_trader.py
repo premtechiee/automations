@@ -1,7 +1,9 @@
 """
-src/stock_analyzer/auto_trader.py
+src/angel_one/auto_trader.py
 ==================================
-Auto-trading engine for the stock-analyzer pipeline.
+Auto-trading engine. Consumes the stock-analyzer pipeline's picks
+(`data/stock_reports/`) and routes BUY / SL / TGT decisions through
+Angel One — live or paper.
 
 What it does
 ------------
@@ -29,10 +31,10 @@ Safety rails (all configurable via env vars)
 Usage
 -----
     # one-shot tick (for testing / cron-driven mode)
-    python scripts/stock_analyzer.py --auto-trade --once
+    python scripts/angel_one.py auto-trade --once
 
     # foreground loop (poll every 60s during market hours)
-    python scripts/stock_analyzer.py --auto-trade
+    python scripts/angel_one.py auto-trade
 """
 
 from __future__ import annotations
@@ -77,9 +79,14 @@ _MARKET_CLOSE = dtime(15, 30)
 
 @dataclass
 class TraderConfig:
-    max_positions:        int   = 5
+    max_positions:        int   = 6
     max_daily_loss_inr:   float = 5000.0
-    max_pct_per_trade:    float = 0.10
+    max_pct_per_trade:    float = 0.15        # hard cap on notional per trade
+    max_risk_pct_per_trade: float = 0.005     # risk-per-trade as fraction of equity (0.5%)
+    entry_band_pct:       float = 0.010       # |LTP-entry|/entry must be <= this to fill
+    trail_activate_pct:   float = 0.012       # arm trailing stop once price > entry by this %
+    trail_distance_pct:   float = 0.008       # trail SL this far below the running peak
+    cost_pct_round_trip:  float = 0.0015      # brokerage + STT + slippage proxy (round-trip)
     min_qty:              int   = 1
     buckets:              tuple = ("intraday", "swing")
     dry_run:              bool  = True
@@ -101,16 +108,21 @@ class TraderConfig:
         if paper:
             dry = True
         return cls(
-            max_positions       = _i("AUTO_TRADE_MAX_POSITIONS",      5),
-            max_daily_loss_inr  = _f("AUTO_TRADE_MAX_DAILY_LOSS_INR", 5000),
-            max_pct_per_trade   = _f("AUTO_TRADE_MAX_PCT_PER_TRADE",  0.10),
-            min_qty             = _i("AUTO_TRADE_MIN_QTY",            1),
-            buckets             = buckets,
-            dry_run             = dry,
-            notify_channel      = os.environ.get("AUTO_TRADE_NOTIFY_CHANNEL", "none").lower(),
-            poll_interval_sec   = _i("AUTO_TRADE_POLL_SEC",           60),
-            paper               = paper,
-            paper_starting_cash = _f("PAPER_STARTING_CASH",           100000),
+            max_positions          = _i("AUTO_TRADE_MAX_POSITIONS",        6),
+            max_daily_loss_inr     = _f("AUTO_TRADE_MAX_DAILY_LOSS_INR",   5000),
+            max_pct_per_trade      = _f("AUTO_TRADE_MAX_PCT_PER_TRADE",    0.15),
+            max_risk_pct_per_trade = _f("AUTO_TRADE_MAX_RISK_PCT_PER_TRADE", 0.005),
+            entry_band_pct         = _f("AUTO_TRADE_ENTRY_BAND_PCT",       0.010),
+            trail_activate_pct     = _f("AUTO_TRADE_TRAIL_ACTIVATE_PCT",   0.012),
+            trail_distance_pct     = _f("AUTO_TRADE_TRAIL_DISTANCE_PCT",   0.008),
+            cost_pct_round_trip    = _f("AUTO_TRADE_COST_PCT",             0.0015),
+            min_qty                = _i("AUTO_TRADE_MIN_QTY",              1),
+            buckets                = buckets,
+            dry_run                = dry,
+            notify_channel         = os.environ.get("AUTO_TRADE_NOTIFY_CHANNEL", "none").lower(),
+            poll_interval_sec      = _i("AUTO_TRADE_POLL_SEC",             60),
+            paper                  = paper,
+            paper_starting_cash    = _f("PAPER_STARTING_CASH",             100000),
         )
 
     @property
@@ -135,6 +147,11 @@ class OpenTrade:
     closed_at:   str | None = None
     exit_price:  float | None = None
     realised_pnl: float = 0.0
+    # Trailing-stop bookkeeping (defaults preserve backward-compat with
+    # state files written before these fields existed)
+    peak_price:    float = 0.0    # running peak LTP since entry
+    initial_sl:    float = 0.0    # SL at entry; trailing only ratchets above this
+    trail_active:  bool  = False  # True once trail_activate_pct profit reached
 
 
 @dataclass
@@ -240,35 +257,95 @@ def _load_latest_picks() -> dict[str, list[dict]] | None:
 
 # ── Notifications ────────────────────────────────────────────────────────────
 
-def _notify(channel: str, msg: str) -> None:
-    channel = (channel or "none").lower()
+def _notify(channel: str, msg: str, image_path: str | Path | None = None) -> dict:
+    """Push `msg` to the configured channel.
+
+    If `image_path` is given, the image is sent and `msg` is used as the
+    caption. Falls back to plain text if the image upload fails.
+
+    Returns a delivery summary: ``{"channel", "image_sent", "text_sent",
+    "recipients", "image_failed", "text_failed"}`` so callers can log a
+    truthful outcome instead of assuming success.
+    """
+    summary = {
+        "channel":      (channel or "none").lower(),
+        "image_sent":   0,
+        "text_sent":    0,
+        "image_failed": 0,
+        "text_failed":  0,
+        "recipients":   0,
+    }
+    channel = summary["channel"]
     if channel == "none":
-        return
+        return summary
+    img = str(image_path) if image_path and Path(image_path).exists() else None
     try:
         if channel == "telegram":
-            from src.stock_analyzer.config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
-            from lib.telegram import send_message as tg
-            tg(TELEGRAM_CHAT_ID, msg, TELEGRAM_BOT_TOKEN)
+            from src.angel_one.config import TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
+            from lib.telegram import send_message as tg, send_photo as tg_photo
+            summary["recipients"] = 1
+            if img:
+                if tg_photo(TELEGRAM_CHAT_ID, img, msg, TELEGRAM_BOT_TOKEN):
+                    summary["image_sent"] = 1
+                    return summary
+                summary["image_failed"] = 1
+                logger.warning("telegram photo failed — falling back to text")
+            if tg(TELEGRAM_CHAT_ID, msg, TELEGRAM_BOT_TOKEN):
+                summary["text_sent"] = 1
+            else:
+                summary["text_failed"] = 1
         elif channel == "whatsapp":
-            from src.stock_analyzer.config import (
+            from src.angel_one.config import (
                 PHONE_NUMBERS, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL
             )
-            from lib.whatsapp import send_message as wa
+            from lib.whatsapp import send_message as wa, send_image as wa_img
             for p in PHONE_NUMBERS:
-                if p:
-                    wa(p, msg, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL)
+                if not p:
+                    continue
+                summary["recipients"] += 1
+                sent = False
+                if img:
+                    sent = bool(wa_img(p, img, msg, GREEN_API_INSTANCE,
+                                       GREEN_API_TOKEN, GREEN_API_URL))
+                    if sent:
+                        summary["image_sent"] += 1
+                    else:
+                        summary["image_failed"] += 1
+                        logger.warning(f"whatsapp image failed for {p} — falling back to text")
+                if not sent:
+                    if wa(p, msg, GREEN_API_INSTANCE, GREEN_API_TOKEN, GREEN_API_URL):
+                        summary["text_sent"] += 1
+                    else:
+                        summary["text_failed"] += 1
     except Exception as exc:
         logger.warning(f"auto-trader notify failed: {exc}")
+    return summary
 
 
 # ── Sizing ───────────────────────────────────────────────────────────────────
 
-def _calc_qty(price: float, available_cash: float, cfg: TraderConfig) -> int:
+def _calc_qty(price: float, sl: float, available_cash: float,
+              total_equity: float, cfg: TraderConfig) -> int:
+    """Risk-based position sizing.
+
+    Quantity is the **smaller** of:
+      • risk-budget qty:  ``equity * max_risk_pct / stop_distance``
+      • notional cap qty: ``available_cash * max_pct_per_trade / price``
+
+    This equalises rupee-risk per trade (so tight-SL names get bigger size,
+    wide-SL names get smaller) while still capping the notional exposure.
+    Falls back to the old notional-only sizing if SL is missing/invalid.
+    """
     if price <= 0 or available_cash <= 0:
         return 0
-    budget = available_cash * cfg.max_pct_per_trade
-    qty    = int(budget // price)
-    return max(0, qty)
+    qty_cap = int((available_cash * cfg.max_pct_per_trade) // price)
+    stop_dist = price - sl if sl and sl > 0 else 0.0
+    if stop_dist <= 0:
+        # No usable stop → fall back to notional cap only
+        return max(0, qty_cap)
+    risk_budget = max(total_equity, available_cash) * cfg.max_risk_pct_per_trade
+    qty_risk    = int(risk_budget // stop_dist)
+    return max(0, min(qty_risk, qty_cap))
 
 
 # ── Decision logic ───────────────────────────────────────────────────────────
@@ -293,6 +370,8 @@ def _decide(picks: dict[str, list[dict]],
     actions: list[Action] = []
 
     # 1. Exit checks on every open trade (SL / target / EOD).
+    # Also runs the trailing-stop ratchet so SL only ever moves up (never
+    # down) once price has run sufficiently in our favour.
     open_syms = {t.symbol for t in state.open_trades}
     for t in state.open_trades:
         live = ltps.get(t.symbol) or {}
@@ -306,9 +385,26 @@ def _decide(picks: dict[str, list[dict]],
                                        reason="EOD close (no LTP, flat)"))
             continue
         if t.side == "BUY":
+            # ── Trailing stop ─────────────────────────────────────────
+            # Track running peak; once unrealised gain crosses the
+            # activation threshold, ratchet SL up to (peak * (1-trail_dist)).
+            # SL never moves down — this only protects profit, never widens risk.
+            if not t.initial_sl:
+                t.initial_sl = t.sl
+            t.peak_price = max(t.peak_price or t.entry_price, ltp)
+            gain_pct = (t.peak_price - t.entry_price) / t.entry_price if t.entry_price else 0.0
+            if gain_pct >= cfg.trail_activate_pct:
+                t.trail_active = True
+            if t.trail_active:
+                trailed = t.peak_price * (1.0 - cfg.trail_distance_pct)
+                if trailed > t.sl:
+                    t.sl = round(trailed, 2)
+
             if ltp <= t.sl:
+                reason = (f"trailing-SL hit @ {ltp:.2f} (peak {t.peak_price:.2f})"
+                          if t.trail_active else f"SL hit @ {ltp:.2f}")
                 actions.append(Action("CLOSE_SL", trade=t, qty=t.qty,
-                                       price=ltp, reason=f"SL hit @ {ltp:.2f}"))
+                                       price=ltp, reason=reason))
             elif ltp >= t.target:
                 actions.append(Action("CLOSE_TGT", trade=t, qty=t.qty,
                                        price=ltp, reason=f"target @ {ltp:.2f}"))
@@ -351,12 +447,16 @@ def _decide(picks: dict[str, list[dict]],
             ltp  = float(live.get("ltp") or 0)
             if ltp <= 0:
                 continue
-            # Long entry trigger: live price within +/- 0.5% of entry, AND
-            # above SL (so risk:reward is still intact).
-            within = abs(ltp - entry) / entry <= 0.005
+            # Long entry trigger: live price within entry_band_pct of the
+            # planned entry, AND above SL (so risk:reward is still intact).
+            within = abs(ltp - entry) / entry <= cfg.entry_band_pct
             if not within or ltp <= sl:
                 continue
-            qty = _calc_qty(ltp, cash, cfg)
+            # Equity used for risk-budget: cash + open MTM (paper) or just cash (live).
+            equity_for_risk = cash
+            if cfg.paper:
+                equity_for_risk = cfg.paper_starting_cash + state.cumulative_pnl
+            qty = _calc_qty(ltp, sl, cash, equity_for_risk, cfg)
             if qty < cfg.min_qty:
                 continue
             actions.append(Action("OPEN", pick=pk, qty=qty, price=ltp,
@@ -403,16 +503,20 @@ def _apply(action: Action, result: dict, state: TraderState,
     if action.kind == "OPEN":
         pk = action.pick
         lv = pk.get("levels") or {}
+        sl_open = float(lv.get("sl") or 0)
         t = OpenTrade(
             symbol      = pk["symbol"],
             bucket      = action.bucket,
             side        = "BUY",
             qty         = action.qty,
             entry_price = action.price,
-            sl          = float(lv.get("sl") or 0),
+            sl          = sl_open,
             target      = float(lv.get("target") or 0),
             order_id    = oid,
             opened_at   = now,
+            peak_price  = action.price,
+            initial_sl  = sl_open,
+            trail_active= False,
         )
         state.open_trades.append(t)
         return (f"✅ [{tag}] OPEN {t.symbol} qty={t.qty} @ ₹{action.price:.2f} "
@@ -420,7 +524,12 @@ def _apply(action: Action, result: dict, state: TraderState,
 
     if action.kind in ("CLOSE_SL", "CLOSE_TGT", "CLOSE_EOD"):
         t = action.trade
-        pnl = (action.price - t.entry_price) * t.qty
+        gross = (action.price - t.entry_price) * t.qty
+        # Round-trip transaction cost proxy: brokerage + STT + slippage.
+        # Modelled as a flat % of the average notional so it scales naturally.
+        avg_notional = ((action.price + t.entry_price) / 2.0) * t.qty
+        cost = avg_notional * cfg.cost_pct_round_trip
+        pnl  = gross - cost
         t.status       = ("CLOSED_SL"  if action.kind == "CLOSE_SL"  else
                           "CLOSED_TGT" if action.kind == "CLOSE_TGT" else
                           "CLOSED_EOD")
@@ -443,7 +552,7 @@ def _apply(action: Action, result: dict, state: TraderState,
                  "🎯" if action.kind == "CLOSE_TGT" else
                  "🕔")
         return (f"{emoji} [{tag}] CLOSE {t.symbol} qty={t.qty} @ ₹{action.price:.2f} "
-                f"P&L ₹{pnl:+,.0f} ({action.reason})")
+                f"P&L ₹{pnl:+,.0f} (gross ₹{gross:+,.0f}, cost ₹{cost:.0f}; {action.reason})")
 
     return f"? {action}"
 
@@ -451,6 +560,11 @@ def _apply(action: Action, result: dict, state: TraderState,
 # ── Main entry points ───────────────────────────────────────────────────────
 
 def is_market_open() -> bool:
+    # Local-test override: ``AUTO_TRADE_FORCE_MARKET_OPEN=1`` bypasses the
+    # 09:15–15:30 IST window so you can exercise entry logic outside hours.
+    # Never set this in CI — LTPs will be stale and trades will mis-fire.
+    if os.environ.get("AUTO_TRADE_FORCE_MARKET_OPEN") == "1":
+        return True
     # Always evaluate against IST — Indian markets run 09:15–15:30 IST
     # regardless of the runner's local timezone (e.g. UTC on GitHub Actions).
     now_ist = _now_ist()

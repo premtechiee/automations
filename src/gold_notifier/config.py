@@ -10,22 +10,25 @@ import os
 from datetime import datetime
 
 # ── WhatsApp / Green API ────────────────────────────────────────────────────
-PHONE_NUMBER       = os.environ.get("GOLD_PHONE_NUMBER",    "919790967892")
+# NOTE: Use `os.environ.get(K) or DEFAULT` (not the 2-arg form) so that an
+# *empty* env var (e.g. an unset GitHub Actions secret that gets exported as
+# "") still falls through to the local default instead of becoming "".
+PHONE_NUMBER       = os.environ.get("GOLD_PHONE_NUMBER")    or "919790967892"
 # Additional recipients (comma-separated, no spaces). Set via env or extend the default.
 PHONE_NUMBERS: list[str] = [
     n.strip() for n in
-    os.environ.get("GOLD_PHONE_NUMBERS", f"{PHONE_NUMBER},919566240454,919789990096").split(",")
+    (os.environ.get("GOLD_PHONE_NUMBERS") or f"{PHONE_NUMBER},919566240454,919789990096").split(",")
     if n.strip()
 ]
-GREEN_API_INSTANCE = os.environ.get("GREEN_API_INSTANCE",   "7107567480")
-GREEN_API_TOKEN    = os.environ.get("GREEN_API_TOKEN",      "ba5038e7960e42c48335a62e573e0f40652c8a1df6594c67ab")
-GREEN_API_URL      = os.environ.get("GREEN_API_URL",        "https://7107.api.greenapi.com")
+GREEN_API_INSTANCE = os.environ.get("GREEN_API_INSTANCE")   or "7107567480"
+GREEN_API_TOKEN    = os.environ.get("GREEN_API_TOKEN")      or "ba5038e7960e42c48335a62e573e0f40652c8a1df6594c67ab"
+GREEN_API_URL      = os.environ.get("GREEN_API_URL")        or "https://7107.api.greenapi.com"
 
 # ── Telegram Bot (works on PythonAnywhere free tier) ──────────────────────────
 # Get a bot token from @BotFather on Telegram, then get your chat_id via:
 #   https://api.telegram.org/bot<TOKEN>/getUpdates  (send any message to your bot first)
-TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "8716823723:AAGTb3TUy01RuaLHJTNxFEr4Go4DqJ9tRb4")
-TELEGRAM_CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID",   "8639220099")
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN") or "8716823723:AAGTb3TUy01RuaLHJTNxFEr4Go4DqJ9tRb4"
+TELEGRAM_CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID")   or "8639220099"
 
 # ── India duty/tax factors ──────────────────────────────────────────────────
 # Gold:  import duty (6%) + AIDC (5%) + GST (3%) ≈ 9.4%

@@ -1,23 +1,28 @@
 name: Stock Analyzer
 
 # ──────────────────────────────────────────────────────────────────────────
-# Schedules (all in UTC; IST = UTC + 5:30). Mon–Fri only.
-# GitHub may delay scheduled runs by 5–30 min under load — crons are set a
-# few minutes earlier than the desired IST time.
+# Analyzer-only workflow. Runs `scripts/stock_analyzer.py` to generate the
+# daily picks (data/stock_reports/<today>.json) and pushes the formatted
+# image / PDF report to WhatsApp or Telegram.
+#
+# Trading on those picks (paper or live) is owned by a separate workflow
+# (`angel_one.yml`) which calls into this analyzer internally when today's
+# picks are stale. Keep this workflow free of broker logic.
+#
+# Schedules in UTC; IST = UTC + 5:30. Mon–Fri.
+# GitHub may delay scheduled runs by 5–30 min — crons are set a few minutes
+# earlier than the desired IST time.
 # ──────────────────────────────────────────────────────────────────────────
 on:
   schedule:
     - cron: '30 2 * * 1-5'        # 08:00 IST → PRE-OPEN briefing
     - cron: '0 4 * * 1-5'         # 09:30 IST → MARKET-OPEN confirmation
     - cron: '30 8 * * 1-5'        # 14:00 IST → MID-SESSION update
-    - cron: '*/15 3-9 * * 1-5'    # UTC 03:00–09:45 → IST 08:30–15:15 paper-trade tick
-    - cron: '0 10 * * 1-5'        # UTC 10:00 → IST 15:30 final intra-day tick
-    - cron: '15 10 * * 1-5'       # 15:45 IST → end-of-day paper report → WhatsApp
 
   workflow_dispatch:
     inputs:
       command:
-        description: 'Command to run'
+        description: 'Stock-analyzer command to run'
         required: true
         default: '--dry-run'
         type: choice
@@ -28,35 +33,20 @@ on:
           - '--now'
           - '--dry-run'
           - '--test'
-          - '--angel paper-trade --once --refresh-if-stale'
-          - '--angel paper-trade-and-report'
-          - '--angel paper-report --send'
-          - '--angel paper-summary'
-          - '--angel auto-trade-status'
-      reset_paper_state:
-        description: 'Reset paper-trader state (wipe history & reseed cash)?'
+      channel:
+        description: 'Delivery channel'
         required: false
-        default: 'no'
+        default: 'whatsapp'
         type: choice
-        options: ['no', 'yes']
-
-# Serialize all runs of this workflow so paper-trader state writes never
-# collide. Newer runs queue rather than cancel — important so we never
-# drop a tick.
-concurrency:
-  group: stock-analyzer
-  cancel-in-progress: false
+        options: ['whatsapp', 'telegram']
 
 permissions:
-  contents: write   # needed to push the state branch
-
-env:
-  STATE_BRANCH: paper-trader-state
+  contents: read
 
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repo
@@ -73,36 +63,7 @@ jobs:
       - name: Install dependencies
         run: pip install --quiet -r requirements.txt
 
-      # ─── Restore paper-trader state from the dedicated state branch ───
-      # Survives across runs (and weekends) without polluting master history.
-      - name: Restore paper-trader state
-        if: github.event.inputs.reset_paper_state != 'yes'
-        continue-on-error: true
-        run: |
-          set -e
-          mkdir -p data/paper_reports
-          if ! git fetch origin "${STATE_BRANCH}" --depth=1 2>/dev/null; then
-            echo "::notice::No state branch yet — first run, starting fresh."
-            exit 0
-          fi
-          git checkout "origin/${STATE_BRANCH}" -- \
-            data/paper_trader_state.json \
-            data/paper_reports 2>/dev/null || true
-          git reset HEAD -- data/ >/dev/null 2>&1 || true
-          if [ -f data/paper_trader_state.json ]; then
-            echo "::notice::Restored paper-trader state."
-            ls -la data/paper_trader_state.json
-          fi
-
-      - name: Reset paper-trader state (manual override)
-        if: github.event.inputs.reset_paper_state == 'yes'
-        run: |
-          rm -f data/paper_trader_state.json
-          rm -rf data/paper_reports
-          mkdir -p data/paper_reports
-          echo "::warning::Paper-trader state has been wiped."
-
-      # ─── Map secrets/vars to env so every step inherits them ───
+      # ─── Map secrets to env so every step inherits them ───
       - name: Load runtime secrets into environment
         run: |
           {
@@ -111,11 +72,6 @@ jobs:
             echo "GREEN_API_TOKEN=${{ secrets.GREEN_API_TOKEN }}"
             echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}"
             echo "TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}"
-            echo "ANGEL_API_KEY=${{ secrets.ANGEL_API_KEY }}"
-            echo "ANGEL_CLIENT_CODE=${{ secrets.ANGEL_CLIENT_CODE }}"
-            echo "ANGEL_MPIN=${{ secrets.ANGEL_MPIN }}"
-            echo "ANGEL_TOTP_SECRET=${{ secrets.ANGEL_TOTP_SECRET }}"
-            echo "PAPER_STARTING_CASH=${{ vars.PAPER_STARTING_CASH || '100000' }}"
           } >> "$GITHUB_ENV"
 
       # ─── Scheduled jobs (one matches per cron expression) ───
@@ -125,99 +81,15 @@ jobs:
 
       - name: Market-open confirmation (09:30 IST)
         if: github.event_name == 'schedule' && github.event.schedule == '0 4 * * 1-5'
-        run: |
-          # First refresh picks + tick once so we trade on the 09:30 candle,
-          # then push a paper-trade report so you see live entries on WhatsApp.
-          python scripts/stock_analyzer.py --morning --channel whatsapp
-          python scripts/stock_analyzer.py --angel paper-trade --once --refresh-if-stale || true
-          python scripts/stock_analyzer.py --angel paper-report --send --channel whatsapp || true
+        run: python scripts/stock_analyzer.py --morning --channel whatsapp
 
       - name: Mid-session check (14:00 IST)
         if: github.event_name == 'schedule' && github.event.schedule == '30 8 * * 1-5'
-        run: |
-          python scripts/stock_analyzer.py --afternoon --channel whatsapp
-          # Tick once with live LTPs to pick up any SL/TGT hits, then send report.
-          python scripts/stock_analyzer.py --angel paper-trade --once --refresh-if-stale || true
-          python scripts/stock_analyzer.py --angel paper-report --send --channel whatsapp || true
-
-      - name: Paper-trade tick (every 15 min, silent)
-        if: github.event_name == 'schedule' && (github.event.schedule == '*/15 3-9 * * 1-5' || github.event.schedule == '0 10 * * 1-5')
-        run: python scripts/stock_analyzer.py --angel paper-trade --once --refresh-if-stale
-
-      - name: End-of-day paper report → WhatsApp (15:45 IST)
-        if: github.event_name == 'schedule' && github.event.schedule == '15 10 * * 1-5'
-        run: |
-          # Square off all open intraday positions at current LTP, then send report.
-          python scripts/stock_analyzer.py --angel paper-trade --once --at-eod || true
-          python scripts/stock_analyzer.py --angel paper-report --send --channel whatsapp
+        run: python scripts/stock_analyzer.py --afternoon --channel whatsapp
 
       - name: Manual run
         if: github.event_name == 'workflow_dispatch'
         run: |
-          # Special composite command: tick paper-trader once with LTP-driven
-          # decisions, then push the report to WhatsApp. Useful for ad-hoc
-          # snapshots from the Actions UI.
-          if [ "${{ github.event.inputs.command }}" = "--angel paper-trade-and-report" ]; then
-            python scripts/stock_analyzer.py --angel paper-trade --once --refresh-if-stale
-            python scripts/stock_analyzer.py --angel paper-report --send --channel whatsapp
-          else
-            python scripts/stock_analyzer.py ${{ github.event.inputs.command }} --channel whatsapp
-          fi
-
-      # ─── Persist updated paper-trader state to the state branch ───
-      # Dedicated orphan branch keeps runtime noise out of master history.
-      - name: Persist paper-trader state
-        if: always() && hashFiles('data/paper_trader_state.json') != ''
-        continue-on-error: true
-        run: |
-          set -e
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          # Stash the runtime files separately so checkout doesn't blow them away.
-          mkdir -p /tmp/pstate
-          cp data/paper_trader_state.json /tmp/pstate/ 2>/dev/null || true
-          cp -r data/paper_reports /tmp/pstate/ 2>/dev/null || true
-
-          if git ls-remote --exit-code --heads origin "${STATE_BRANCH}" >/dev/null 2>&1; then
-            git fetch origin "${STATE_BRANCH}" --depth=1
-            git checkout -B "${STATE_BRANCH}" "origin/${STATE_BRANCH}"
-          else
-            # First time: create as an orphan branch (no master history).
-            git checkout --orphan "${STATE_BRANCH}"
-            git rm -rf . >/dev/null 2>&1 || true
-          fi
-
-          # Lay down the persisted files.
-          mkdir -p data/paper_reports
-          cp /tmp/pstate/paper_trader_state.json data/ 2>/dev/null || true
-          cp -r /tmp/pstate/paper_reports/. data/paper_reports/ 2>/dev/null || true
-
-          cat > README.md <<'EOF'
-          # paper-trader-state
-
-          Auto-managed branch holding runtime state for the **Stock Analyzer**
-          GitHub Actions workflow. Do not commit code here.
-
-          - `data/paper_trader_state.json` — open positions, cumulative P&L, history
-          - `data/paper_reports/` — daily performance reports
-
-          To reset state: run the workflow with `reset_paper_state=yes`.
-          EOF
-
-          git add -A
-          if git diff --quiet --staged; then
-            echo "No state changes to persist."
-            exit 0
-          fi
-          git commit -m "state: paper-trader update $(date -u +'%Y-%m-%d %H:%M UTC') [skip ci]"
-
-          # Concurrency:group should make collisions rare, but retry anyway.
-          for i in 1 2 3; do
-            if git push origin "${STATE_BRANCH}"; then exit 0; fi
-            echo "::warning::push attempt $i failed; refetching and retrying"
-            git fetch origin "${STATE_BRANCH}" --depth=1 || true
-            git rebase "origin/${STATE_BRANCH}" || git rebase --abort || true
-          done
-          echo "::error::failed to push state branch after 3 attempts"
-          exit 1
+          python scripts/stock_analyzer.py \
+            ${{ github.event.inputs.command }} \
+            --channel ${{ github.event.inputs.channel }}

@@ -1,0 +1,238 @@
+name: Angel One Trader
+
+# ──────────────────────────────────────────────────────────────────────────
+# Trading workflow. Owns everything broker-related — paper-trading ticks,
+# market-touch reports, EOD square-off + report. Delegates analysis to
+# `scripts/stock_analyzer.py` (called internally by `paper-trade-and-report`
+# whenever today's picks are stale).
+#
+# Persists `data/paper_trader_state.json` and `data/paper_reports/` to a
+# dedicated orphan branch so state survives across runs and weekends
+# without polluting `master` history.
+#
+# Schedules in UTC; IST = UTC + 5:30. Mon–Fri only.
+# ──────────────────────────────────────────────────────────────────────────
+on:
+  schedule:
+    - cron: '0 4 * * 1-5'         # 09:30 IST → market-open: gather picks + first tick + report
+    - cron: '30 8 * * 1-5'        # 14:00 IST → mid-session: tick + report
+    - cron: '*/15 4-9 * * 1-5'    # every 15 min during market hours → silent paper-trade tick
+    - cron: '0 10 * * 1-5'        # 15:30 IST → EOD square-off + final report
+    - cron: '15 10 * * 1-5'       # 15:45 IST → trailing report (catch any post-close fills)
+
+  workflow_dispatch:
+    inputs:
+      command:
+        description: 'Angel One sub-command'
+        required: true
+        default: 'paper-trade-and-report'
+        type: choice
+        options:
+          - 'paper-trade-and-report'
+          - 'paper-trade-and-report --at-eod'
+          - 'paper-trade-and-report --refresh'
+          - 'paper-trade --once --refresh-if-stale'
+          - 'paper-trade --once --refresh'
+          - 'paper-trade --once --at-eod'
+          - 'paper-report --send'
+          - 'paper-summary'
+          - 'auto-trade-status'
+          - 'status'
+          - 'portfolio'
+      channel:
+        description: 'Delivery channel for reports'
+        required: false
+        default: 'whatsapp'
+        type: choice
+        options: ['whatsapp', 'telegram']
+      reset_paper_state:
+        description: 'Reset paper-trader state (wipe history & reseed cash)?'
+        required: false
+        default: 'no'
+        type: choice
+        options: ['no', 'yes']
+
+# Serialize all runs of this workflow so paper-trader state writes never
+# collide. Newer runs queue rather than cancel — important so we never
+# drop a tick.
+concurrency:
+  group: angel-one-trader
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # needed to push the state branch
+
+env:
+  STATE_BRANCH: paper-trader-state
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install --quiet -r requirements.txt
+
+      # ─── Restore paper-trader state from the dedicated state branch ───
+      # Survives across runs (and weekends) without polluting master history.
+      - name: Restore paper-trader state
+        if: github.event.inputs.reset_paper_state != 'yes'
+        continue-on-error: true
+        run: |
+          set -e
+          mkdir -p data/paper_reports
+          if ! git fetch origin "${STATE_BRANCH}" --depth=1 2>/dev/null; then
+            echo "::notice::No state branch yet — first run, starting fresh."
+            exit 0
+          fi
+          git checkout "origin/${STATE_BRANCH}" -- \
+            data/paper_trader_state.json \
+            data/paper_reports 2>/dev/null || true
+          git reset HEAD -- data/ >/dev/null 2>&1 || true
+          if [ -f data/paper_trader_state.json ]; then
+            echo "::notice::Restored paper-trader state."
+            ls -la data/paper_trader_state.json
+          fi
+
+      - name: Reset paper-trader state (manual override)
+        if: github.event.inputs.reset_paper_state == 'yes'
+        run: |
+          rm -f data/paper_trader_state.json
+          rm -rf data/paper_reports
+          mkdir -p data/paper_reports
+          echo "::warning::Paper-trader state has been wiped."
+
+      # ─── Map secrets/vars to env so every step inherits them ───
+      - name: Load runtime secrets into environment
+        run: |
+          {
+            echo "GOLD_PHONE_NUMBER=${{ secrets.GOLD_PHONE_NUMBER }}"
+            echo "GREEN_API_INSTANCE=${{ secrets.GREEN_API_INSTANCE }}"
+            echo "GREEN_API_TOKEN=${{ secrets.GREEN_API_TOKEN }}"
+            echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}"
+            echo "TELEGRAM_CHAT_ID=${{ secrets.TELEGRAM_CHAT_ID }}"
+            echo "ANGEL_API_KEY=${{ secrets.ANGEL_API_KEY }}"
+            echo "ANGEL_CLIENT_CODE=${{ secrets.ANGEL_CLIENT_CODE }}"
+            echo "ANGEL_MPIN=${{ secrets.ANGEL_MPIN }}"
+            echo "ANGEL_TOTP_SECRET=${{ secrets.ANGEL_TOTP_SECRET }}"
+            echo "PAPER_STARTING_CASH=${{ vars.PAPER_STARTING_CASH || '100000' }}"
+          } >> "$GITHUB_ENV"
+
+      # ─── Scheduled jobs ───
+      # 09:30 IST: refresh picks (analyzer is invoked internally if stale),
+      # tick the paper-trader once, push the report image to WhatsApp.
+      - name: Market-open paper-trade & report (09:30 IST)
+        if: github.event_name == 'schedule' && github.event.schedule == '0 4 * * 1-5'
+        run: python scripts/angel_one.py paper-trade-and-report --channel whatsapp
+
+      # 14:00 IST: same composite — picks up any SL/TGT hits on the back of
+      # the analyzer's afternoon update (which runs in the analyzer workflow).
+      - name: Mid-session paper-trade & report (14:00 IST)
+        if: github.event_name == 'schedule' && github.event.schedule == '30 8 * * 1-5'
+        run: python scripts/angel_one.py paper-trade-and-report --channel whatsapp
+
+      # Every 15 min during market hours: silent tick to evaluate live LTPs
+      # against open trades (no message — only the named market-touch steps
+      # send reports). Skip 09:30 / 14:00 buckets to avoid duplicate ticks.
+      - name: Silent paper-trade tick (every 15 min)
+        if: github.event_name == 'schedule' && github.event.schedule == '*/15 4-9 * * 1-5'
+        run: python scripts/angel_one.py paper-trade --once --refresh-if-stale
+
+      # 15:30 IST: square off all open intraday positions at current LTP and
+      # push the EOD report.
+      - name: End-of-day square-off + report (15:30 IST)
+        if: github.event_name == 'schedule' && github.event.schedule == '0 10 * * 1-5'
+        run: python scripts/angel_one.py paper-trade-and-report --at-eod --channel whatsapp
+
+      # 15:45 IST: trailing report (in case any 15:30 fill landed slightly
+      # after the EOD step finished).
+      - name: Trailing EOD report (15:45 IST)
+        if: github.event_name == 'schedule' && github.event.schedule == '15 10 * * 1-5'
+        run: python scripts/angel_one.py paper-report --send --channel whatsapp
+
+      - name: Manual run
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          # Forward command as-is. `--channel` is appended only when the
+          # selected sub-command actually accepts it; passing it
+          # unconditionally would error on commands like `paper-summary`.
+          CMD='${{ github.event.inputs.command }}'
+          CHANNEL='${{ github.event.inputs.channel }}'
+          case "$CMD" in
+            paper-trade-and-report*|paper-report*)
+              python scripts/angel_one.py $CMD --channel "$CHANNEL"
+              ;;
+            *)
+              python scripts/angel_one.py $CMD
+              ;;
+          esac
+
+      # ─── Persist updated paper-trader state to the state branch ───
+      # Dedicated orphan branch keeps runtime noise out of master history.
+      - name: Persist paper-trader state
+        if: always() && hashFiles('data/paper_trader_state.json') != ''
+        continue-on-error: true
+        run: |
+          set -e
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Stash the runtime files separately so checkout doesn't blow them away.
+          mkdir -p /tmp/pstate
+          cp data/paper_trader_state.json /tmp/pstate/ 2>/dev/null || true
+          cp -r data/paper_reports /tmp/pstate/ 2>/dev/null || true
+
+          if git ls-remote --exit-code --heads origin "${STATE_BRANCH}" >/dev/null 2>&1; then
+            git fetch origin "${STATE_BRANCH}" --depth=1
+            git checkout -B "${STATE_BRANCH}" "origin/${STATE_BRANCH}"
+          else
+            # First time: create as an orphan branch (no master history).
+            git checkout --orphan "${STATE_BRANCH}"
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+
+          # Lay down the persisted files.
+          mkdir -p data/paper_reports
+          cp /tmp/pstate/paper_trader_state.json data/ 2>/dev/null || true
+          cp -r /tmp/pstate/paper_reports/. data/paper_reports/ 2>/dev/null || true
+
+          cat > README.md <<'EOF'
+          # paper-trader-state
+
+          Auto-managed branch holding runtime state for the **Angel One Trader**
+          GitHub Actions workflow. Do not commit code here.
+
+          - `data/paper_trader_state.json` — open positions, cumulative P&L, history
+          - `data/paper_reports/` — daily performance reports
+
+          To reset state: run the workflow with `reset_paper_state=yes`.
+          EOF
+
+          git add -A
+          if git diff --quiet --staged; then
+            echo "No state changes to persist."
+            exit 0
+          fi
+          git commit -m "state: paper-trader update $(date -u +'%Y-%m-%d %H:%M UTC') [skip ci]"
+
+          # Concurrency:group should make collisions rare, but retry anyway.
+          for i in 1 2 3; do
+            if git push origin "${STATE_BRANCH}"; then exit 0; fi
+            echo "::warning::push attempt $i failed; refetching and retrying"
+            git fetch origin "${STATE_BRANCH}" --depth=1 || true
+            git rebase "origin/${STATE_BRANCH}" || git rebase --abort || true
+          done
+          echo "::error::failed to push state branch after 3 attempts"
+          exit 1

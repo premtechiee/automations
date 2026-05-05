@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 scripts/paper_trade_demo.py
 ============================
@@ -32,11 +32,11 @@ log = logging.getLogger("paper_trade_demo")
 
 import yfinance as yf
 
-import src.stock_analyzer.auto_trader as at
-from src.stock_analyzer.auto_trader import (
+import src.angel_one.auto_trader as at
+from src.angel_one.auto_trader import (
     TraderConfig, TraderState, _decide, _apply, _place, _load_latest_picks,
 )
-from src.stock_analyzer.paper_report import build_report
+from src.angel_one.paper_report import build_report
 
 
 def _fetch_yf_ltps(symbols: list[str]) -> dict[str, dict]:
@@ -74,7 +74,7 @@ def _fetch_yf_ltps(symbols: list[str]) -> dict[str, dict]:
             log.warning(f"yf parse {s}: {exc}")
         if ltp:
             out[s] = {"ltp": float(ltp)}
-            log.info(f"  {s:14s}  LTP ₹{ltp:.2f}")
+            log.info(f"  {s:14s}  LTP â‚¹{ltp:.2f}")
         else:
             log.warning(f"  {s:14s}  no LTP")
     return out
@@ -124,7 +124,7 @@ def main() -> int:
             if pk.get("symbol"):
                 needed.add(pk["symbol"])
 
-    log.info(f"fetching LTPs for {len(needed)} symbols …")
+    log.info(f"fetching LTPs for {len(needed)} symbols â€¦")
     if args.synthetic:
         random.seed(42)
         ltps = {}
@@ -137,12 +137,12 @@ def main() -> int:
                 # Push price slightly above entry so trade triggers; some random variation
                 ltp = anchor * (1.0 + random.uniform(-0.003, 0.004))
                 ltps[sym] = {"ltp": round(float(ltp), 2)}
-                log.info(f"  {sym:14s}  LTP ₹{ltp:.2f}  (synthetic)")
+                log.info(f"  {sym:14s}  LTP â‚¹{ltp:.2f}  (synthetic)")
         # any open trades whose symbol isn't in picks: anchor on entry_price
         for t in state.open_trades:
             if t.symbol not in ltps:
                 ltps[t.symbol] = {"ltp": round(t.entry_price * (1.0 + random.uniform(-0.005, 0.008)), 2)}
-                log.info(f"  {t.symbol:14s}  LTP ₹{ltps[t.symbol]['ltp']:.2f}  (synthetic)")
+                log.info(f"  {t.symbol:14s}  LTP â‚¹{ltps[t.symbol]['ltp']:.2f}  (synthetic)")
         # In "mixed" scenario, override LTPs of OPEN positions: alternate
         # winners (move to target) and losers (move below SL) so the report
         # shows realised P&L from both sides.
@@ -150,10 +150,10 @@ def main() -> int:
             for i, t in enumerate(state.open_trades):
                 if i % 2 == 0:
                     new_ltp = round(t.target * 1.001, 2)   # target hit
-                    log.info(f"  {t.symbol:14s}  LTP ₹{new_ltp:.2f}  (TARGET overlay)")
+                    log.info(f"  {t.symbol:14s}  LTP â‚¹{new_ltp:.2f}  (TARGET overlay)")
                 else:
                     new_ltp = round(t.sl * 0.999, 2)       # SL hit
-                    log.info(f"  {t.symbol:14s}  LTP ₹{new_ltp:.2f}  (SL overlay)")
+                    log.info(f"  {t.symbol:14s}  LTP â‚¹{new_ltp:.2f}  (SL overlay)")
                 ltps[t.symbol] = {"ltp": new_ltp}
     else:
         ltps = _fetch_yf_ltps(sorted(needed))
@@ -171,7 +171,7 @@ def main() -> int:
             ltp = ltps[sym]["ltp"]
             lv  = pk.setdefault("levels", {})
             entry  = ltp
-            # 1.5% SL, 2.5% target — typical intraday risk:reward
+            # 1.5% SL, 2.5% target â€” typical intraday risk:reward
             lv["entry"]  = round(entry, 2)
             lv["sl"]     = round(entry * 0.985, 2)
             lv["target"] = round(entry * 1.025, 2)
@@ -205,3 +205,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

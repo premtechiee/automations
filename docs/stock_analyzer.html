@@ -273,8 +273,13 @@ python scripts/stock_analyzer.py --dry-run --limit 10
   <tr><td><code>--morning</code></td><td>🔔 Market-open confirmation (09:30 IST) — validate trades after first 15 min.</td></tr>
   <tr><td><code>--afternoon</code></td><td>📈 Mid-session update (14:00 IST) — trend + hold/sell guidance.</td></tr>
   <tr><td><code>--test</code></td><td>Send a test ping only (verify channel delivery).</td></tr>
-  <tr><td><code>--angel ARGS…</code></td><td>Forward everything after <code>--angel</code> to <a href="angel_one.html">angel_one.py</a>.</td></tr>
 </table>
+<div class="callout">
+  <strong>Note:</strong> this script is purely the analyzer. Anything broker-related
+  (paper trading, live orders, portfolio inspection) is in
+  <a href="angel_one.html"><code>scripts/angel_one.py</code></a>, which loads the
+  picks generated here from <code>data/stock_reports/</code> and acts on them.
+</div>
 </section>
 
 <section id="sessions">
@@ -288,6 +293,12 @@ picks up. They're meant to be wired to a scheduler (Task Scheduler / cron).</p>
   <tr><td><code>--morning</code></td><td>09:30 IST</td><td>Validate trades after market opens</td></tr>
   <tr><td><code>--afternoon</code></td><td>14:00 IST</td><td>Mid-session trend + hold/sell guidance</td></tr>
 </table>
+<p>In CI these are driven by the dedicated
+<code>.github/workflows/stock_analyzer.yml</code> workflow — analyzer-only,
+no broker code. Trading on the picks is done by a separate
+<code>.github/workflows/angel_one.yml</code> workflow which calls into this
+script internally when today's picks are stale. See the
+<a href="angel_one.html#actions">Angel One docs</a> for the trading schedule.</p>
 </section>
 
 <section id="examples">
@@ -307,10 +318,10 @@ python scripts/stock_analyzer.py --dry-run --no-pdf --limit 20
 # Use a custom watchlist
 python scripts/stock_analyzer.py --watchlist data/my_picks.txt --dry-run
 
-# Delegate to the Angel One sub-CLI
-python scripts/stock_analyzer.py --angel paper-trade --once
-python scripts/stock_analyzer.py --angel paper-trade --refresh-if-stale
-python scripts/stock_analyzer.py --angel paper-report --send --channel telegram
+# Paper trading runs in angel_one.py — it consumes the picks this script generates
+python scripts/angel_one.py paper-trade --once --refresh-if-stale
+python scripts/angel_one.py paper-trade-and-report --channel telegram
+python scripts/angel_one.py paper-report --send --channel telegram
 </code></pre>
 </section>
 
@@ -407,35 +418,39 @@ KEI.NS
 
 <section id="angel">
 <h2>Angel One Bridge</h2>
-<p>All Angel One operations live in
-<a href="angel_one.html"><code>scripts/angel_one.py</code></a> and can be
-invoked directly or via the <code>--angel</code> passthrough on
-<code>stock_analyzer.py</code>:</p>
-<pre><code># Either of these works identically:
+<p>This script (<code>stock_analyzer.py</code>) only runs the analyzer. All
+broker operations — connectivity, portfolio, manual orders, the auto-trader,
+the paper-trader, and report delivery — live in
+<a href="angel_one.html"><code>scripts/angel_one.py</code></a>:</p>
+<pre><code># Connectivity / portfolio
 python scripts/angel_one.py status
-python scripts/stock_analyzer.py --angel status
+python scripts/angel_one.py portfolio
 
-# Compose with stock-analyzer flags
-python scripts/stock_analyzer.py --angel paper-report --send --channel telegram
+# Paper-trade against today's analyzer picks (auto-runs the analyzer if stale)
+python scripts/angel_one.py paper-trade --once --refresh-if-stale
+
+# Composite: refresh picks + tick + push report image
+python scripts/angel_one.py paper-trade-and-report
 </code></pre>
 <p>See the dedicated <a href="angel_one.html">Angel One docs</a> for the full
-sub-command list (status, portfolio, order, auto-trade, paper-trade, …).</p>
+sub-command list (status, portfolio, order, auto-trade, paper-trade,
+paper-trade-and-report, paper-report, paper-summary).</p>
 </section>
 
 <section id="paper">
 <h2>Paper Trading</h2>
-<p>Paper trading is a sister mode of the auto-trader. It reads the analyser's
-latest picks, polls real LTPs through Angel One, but never transmits orders —
-all P&amp;L is virtual. This is the safest way to validate the pipeline before
-going live.</p>
-<pre><code># 1. Generate today's picks
-python scripts/stock_analyzer.py --dry-run
+<p>Paper trading is owned by <code>angel_one.py</code>. It reads the analyser's
+latest picks (this script's output), polls real LTPs through Angel One, but
+never transmits orders — all P&amp;L is virtual. The paper-trader will run
+<code>stock_analyzer.py</code> internally if today's picks are missing, so a
+single command can do everything end-to-end.</p>
+<pre><code># Single-command end-to-end: gather picks → tick → push report image
+python scripts/angel_one.py paper-trade-and-report
 
-# 2. Run the paper trader (loops every 60s during market hours)
-python scripts/stock_analyzer.py --angel paper-trade
-
-# 3. End-of-day report
-python scripts/stock_analyzer.py --angel paper-report
+# Or split it explicitly:
+python scripts/stock_analyzer.py --dry-run                 # 1. generate picks
+python scripts/angel_one.py paper-trade --once             # 2. tick paper trader
+python scripts/angel_one.py paper-report --send            # 3. send report image
 </code></pre>
 <p>State persists across days at
 <code>data/paper_trader_state.json</code>; full reports archive to
@@ -457,8 +472,8 @@ python scripts/stock_analyzer.py --angel paper-report
 <section id="files">
 <h2>Project Layout</h2>
 <pre><code>scripts/
-  stock_analyzer.py        ← this script
-  angel_one.py             ← Angel One sub-CLI (delegated via --angel)
+  stock_analyzer.py        ← this script — analyzer only, standalone
+  angel_one.py             ← broker CLI (paper / live trading on the picks above)
   gold_notifier.py
 src/stock_analyzer/
   main.py                  ← run_report(), send_test_message()
@@ -467,10 +482,12 @@ src/stock_analyzer/
   analysis.py              ← bucket scoring + level computation
   formatter.py             ← console / chat-text rendering
   report.py                ← Pillow image + PDF builder
-  auto_trader.py           ← live + paper trader
-  paper_report.py          ← performance report builder
+src/angel_one/
+  auto_trader.py           ← live + paper trader engine
+  paper_report.py          ← performance report builder (text + image)
+  config.py                ← Green-API / Telegram credentials
 data/
-  stock_reports/           ← saved JSON picks (used by auto-trader)
+  stock_reports/           ← saved JSON picks (consumed by angel_one)
   paper_trader_state.json  ← virtual book
   paper_reports/           ← archived performance reports
   angel_session.json       ← cached Angel session (18h TTL)

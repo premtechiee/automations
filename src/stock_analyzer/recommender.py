@@ -174,10 +174,10 @@ def _levels(s: dict, horizon: str) -> dict:
 
     if horizon == "intraday":
         sl_atr   = price - atr_r * 1.0
-        tgt_atr  = price + atr_r * 1.5
+        tgt_atr  = price + atr_r * 2.5      # was 1.5 — capture the run, don't clip on first pop
     elif horizon == "swing":
         sl_atr   = price - atr_r * 1.8
-        tgt_atr  = price + atr_r * 3.0
+        tgt_atr  = price + atr_r * 4.0      # was 3.0 — let swing winners breathe past resistance
     else:  # holding
         sl_atr   = price * 0.90
         tgt_atr  = price * 1.25
@@ -191,8 +191,10 @@ def _levels(s: dict, horizon: str) -> dict:
         # Use max(atr SL, support*0.995) so SL is the less-aggressive of the two
         sl = max(sl_atr, support * 0.995)
     if resistance and resistance > price:
-        # Stop short of resistance on intraday/swing; long-term can overshoot
-        if horizon in ("intraday", "swing"):
+        # Pin target to just below resistance only on intraday — swing
+        # trades are explicitly designed to ride breakouts past resistance,
+        # so leaving the ATR target intact preserves the upside.
+        if horizon == "intraday":
             target = min(tgt_atr, resistance * 0.998)
 
     # ── Forecast metrics (expected profit, risk, hold duration) ──────────
