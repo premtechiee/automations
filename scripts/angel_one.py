@@ -2,7 +2,7 @@
 """
 scripts/angel_one.py
 ====================
-Standalone CLI for everything Angel One related â€” connectivity checks,
+Standalone CLI for everything Angel One related -- connectivity checks,
 portfolio inspection, manual orders, auto-trader, paper-trader, and
 paper-trading reports.
 
@@ -19,7 +19,7 @@ Examples
     python scripts/angel_one.py order --symbol TCS --side SELL --qty 2 \
                                      --order-type LIMIT --price 4100
 
-    # Auto-trader (live)  â€” dry-run by default
+    # Auto-trader (live)  -- dry-run by default
     python scripts/angel_one.py auto-trade               # foreground loop
     python scripts/angel_one.py auto-trade --once        # one tick
     python scripts/angel_one.py auto-trade-status        # show state
@@ -53,7 +53,7 @@ import logging
 import os
 import sys
 
-# UTF-8 console (Windows cp1252 default mangles â‚¹ and box-drawing chars)
+# UTF-8 console (Windows cp1252 default mangles Rs  and box-drawing chars)
 try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")  # type: ignore[attr-defined]
@@ -88,12 +88,12 @@ def _cmd_status(args, log) -> int:
     ok = angelone.is_available()
     log.info(f"Angel One available: {ok}")
     if not ok:
-        log.error("Angel One unavailable â€” check creds in .env "
+        log.error("Angel One unavailable -- check creds in .env "
                   "(ANGEL_API_KEY/CLIENT_CODE/MPIN/TOTP_SECRET).")
         return 1
     holds = angelone.fetch_holdings()
     funds = angelone.fetch_funds()
-    log.info(f"Holdings: {len(holds)}  Cash: â‚¹{funds.get('available_cash', 0):,.2f}  "
+    log.info(f"Holdings: {len(holds)}  Cash: Rs {funds.get('available_cash', 0):,.2f}  "
              f"Trading enabled: {angelone.trading_enabled()}")
     return 0
 
@@ -101,15 +101,15 @@ def _cmd_status(args, log) -> int:
 def _cmd_portfolio(args, log) -> int:
     from lib import angelone
     if not angelone.is_available():
-        log.error("Angel One unauthenticated â€” set creds in .env first.")
+        log.error("Angel One unauthenticated -- set creds in .env first.")
         return 1
     holds     = angelone.fetch_holdings()
     funds     = angelone.fetch_funds()
     positions = angelone.fetch_positions()
     print("\n=== ANGEL ONE PORTFOLIO ===")
-    print(f"Cash available : â‚¹{funds.get('available_cash', 0):>12,.2f}")
-    print(f"Net worth      : â‚¹{funds.get('net', 0):>12,.2f}")
-    print(f"Used margin    : â‚¹{funds.get('utilised_margin', 0):>12,.2f}")
+    print(f"Cash available : Rs {funds.get('available_cash', 0):>12,.2f}")
+    print(f"Net worth      : Rs {funds.get('net', 0):>12,.2f}")
+    print(f"Used margin    : Rs {funds.get('utilised_margin', 0):>12,.2f}")
     print(f"\nHoldings ({len(holds)}):")
     if holds:
         print(f"  {'Symbol':<14}{'Qty':>6}  {'Avg':>9}  {'LTP':>9}  {'P&L':>10}  {'%':>7}")
@@ -163,7 +163,7 @@ def _refresh_picks(log, force: bool = False) -> bool:
             import json as _json
             idx = _json.loads(_REPORTS_IDX.read_text(encoding="utf-8"))
             if idx and idx[-1].startswith(today):
-                log.info(f"refresh: today's picks already exist ({idx[-1]}) â€” skipping")
+                log.info(f"refresh: today's picks already exist ({idx[-1]}) -- skipping")
                 return False
         except Exception:
             pass
@@ -182,10 +182,10 @@ def _cmd_auto_trade(args, log) -> int:
     log.info(f"auto-trader config: dry_run={cfg.dry_run} "
              f"max_positions={cfg.max_positions} "
              f"max_pct_per_trade={cfg.max_pct_per_trade:.0%} "
-             f"max_daily_loss=â‚¹{cfg.max_daily_loss_inr:,.0f} "
+             f"max_daily_loss=Rs {cfg.max_daily_loss_inr:,.0f} "
              f"buckets={cfg.buckets} channel={cfg.notify_channel}")
     if not cfg.dry_run:
-        log.warning("LIVE TRADING ENABLED â€” real orders will be transmitted.")
+        log.warning("LIVE TRADING ENABLED -- real orders will be transmitted.")
     if args.once:
         log.info(f"tick result: {tick(cfg)}")
     else:
@@ -200,7 +200,7 @@ def _cmd_paper_trade(args, log) -> int:
     elif getattr(args, "refresh_if_stale", False):
         _refresh_picks(log, force=False)
     cfg = TraderConfig.from_env(paper=True)
-    log.info(f"ðŸ“ PAPER TRADING â€” virtual cash â‚¹{cfg.paper_starting_cash:,.0f}, "
+    log.info(f"[Note] PAPER TRADING -- virtual cash Rs {cfg.paper_starting_cash:,.0f}, "
              f"max_positions={cfg.max_positions} "
              f"max_pct={cfg.max_pct_per_trade:.0%} "
              f"buckets={cfg.buckets} state=data/paper_trader_state.json")
@@ -218,7 +218,7 @@ def _cmd_auto_trade_status(args, log) -> int:
     print(f"\n=== AUTO-TRADER STATE ({st.date}) ===")
     print(f"Halted        : {st.halted}  "
           f"{('(' + st.halted_reason + ')') if st.halted else ''}")
-    print(f"Realised P&L  : â‚¹{st.realised_pnl:+,.2f}")
+    print(f"Realised P&L  : Rs {st.realised_pnl:+,.2f}")
     print(f"\nOpen trades ({len(st.open_trades)}):")
     if st.open_trades:
         print(f"  {'Symbol':<14}{'Qty':>5}  {'Entry':>9}  {'SL':>9}  {'TGT':>9}  Order")
@@ -244,8 +244,8 @@ def _cmd_paper_summary(args, log) -> int:
     wr     = (wins / total * 100) if total else 0
     print(f"\n=== PAPER-TRADING SUMMARY ===")
     print(f"Today           : {st.date}")
-    print(f"Cumulative P&L  : â‚¹{st.cumulative_pnl:+,.2f}")
-    print(f"Today's P&L     : â‚¹{st.realised_pnl:+,.2f}")
+    print(f"Cumulative P&L  : Rs {st.cumulative_pnl:+,.2f}")
+    print(f"Today's P&L     : Rs {st.realised_pnl:+,.2f}")
     print(f"Trades closed   : {total}  (wins {wins}  losses {losses})")
     print(f"Win rate        : {wr:.1f}%")
     print(f"\nOpen positions ({len(st.open_trades)}):")
@@ -290,14 +290,19 @@ def _cmd_paper_report(args, log) -> int:
     if args.send:
         try:
             from src.angel_one.auto_trader import _notify
-            # Compact caption â€” image carries the full table.
+            # Compact caption -- image carries the full table.
+            # ASCII-safe (no rupee symbol, no emoji): some WhatsApp clients
+            # render U+20B9 as a tofu box, and the Green API JSON pipeline
+            # has been observed to double-encode multi-byte glyphs.
             cur_equity = cfg.paper_starting_cash + state.cumulative_pnl
             pct = (state.cumulative_pnl / cfg.paper_starting_cash * 100) if cfg.paper_starting_cash else 0.0
             caption = (
-                f"ðŸ“Š Paper Trading Report\n"
-                f"Equity: â‚¹{cur_equity:,.0f}  ({pct:+.2f}%)\n"
-                f"Cum P&L: â‚¹{state.cumulative_pnl:+,.0f}   Today: â‚¹{state.realised_pnl:+,.0f}\n"
-                f"Open: {len(state.open_trades)}   Closed today: {len(state.closed_today)}"
+                f"Paper Trading Report\n"
+                f"Equity: Rs {cur_equity:,.0f}  ({pct:+.2f}%)\n"
+                f"Cum P&L: Rs {state.cumulative_pnl:+,.0f}   "
+                f"Today: Rs {state.realised_pnl:+,.0f}\n"
+                f"Open: {len(state.open_trades)}   "
+                f"Closed today: {len(state.closed_today)}"
             )
             res = _notify(args.channel, caption, image_path=img_path)
             delivered = res.get("image_sent", 0) + res.get("text_sent", 0)
@@ -342,7 +347,7 @@ def _cmd_paper_trade_and_report(args, log) -> int:
     )
     rc = _cmd_paper_trade(pt_args, log)
     if rc:
-        log.warning(f"paper-trade tick returned {rc} â€” sending report anyway")
+        log.warning(f"paper-trade tick returned {rc} -- sending report anyway")
     pr_args = Namespace(send=True, channel=args.channel)
     return _cmd_paper_report(pr_args, log)
 
@@ -354,7 +359,7 @@ def _cmd_paper_trade_and_report(args, log) -> int:
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="angel_one",
-        description="Angel One CLI â€” connectivity, portfolio, orders, "
+        description="Angel One CLI -- connectivity, portfolio, orders, "
                     "auto-trader, paper-trader and reports.",
     )
     sub = p.add_subparsers(dest="cmd", required=True, metavar="<command>")
@@ -447,7 +452,7 @@ def main(argv: list[str] | None = None) -> int:
     for h in log.handlers:
         if h not in root.handlers:
             root.addHandler(h)
-    log.info(f"angel_one starting â€¦ (cmd={args.cmd})")
+    log.info(f"angel_one starting ... (cmd={args.cmd})")
     handler = _HANDLERS[args.cmd]
     return handler(args, log) or 0
 

@@ -496,7 +496,7 @@ def _apply(action: Action, result: dict, state: TraderState,
     now = _now_ist().strftime("%Y-%m-%d %H:%M:%S")
     tag = "DRY" if cfg.dry_run else "LIVE"
     if not result.get("ok"):
-        return f"❌ [{tag}] {action.kind} {action.reason} → {result.get('message')}"
+        return f"[FAIL] [{tag}] {action.kind} {action.reason} -> {result.get('message')}"
 
     oid = result.get("order_id")
 
@@ -519,8 +519,8 @@ def _apply(action: Action, result: dict, state: TraderState,
             trail_active= False,
         )
         state.open_trades.append(t)
-        return (f"✅ [{tag}] OPEN {t.symbol} qty={t.qty} @ ₹{action.price:.2f} "
-                f"SL₹{t.sl:.2f} TGT₹{t.target:.2f} (order={oid})")
+        return (f"[OPEN] [{tag}] {t.symbol} qty={t.qty} @ Rs {action.price:.2f} "
+                f"SL Rs {t.sl:.2f} TGT Rs {t.target:.2f} (order={oid})")
 
     if action.kind in ("CLOSE_SL", "CLOSE_TGT", "CLOSE_EOD"):
         t = action.trade
@@ -547,12 +547,12 @@ def _apply(action: Action, result: dict, state: TraderState,
         if (state.realised_pnl <= -abs(cfg.max_daily_loss_inr)) and not state.halted:
             state.halted        = True
             state.halted_reason = (f"daily loss limit hit "
-                                   f"(₹{state.realised_pnl:,.0f})")
-        emoji = ("🛑" if action.kind == "CLOSE_SL"  else
-                 "🎯" if action.kind == "CLOSE_TGT" else
-                 "🕔")
-        return (f"{emoji} [{tag}] CLOSE {t.symbol} qty={t.qty} @ ₹{action.price:.2f} "
-                f"P&L ₹{pnl:+,.0f} (gross ₹{gross:+,.0f}, cost ₹{cost:.0f}; {action.reason})")
+                                   f"(Rs {state.realised_pnl:,.0f})")
+        tag_close = ("[SL]"  if action.kind == "CLOSE_SL"  else
+                     "[TGT]" if action.kind == "CLOSE_TGT" else
+                     "[EOD]")
+        return (f"{tag_close} [{tag}] CLOSE {t.symbol} qty={t.qty} @ Rs {action.price:.2f} "
+                f"P&L Rs {pnl:+,.0f} (gross Rs {gross:+,.0f}, cost Rs {cost:.0f}; {action.reason})")
 
     return f"? {action}"
 
