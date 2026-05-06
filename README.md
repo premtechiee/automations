@@ -1,6 +1,6 @@
 # paper-trader-state
 
-Auto-managed branch holding runtime state for the **Stock Analyzer**
+Auto-managed branch holding runtime state for the **Angel One Trader**
 GitHub Actions workflow. Do not commit code here.
 
 - `data/paper_trader_state.json` — open positions, cumulative P&L, history

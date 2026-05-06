@@ -1,5 +1,5 @@
 {
-  "date": "2026-05-05",
+  "date": "2026-05-06",
   "open_trades": [
     {
       "symbol": "HAL.NS",
@@ -7,29 +7,17 @@
       "side": "BUY",
       "qty": 2,
       "entry_price": 4570.8,
-      "sl": 4455.73,
+      "sl": 4617.86,
       "target": 4743.91,
       "order_id": null,
       "opened_at": "2026-05-04 12:04:05",
       "status": "OPEN",
       "closed_at": null,
       "exit_price": null,
-      "realised_pnl": 0.0
-    },
-    {
-      "symbol": "IDEA.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 870,
-      "entry_price": 10.56,
-      "sl": 10.17,
-      "target": 11.11,
-      "order_id": null,
-      "opened_at": "2026-05-04 12:04:05",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0
+      "realised_pnl": 0.0,
+      "peak_price": 4655.1,
+      "initial_sl": 4455.73,
+      "trail_active": true
     },
     {
       "symbol": "CHOLAFIN.NS",
@@ -37,14 +25,17 @@
       "side": "BUY",
       "qty": 5,
       "entry_price": 1636.0,
-      "sl": 1619.86,
+      "sl": 1682.63,
       "target": 1717.54,
       "order_id": null,
       "opened_at": "2026-05-04 12:04:05",
       "status": "OPEN",
       "closed_at": null,
       "exit_price": null,
-      "realised_pnl": 0.0
+      "realised_pnl": 0.0,
+      "peak_price": 1696.2,
+      "initial_sl": 1619.86,
+      "trail_active": true
     },
     {
       "symbol": "IRCTC.NS",
@@ -59,7 +50,10 @@
       "status": "OPEN",
       "closed_at": null,
       "exit_price": null,
-      "realised_pnl": 0.0
+      "realised_pnl": 0.0,
+      "peak_price": 570.9,
+      "initial_sl": 556.33,
+      "trail_active": false
     },
     {
       "symbol": "DABUR.NS",
@@ -67,38 +61,62 @@
       "side": "BUY",
       "qty": 14,
       "entry_price": 455.5,
-      "sl": 444.31,
+      "sl": 457.56,
       "target": 464.07,
       "order_id": null,
       "opened_at": "2026-05-05 11:40:01",
       "status": "OPEN",
       "closed_at": null,
       "exit_price": null,
-      "realised_pnl": 0.0
+      "realised_pnl": 0.0,
+      "peak_price": 461.25,
+      "initial_sl": 444.31,
+      "trail_active": true
+    },
+    {
+      "symbol": "SRF.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 3,
+      "entry_price": 2720.4,
+      "sl": 2639.8,
+      "target": 2920.51,
+      "order_id": null,
+      "opened_at": "2026-05-06 11:55:01",
+      "status": "OPEN",
+      "closed_at": null,
+      "exit_price": null,
+      "realised_pnl": 0.0,
+      "peak_price": 2720.4,
+      "initial_sl": 2639.8,
+      "trail_active": false
     }
   ],
   "closed_today": [
     {
-      "symbol": "AMBUJACEM.NS",
+      "symbol": "IDEA.NS",
       "bucket": "intraday",
       "side": "BUY",
-      "qty": 14,
-      "entry_price": 455.4,
-      "sl": 441.03,
-      "target": 461.53,
+      "qty": 870,
+      "entry_price": 10.56,
+      "sl": 11.17,
+      "target": 11.11,
       "order_id": null,
       "opened_at": "2026-05-04 12:04:05",
-      "status": "CLOSED_SL",
-      "closed_at": "2026-05-05 11:11:58",
-      "exit_price": 434.3,
-      "realised_pnl": -295.4
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-05-06 11:55:01",
+      "exit_price": 11.26,
+      "realised_pnl": 594.76,
+      "peak_price": 11.26,
+      "initial_sl": 10.17,
+      "trail_active": true
     }
   ],
-  "realised_pnl": -295.4,
+  "realised_pnl": 594.76,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": 561.2,
-  "cumulative_wins": 5,
+  "cumulative_pnl": 1155.96,
+  "cumulative_wins": 6,
   "cumulative_losses": 2,
   "history": [
     {
@@ -190,6 +208,24 @@
       "closed_at": "2026-05-04 14:14:00",
       "exit_price": 382.6,
       "realised_pnl": -254.7
+    },
+    {
+      "symbol": "AMBUJACEM.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 14,
+      "entry_price": 455.4,
+      "sl": 441.03,
+      "target": 461.53,
+      "order_id": null,
+      "opened_at": "2026-05-04 12:04:05",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-05-05 11:11:58",
+      "exit_price": 434.3,
+      "realised_pnl": -295.4,
+      "peak_price": 0.0,
+      "initial_sl": 0.0,
+      "trail_active": false
     }
   ]
 }
