@@ -299,6 +299,25 @@ def send_price_update(dry_run: bool = False, channel: str = "whatsapp", trigger:
             learning_status=learning_status,
         )
         _notify(message, img_path, channel, trigger)
+        # FCM push to the Android app (no-op if Firebase not configured).
+        try:
+            from lib.fcm import notify_app
+            price = (data or {}).get("price")
+            reco = (analysis or {}).get("recommendation") or (analysis or {}).get("recommendation_label")
+            body_parts: list[str] = []
+            if price is not None:
+                body_parts.append(f"₹{price:,.0f}/g")
+            if reco:
+                body_parts.append(str(reco))
+            body_parts.append(trigger)
+            notify_app(
+                "gold",
+                title="Gold update",
+                body=" · ".join(body_parts),
+                data={"trigger": trigger},
+            )
+        except Exception as exc:
+            logger.debug(f"FCM push skipped: {exc}")
 
     # Archive runtime JSON state (predictions, alerts) under logs/<date>/.
     # The PNG already lives there because IMAGE_OUTPUT_PATH points at logs/.

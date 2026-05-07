@@ -324,6 +324,21 @@ def _cmd_paper_report(args, log) -> int:
                 f"({res.get('image_sent', 0)} image / {res.get('text_sent', 0)} text "
                 f"of {res.get('recipients', 0)} recipient(s))"
             )
+            # FCM push to the Android app (no-op if Firebase not configured).
+            try:
+                from lib.fcm import notify_app
+                notify_app(
+                    "paper",
+                    title="Paper report ready",
+                    body=(
+                        f"Equity Rs {cur_equity:,.0f} ({pct:+.2f}%) · "
+                        f"Today Rs {state.realised_pnl:+,.0f} · "
+                        f"Open {len(state.open_trades)}"
+                    ),
+                    data={"date": state.date},
+                )
+            except Exception as exc:
+                log.debug(f"FCM push skipped: {exc}")
         except Exception as exc:
             log.warning(f"failed to send paper report: {exc}")
             return 2

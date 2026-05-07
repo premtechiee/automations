@@ -366,6 +366,18 @@ def run_report(dry_run: bool = False, channel: str = "whatsapp",
         logger.info("Dry-run: skipping send. Image + PDF saved locally; console printed.")
     else:
         _send(channel, image, caption, pdf_path=pdf_path)
+        # FCM push to the Android app (no-op if Firebase not configured).
+        try:
+            from lib.fcm import notify_app
+            n_picks = sum(len(buckets.get(b, [])) for b in ("intraday", "swing", "holding", "sell"))
+            notify_app(
+                "stock",
+                title="Stock report ready",
+                body=f"{n_picks} picks · {payload['generated_at']}",
+                data={"generated_at": payload["generated_at"]},
+            )
+        except Exception as exc:
+            logger.debug(f"FCM push skipped: {exc}")
 
     # 8. Archive the saved report JSON under logs/stock_analyzer/<date>/.
     #    The PNG and PDF already live there because IMAGE_OUTPUT_PATH /
