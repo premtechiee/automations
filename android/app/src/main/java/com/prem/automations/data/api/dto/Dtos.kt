@@ -15,8 +15,8 @@ data class StockReportEnvelope(
 data class StockReport(
     @Json(name = "generated_at") val generatedAt: String? = null,
     val buckets: Map<String, List<StockPick>>? = emptyMap(),
-    val mfs: List<Map<String, Any>>? = null,
-    val watchlist: List<Map<String, Any>>? = null,
+    val mfs: List<Any>? = null,
+    val watchlist: List<Any>? = null,
     @Json(name = "market_forecast") val marketForecast: Map<String, Any>? = null,
 )
 
