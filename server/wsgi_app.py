@@ -265,7 +265,7 @@ _JOBS: "dict[str, dict]" = {}
 _JOB_ORDER: "deque[str]" = deque(maxlen=50)
 _JOB_LOCK = threading.Lock()
 _LAST_HIT: "dict[str, float]" = {}
-_RATE_LIMITS = {"stock": 60.0, "gold": 60.0, "paper": 300.0}
+_RATE_LIMITS = {"stock": 5.0, "gold": 5.0, "paper": 5.0}
 
 
 def _rate_check(key: str) -> None:
