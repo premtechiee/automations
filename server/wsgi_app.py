@@ -138,6 +138,11 @@ def stock_report(name: str):
 
 @app.get("/gold/latest")
 def gold_latest():
+    if not GOLD_MODEL.exists():
+        return jsonify(
+            weights={}, accuracy=None, bias_correction=None,
+            latest=None, total_predictions=0,
+        )
     model = _read_json(GOLD_MODEL)
     if not isinstance(model, dict):
         abort(500, "gold model malformed")
@@ -159,6 +164,8 @@ def gold_history():
         abort(400, "days must be integer")
     if days <= 0 or days > 1000:
         abort(400, "days must be in 1..1000")
+    if not GOLD_MODEL.exists():
+        return jsonify(days=days, predictions=[])
     model = _read_json(GOLD_MODEL)
     if not isinstance(model, dict):
         abort(500, "gold model malformed")
@@ -171,6 +178,12 @@ def gold_history():
 
 @app.get("/paper/state")
 def paper_state():
+    if not PAPER_STATE.exists():
+        return jsonify(
+            date=None, open_trades=[], closed_today=[],
+            realised_pnl=0.0, cumulative_pnl=0.0,
+            cumulative_wins=0, cumulative_losses=0, halted=False,
+        )
     return jsonify(_read_json(PAPER_STATE))
 
 
