@@ -1,8 +1,15 @@
-# Server-only deps for the FastAPI companion (server/app.py).
-# Install alongside the base requirements:
+# Server-only deps for the companion API.
+#
+# Two interchangeable backends:
+#   * server.app          — FastAPI + uvicorn (modern stack, used in dev)
+#   * server.wsgi_app     — Flask shim used on PythonAnywhere (uWSGI)
+#
+# Both serve identical endpoints; the Android client doesn't care which.
+# Install:
 #     pip install -r requirements.txt -r server/requirements.txt
 fastapi>=0.110
 uvicorn[standard]>=0.29
 pydantic>=2.5
 PyJWT>=2.8
 cryptography>=42.0
+flask>=3.0

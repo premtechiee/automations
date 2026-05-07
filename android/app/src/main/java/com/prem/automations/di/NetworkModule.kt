@@ -67,9 +67,14 @@ object NetworkModule {
             // (base URL + token) take effect without an app restart.
             .addInterceptor { chain ->
                 val current = snapshot.get()
+                if (current.baseUrl.isBlank() || current.token.isBlank()) {
+                    throw java.io.IOException(
+                        "App not configured. Open Settings and enter your API URL and token."
+                    )
+                }
                 var req = chain.request()
-                val configured = current.baseUrl.takeIf { it.isNotBlank() }
-                    ?.let { (if (it.endsWith("/")) it else "$it/").toHttpUrlOrNull() }
+                val configured = current.baseUrl
+                    .let { (if (it.endsWith("/")) it else "$it/").toHttpUrlOrNull() }
                 if (configured != null) {
                     val newUrl = req.url.newBuilder()
                         .scheme(configured.scheme)
@@ -78,11 +83,9 @@ object NetworkModule {
                         .build()
                     req = req.newBuilder().url(newUrl).build()
                 }
-                if (current.token.isNotBlank()) {
-                    req = req.newBuilder()
-                        .addHeader("Authorization", "Bearer ${current.token}")
-                        .build()
-                }
+                req = req.newBuilder()
+                    .addHeader("Authorization", "Bearer ${current.token}")
+                    .build()
                 chain.proceed(req)
             }
             .addNetworkInterceptor { chain ->
