@@ -15,7 +15,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 8959.0,
+      "peak_price": 9003.0,
       "initial_sl": 8708.8,
       "trail_active": false
     },
@@ -56,30 +56,12 @@
       "trail_active": false
     },
     {
-      "symbol": "HEROMOTOCO.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 1,
-      "entry_price": 5404.5,
-      "sl": 5348.12,
-      "target": 5473.53,
-      "order_id": null,
-      "opened_at": "2026-05-07 12:00:07",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 5404.5,
-      "initial_sl": 5348.12,
-      "trail_active": false
-    },
-    {
       "symbol": "MOTHERSON.NS",
       "bucket": "swing",
       "side": "BUY",
       "qty": 66,
       "entry_price": 127.9,
-      "sl": 128.9,
+      "sl": 129.39,
       "target": 145.03,
       "order_id": null,
       "opened_at": "2026-05-07 12:00:07",
@@ -87,7 +69,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 129.94,
+      "peak_price": 130.43,
       "initial_sl": 120.22,
       "trail_active": true
     },
@@ -110,13 +92,32 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "HEROMOTOCO.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 1,
+      "entry_price": 5404.5,
+      "sl": 5348.12,
+      "target": 5473.53,
+      "order_id": null,
+      "opened_at": "2026-05-07 12:00:07",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-05-07 16:10:38",
+      "exit_price": 5343.0,
+      "realised_pnl": -69.56,
+      "peak_price": 5404.5,
+      "initial_sl": 5348.12,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": -69.56,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": 1768.23,
+  "cumulative_pnl": 1698.67,
   "cumulative_wins": 11,
-  "cumulative_losses": 3,
+  "cumulative_losses": 4,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
