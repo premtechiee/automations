@@ -25,7 +25,7 @@
       "side": "BUY",
       "qty": 10,
       "entry_price": 1240.3,
-      "sl": 1207.56,
+      "sl": 1260.83,
       "target": 1297.62,
       "order_id": null,
       "opened_at": "2026-05-11 12:28:47",
@@ -33,9 +33,9 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1255.1,
+      "peak_price": 1271.0,
       "initial_sl": 1207.56,
-      "trail_active": false
+      "trail_active": true
     },
     {
       "symbol": "BANKINDIA.NS",
@@ -56,30 +56,12 @@
       "trail_active": false
     },
     {
-      "symbol": "IDEA.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 768,
-      "entry_price": 12.13,
-      "sl": 12.26,
-      "target": 12.71,
-      "order_id": null,
-      "opened_at": "2026-05-11 12:28:47",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 12.36,
-      "initial_sl": 11.69,
-      "trail_active": true
-    },
-    {
       "symbol": "UPL.NS",
       "bucket": "intraday",
       "side": "BUY",
       "qty": 12,
       "entry_price": 659.2,
-      "sl": 642.64,
+      "sl": 663.65,
       "target": 670.36,
       "order_id": null,
       "opened_at": "2026-05-11 12:28:47",
@@ -87,9 +69,9 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 659.2,
+      "peak_price": 669.0,
       "initial_sl": 642.64,
-      "trail_active": false
+      "trail_active": true
     },
     {
       "symbol": "TORNTPHARM.NS",
@@ -128,13 +110,31 @@
       "peak_price": 132.28,
       "initial_sl": 120.22,
       "trail_active": true
+    },
+    {
+      "symbol": "IDEA.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 768,
+      "entry_price": 12.13,
+      "sl": 12.26,
+      "target": 12.71,
+      "order_id": null,
+      "opened_at": "2026-05-11 12:28:47",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-05-11 16:01:50",
+      "exit_price": 12.18,
+      "realised_pnl": 24.4,
+      "peak_price": 12.36,
+      "initial_sl": 11.69,
+      "trail_active": true
     }
   ],
-  "realised_pnl": 180.57,
+  "realised_pnl": 204.97,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": 1898.57,
-  "cumulative_wins": 15,
+  "cumulative_pnl": 1922.97,
+  "cumulative_wins": 16,
   "cumulative_losses": 8,
   "history": [
     {
