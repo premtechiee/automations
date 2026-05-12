@@ -87,10 +87,12 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 11.81,
+      "peak_price": 11.84,
       "initial_sl": 11.36,
       "trail_active": false
-    },
+    }
+  ],
+  "closed_today": [
     {
       "symbol": "UPL.NS",
       "bucket": "intraday",
@@ -101,22 +103,21 @@
       "target": 670.36,
       "order_id": null,
       "opened_at": "2026-05-12 12:01:57",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
+      "status": "CLOSED_SL",
+      "closed_at": "2026-05-12 14:52:59",
+      "exit_price": 626.5,
+      "realised_pnl": -198.58,
       "peak_price": 643.7,
       "initial_sl": 626.8,
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "realised_pnl": -198.58,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": 2221.87,
+  "cumulative_pnl": 2023.29,
   "cumulative_wins": 18,
-  "cumulative_losses": 10,
+  "cumulative_losses": 11,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
