@@ -15,7 +15,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1320.7,
+      "peak_price": 1321.3,
       "initial_sl": 1257.68,
       "trail_active": false
     },
@@ -33,7 +33,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1006.7,
+      "peak_price": 1010.0,
       "initial_sl": 982.49,
       "trail_active": false
     },
@@ -90,7 +90,9 @@
       "peak_price": 1402.7,
       "initial_sl": 1347.0,
       "trail_active": false
-    },
+    }
+  ],
+  "closed_today": [
     {
       "symbol": "BHARTIARTL.NS",
       "bucket": "intraday",
@@ -101,21 +103,20 @@
       "target": 1902.19,
       "order_id": null,
       "opened_at": "2026-05-15 12:20:16",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1901.2,
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-05-15 12:25:27",
+      "exit_price": 1904.8,
+      "realised_pnl": 2.98,
+      "peak_price": 1904.8,
       "initial_sl": 1859.47,
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "realised_pnl": 2.98,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": 1552.2,
-  "cumulative_wins": 23,
+  "cumulative_pnl": 1555.18,
+  "cumulative_wins": 24,
   "cumulative_losses": 20,
   "history": [
     {
