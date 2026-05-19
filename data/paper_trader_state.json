@@ -2,24 +2,6 @@
   "date": "2026-05-19",
   "open_trades": [
     {
-      "symbol": "INFY.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 11,
-      "entry_price": 1189.5,
-      "sl": 1156.34,
-      "target": 1192.61,
-      "order_id": null,
-      "opened_at": "2026-05-19 13:05:29",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1189.9,
-      "initial_sl": 1156.34,
-      "trail_active": false
-    },
-    {
       "symbol": "IDEA.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -128,13 +110,31 @@
       "peak_price": 1338.3,
       "initial_sl": 1257.68,
       "trail_active": true
+    },
+    {
+      "symbol": "INFY.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 11,
+      "entry_price": 1189.5,
+      "sl": 1156.34,
+      "target": 1192.61,
+      "order_id": null,
+      "opened_at": "2026-05-19 13:05:29",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-05-19 16:21:24",
+      "exit_price": 1196.9,
+      "realised_pnl": 61.71,
+      "peak_price": 1196.9,
+      "initial_sl": 1156.34,
+      "trail_active": false
     }
   ],
-  "realised_pnl": 88.35,
+  "realised_pnl": 150.06,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": 1188.82,
-  "cumulative_wins": 27,
+  "cumulative_pnl": 1250.53,
+  "cumulative_wins": 28,
   "cumulative_losses": 28,
   "history": [
     {
