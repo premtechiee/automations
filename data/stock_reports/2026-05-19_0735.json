@@ -1,0 +1,2281 @@
+{
+  "generated_at": "2026-05-19T07:35:14",
+  "buckets": {
+    "intraday": [
+      {
+        "symbol": "INFY.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1189.5,
+        "tech": {
+          "price": 1189.5,
+          "chg_1d_pct": 4.113785557986871,
+          "chg_5d_pct": 4.314649571613827,
+          "chg_1m_pct": -9.378331393841933,
+          "chg_3m_pct": -20.583525088635046,
+          "ema20": 1176.7615524440557,
+          "ema50": 1246.7403355026133,
+          "ema200": 1425.3268298637577,
+          "rsi14": 49.262551118969455,
+          "macd": -33.31579097499434,
+          "macd_sig": -36.85026485498827,
+          "macd_hist": 3.534473879993925,
+          "atr14": 33.15878216114771,
+          "atr_pct": 2.7876235528497446,
+          "bb_low": 1090.950958104134,
+          "bb_high": 1244.9790345716472,
+          "vol_ratio": 1.4117196296173686,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 1149.8,
+          "resistance": 1195.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 1135.53,
+          "pivot_r1": 1153.07,
+          "pivot_s1": 1124.97
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 5.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume is 1.4\u00d7 the usual \u2014 strong interest",
+            "Price near resistance \u20b91195.00 \u2014 may struggle to break above",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 61.2,
+        "bucket_score": 138.5,
+        "levels": {
+          "entry": 1189.5,
+          "sl": 1156.34,
+          "target": 1192.61,
+          "support": 1149.8,
+          "resistance": 1195.0,
+          "expected_profit_pct": 0.26,
+          "risk_pct": 2.79,
+          "rr": 0.09,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            1156.34,
+            1222.66
+          ],
+          "forecast_3d": [
+            1133.13,
+            1245.87
+          ],
+          "forecast_5d": [
+            1116.55,
+            1262.45
+          ]
+        }
+      },
+      {
+        "symbol": "IDEA.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 13.619999885559082,
+        "tech": {
+          "price": 13.619999885559082,
+          "chg_1d_pct": 5.909799760276235,
+          "chg_5d_pct": 14.550037782024706,
+          "chg_1m_pct": 43.82259241300239,
+          "chg_3m_pct": 18.641118716507176,
+          "ema20": 11.539938055624614,
+          "ema50": 10.696825537464633,
+          "ema200": 10.579837450167028,
+          "rsi14": 83.30468992584427,
+          "macd": 0.936200185557496,
+          "macd_sig": 0.6867371516483894,
+          "macd_hist": 0.2494630339091065,
+          "atr14": 0.5388041846174543,
+          "atr_pct": 3.955977893867193,
+          "bb_low": 8.482344103683797,
+          "bb_high": 13.85765595353666,
+          "vol_ratio": 2.0099273173611207,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 100.0,
+          "matched": 4,
+          "pos": 4,
+          "neg": 0,
+          "categories": {
+            "earnings": {
+              "pos": 1,
+              "neg": 0,
+              "score": 100.0
+            },
+            "political": {
+              "pos": 1,
+              "neg": 0,
+              "score": 100.0
+            }
+          },
+          "samples": [
+            "Vodafone Idea shares jump 4% to fresh record high but Nomura, other brokerages remain cautious; here\u2019s why",
+            "'Worst behind us, Vodafone Idea starting FY27 with a clear plan', says executive",
+            "Vodafone Idea, Fineotex Chemical, Ola Electric, JP Power among most traded stocks on NSE today, 19 May 2026"
+          ]
+        },
+        "patterns": [
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 9.37,
+          "resistance": 14.3,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 12.79,
+          "pivot_r1": 13.12,
+          "pivot_s1": 12.52
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 8.15,
+          "macro_bias": 4,
+          "senti_bias": 1.15,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Overbought \u2014 likely short-term pullback",
+            "Trading volume is 2.0\u00d7 the usual \u2014 strong interest",
+            "Candle pattern suggests buyers in control",
+            "Positive earnings news (+1/-0)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.8,
+        "bucket_score": 135.0,
+        "levels": {
+          "entry": 13.62,
+          "sl": 13.08,
+          "target": 14.27,
+          "support": 9.37,
+          "resistance": 14.3,
+          "expected_profit_pct": 4.78,
+          "risk_pct": 3.96,
+          "rr": 1.21,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            13.08,
+            14.16
+          ],
+          "forecast_3d": [
+            12.7,
+            14.54
+          ],
+          "forecast_5d": [
+            12.43,
+            14.81
+          ]
+        }
+      },
+      {
+        "symbol": "PERSISTENT.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 5123.89990234375,
+        "tech": {
+          "price": 5123.89990234375,
+          "chg_1d_pct": 3.6366538123436154,
+          "chg_5d_pct": 5.060380138724296,
+          "chg_1m_pct": -3.7801450759718747,
+          "chg_3m_pct": -12.747553812792678,
+          "ema20": 4944.5930760024785,
+          "ema50": 5072.067803305692,
+          "ema200": 5604.622765021595,
+          "rsi14": 55.74786578852507,
+          "macd": -45.351082623469665,
+          "macd_sig": -58.12478099762858,
+          "macd_hist": 12.773698374158911,
+          "atr14": 179.73964447227144,
+          "atr_pct": 3.5078679891864355,
+          "bb_low": 4595.999406731839,
+          "bb_high": 5188.770563971285,
+          "vol_ratio": 1.027096480431835,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": [],
+          "filings_seen": 1
+        },
+        "patterns": [],
+        "sr": {
+          "support": 4743.1,
+          "resistance": 5173.3,
+          "support_strength": 2,
+          "resistance_strength": 1,
+          "pivot_p": 4862.33,
+          "pivot_r1": 5059.67,
+          "pivot_s1": 4746.77
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 90,
+          "score": 4.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Price near resistance \u20b95173.30 \u2014 may struggle to break above",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [
+          {
+            "symbol": "PERSISTENT",
+            "subject": "Press Release",
+            "date": "19-May-2026 12:34:30"
+          }
+        ],
+        "option_chain": {},
+        "composite": 59.0,
+        "bucket_score": 131.3,
+        "levels": {
+          "entry": 5123.9,
+          "sl": 4944.16,
+          "target": 5162.95,
+          "support": 4743.1,
+          "resistance": 5173.3,
+          "expected_profit_pct": 0.76,
+          "risk_pct": 3.51,
+          "rr": 0.22,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            4944.16,
+            5303.64
+          ],
+          "forecast_3d": [
+            4818.34,
+            5429.46
+          ],
+          "forecast_5d": [
+            4728.47,
+            5519.33
+          ]
+        }
+      },
+      {
+        "symbol": "TECHM.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1479.0999755859375,
+        "tech": {
+          "price": 1479.0999755859375,
+          "chg_1d_pct": 3.4335647262893287,
+          "chg_5d_pct": 6.188523918515676,
+          "chg_1m_pct": -1.6817367998899657,
+          "chg_3m_pct": -10.063237410728753,
+          "ema20": 1429.578477601741,
+          "ema50": 1442.5876990946094,
+          "ema200": 1509.5260198329522,
+          "rsi14": 56.60554022140213,
+          "macd": -6.270886552808861,
+          "macd_sig": -4.948954168414058,
+          "macd_hist": -1.3219323843948025,
+          "atr14": 45.299969799755296,
+          "atr_pct": 3.0626712559987674,
+          "bb_low": 1342.9521851400748,
+          "bb_high": 1517.4078002114877,
+          "vol_ratio": 1.8323418747385916,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 100.0,
+          "matched": 2,
+          "pos": 4,
+          "neg": 0,
+          "categories": {
+            "macro": {
+              "pos": 2,
+              "neg": 0,
+              "score": 100.0
+            }
+          },
+          "samples": [
+            "Infosys, TCS, TechM and other IT stocks rally up to 5% even as sector valuations near 2008 levels",
+            "Infosys, TechM to TCS: Nifty IT index surges 4%, clocks 8% gain amid three-day rally. What's powering the rise?"
+          ]
+        },
+        "patterns": [],
+        "sr": {
+          "support": 1412.9,
+          "resistance": 1492.4,
+          "support_strength": 1,
+          "resistance_strength": 2,
+          "pivot_p": 1410.47,
+          "pivot_r1": 1457.23,
+          "pivot_s1": 1383.23
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 88,
+          "score": 3.8,
+          "macro_bias": 4,
+          "senti_bias": 0.8,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume is 1.8\u00d7 the usual \u2014 strong interest",
+            "Price near resistance \u20b91492.40 \u2014 may struggle to break above",
+            "Positive macro news (+2/-0)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 64.2,
+        "bucket_score": 127.8,
+        "levels": {
+          "entry": 1479.1,
+          "sl": 1433.8,
+          "target": 1489.42,
+          "support": 1412.9,
+          "resistance": 1492.4,
+          "expected_profit_pct": 0.7,
+          "risk_pct": 3.06,
+          "rr": 0.23,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            1433.8,
+            1524.4
+          ],
+          "forecast_3d": [
+            1402.09,
+            1556.11
+          ],
+          "forecast_5d": [
+            1379.44,
+            1578.76
+          ]
+        }
+      },
+      {
+        "symbol": "ADANIENT.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 2734.39990234375,
+        "tech": {
+          "price": 2734.39990234375,
+          "chg_1d_pct": 1.6581103690237464,
+          "chg_5d_pct": 13.687009722891453,
+          "chg_1m_pct": 22.640822684666382,
+          "chg_3m_pct": 22.706875882906274,
+          "ema20": 2484.7767873501025,
+          "ema50": 2310.3613032048397,
+          "ema200": 2197.502432474276,
+          "rsi14": 74.47942159174971,
+          "macd": 140.42779626161064,
+          "macd_sig": 123.75527150729958,
+          "macd_hist": 16.672524754311056,
+          "atr14": 90.14046220922116,
+          "atr_pct": 3.296535453060783,
+          "bb_low": 2192.548897267954,
+          "bb_high": 2766.391044138296,
+          "vol_ratio": 1.063764582215827,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Doji (indecision)"
+        ],
+        "sr": {
+          "support": 2400.1,
+          "resistance": 2871.12,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 2682.43,
+          "pivot_r1": 2717.37,
+          "pivot_s1": 2654.87
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 5.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Overbought \u2014 likely short-term pullback",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 59.0,
+        "bucket_score": 125.9,
+        "levels": {
+          "entry": 2734.4,
+          "sl": 2644.26,
+          "target": 2865.38,
+          "support": 2400.1,
+          "resistance": 2871.12,
+          "expected_profit_pct": 4.79,
+          "risk_pct": 3.3,
+          "rr": 1.45,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            2644.26,
+            2824.54
+          ],
+          "forecast_3d": [
+            2581.16,
+            2887.64
+          ],
+          "forecast_5d": [
+            2536.09,
+            2932.71
+          ]
+        }
+      }
+    ],
+    "swing": [
+      {
+        "symbol": "SUNPHARMA.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1891.0999755859375,
+        "tech": {
+          "price": 1891.0999755859375,
+          "chg_1d_pct": -0.7713334487123413,
+          "chg_5d_pct": 2.4597727482864817,
+          "chg_1m_pct": 13.334532138049916,
+          "chg_3m_pct": 10.733102325625943,
+          "ema20": 1821.80902794707,
+          "ema50": 1778.0606545836486,
+          "ema200": 1747.6626026184579,
+          "rsi14": 64.76748624724266,
+          "macd": 41.89161290422794,
+          "macd_sig": 33.66060007592903,
+          "macd_hist": 8.231012828298908,
+          "atr14": 41.281527120605936,
+          "atr_pct": 2.18293731973717,
+          "bb_low": 1649.3666842450457,
+          "bb_high": 1961.1033230791732,
+          "vol_ratio": 0.20956070854802736,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 1737.9,
+          "resistance": 1985.65,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 1893.93,
+          "pivot_r1": 1922.87,
+          "pivot_s1": 1876.87
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 8.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 98.0,
+        "levels": {
+          "entry": 1891.1,
+          "sl": 1816.79,
+          "target": 2056.23,
+          "support": 1737.9,
+          "resistance": 1985.65,
+          "expected_profit_pct": 8.73,
+          "risk_pct": 3.93,
+          "rr": 2.22,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            1849.82,
+            1932.38
+          ],
+          "forecast_3d": [
+            1820.92,
+            1961.28
+          ],
+          "forecast_5d": [
+            1800.28,
+            1981.92
+          ]
+        }
+      },
+      {
+        "symbol": "TATACONSUM.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1217.9000244140625,
+        "tech": {
+          "price": 1217.9000244140625,
+          "chg_1d_pct": -1.0641734838292005,
+          "chg_5d_pct": -2.8012749869064213,
+          "chg_1m_pct": 8.702249007089202,
+          "chg_3m_pct": 5.702141644370462,
+          "ema20": 1188.5265641121073,
+          "ema50": 1153.257533671482,
+          "ema200": 1147.169100133384,
+          "rsi14": 60.70033252850145,
+          "macd": 31.855919104480108,
+          "macd_sig": 29.133568675070297,
+          "macd_hist": 2.7223504294098113,
+          "atr14": 30.78856062336143,
+          "atr_pct": 2.528003941717133,
+          "bb_low": 1107.1034701795602,
+          "bb_high": 1269.5565151720025,
+          "vol_ratio": 0.41374944165464683,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Bearish Engulfing",
+          "Evening Star (bearish reversal)"
+        ],
+        "sr": {
+          "support": 1139.4,
+          "resistance": 1282.7,
+          "support_strength": 2,
+          "resistance_strength": 1,
+          "pivot_p": 1226.5,
+          "pivot_r1": 1237.9,
+          "pivot_s1": 1219.6
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 6.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Candle pattern suggests sellers in control",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 96.9,
+        "levels": {
+          "entry": 1217.9,
+          "sl": 1162.48,
+          "target": 1341.05,
+          "support": 1139.4,
+          "resistance": 1282.7,
+          "expected_profit_pct": 10.11,
+          "risk_pct": 4.55,
+          "rr": 2.22,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            1187.11,
+            1248.69
+          ],
+          "forecast_3d": [
+            1165.56,
+            1270.24
+          ],
+          "forecast_5d": [
+            1150.17,
+            1285.63
+          ]
+        }
+      },
+      {
+        "symbol": "DRREDDY.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1324.5999755859375,
+        "tech": {
+          "price": 1324.5999755859375,
+          "chg_1d_pct": -0.495791453427219,
+          "chg_5d_pct": 4.299210676058074,
+          "chg_1m_pct": 7.46389760037649,
+          "chg_3m_pct": 5.46178149569565,
+          "ema20": 1297.185964167847,
+          "ema50": 1281.3882421460467,
+          "ema200": 1262.4764245506224,
+          "rsi14": 57.063694364973735,
+          "macd": 12.773135971666534,
+          "macd_sig": 10.518593344188925,
+          "macd_hist": 2.2545426274776084,
+          "atr14": 35.7620077300633,
+          "atr_pct": 2.699834545462977,
+          "bb_low": 1240.2599537367826,
+          "bb_high": 1370.9400340561863,
+          "vol_ratio": 0.2852573007540813,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 1268.5,
+          "resistance": 1327.0,
+          "support_strength": 2,
+          "resistance_strength": 2,
+          "pivot_p": 1331.7,
+          "pivot_r1": 1341.4,
+          "pivot_s1": 1321.5
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 7.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Price near resistance \u20b91327.00 \u2014 may struggle to break above",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 96.7,
+        "levels": {
+          "entry": 1324.6,
+          "sl": 1262.16,
+          "target": 1467.65,
+          "support": 1268.5,
+          "resistance": 1327.0,
+          "expected_profit_pct": 10.8,
+          "risk_pct": 4.71,
+          "rr": 2.29,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            1288.84,
+            1360.36
+          ],
+          "forecast_3d": [
+            1263.8,
+            1385.4
+          ],
+          "forecast_5d": [
+            1245.92,
+            1403.28
+          ]
+        }
+      },
+      {
+        "symbol": "GRASIM.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 2948.0,
+        "tech": {
+          "price": 2948.0,
+          "chg_1d_pct": 0.1426710748763993,
+          "chg_5d_pct": 1.550120564932822,
+          "chg_1m_pct": 6.807720578804588,
+          "chg_3m_pct": -0.19973264290603643,
+          "ema20": 2878.556143069995,
+          "ema50": 2812.4959852654665,
+          "ema200": 2785.137401549797,
+          "rsi14": 64.03250631038772,
+          "macd": 58.26897808541389,
+          "macd_sig": 56.024159589253344,
+          "macd_hist": 2.2448184961605477,
+          "atr14": 61.9746715303064,
+          "atr_pct": 2.102261585152863,
+          "bb_low": 2699.339610837849,
+          "bb_high": 3037.950428224651,
+          "vol_ratio": 0.3075700936700644,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 2893.7,
+          "resistance": 3007.3,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 2928.17,
+          "pivot_r1": 2971.13,
+          "pivot_s1": 2900.83
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 8.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 96.0,
+        "levels": {
+          "entry": 2948.0,
+          "sl": 2879.23,
+          "target": 3195.9,
+          "support": 2893.7,
+          "resistance": 3007.3,
+          "expected_profit_pct": 8.41,
+          "risk_pct": 2.33,
+          "rr": 3.6,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            2886.03,
+            3009.97
+          ],
+          "forecast_3d": [
+            2842.64,
+            3053.36
+          ],
+          "forecast_5d": [
+            2811.66,
+            3084.34
+          ]
+        }
+      },
+      {
+        "symbol": "ONGC.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 295.54998779296875,
+        "tech": {
+          "price": 295.54998779296875,
+          "chg_1d_pct": -0.555189887715446,
+          "chg_5d_pct": 0.3565323575445589,
+          "chg_1m_pct": 4.30562252573099,
+          "chg_3m_pct": 8.598197472451474,
+          "ema20": 291.4099476330885,
+          "ema50": 283.98886676587193,
+          "ema200": 264.05479704073775,
+          "rsi14": 56.36743982071363,
+          "macd": 3.5481130137739,
+          "macd_sig": 3.1854620928884474,
+          "macd_hist": 0.3626509208854527,
+          "atr14": 7.006302742343356,
+          "atr_pct": 2.3705982174667644,
+          "bb_low": 276.07315195798856,
+          "bb_high": 307.40684071779265,
+          "vol_ratio": 0.283224017774559,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 277.65,
+          "resistance": 307.5,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 297.67,
+          "pivot_r1": 300.23,
+          "pivot_s1": 294.63
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 8.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 65.8,
+        "bucket_score": 95.8,
+        "levels": {
+          "entry": 295.55,
+          "sl": 282.94,
+          "target": 323.58,
+          "support": 277.65,
+          "resistance": 307.5,
+          "expected_profit_pct": 9.48,
+          "risk_pct": 4.27,
+          "rr": 2.22,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            288.54,
+            302.56
+          ],
+          "forecast_3d": [
+            283.64,
+            307.46
+          ],
+          "forecast_5d": [
+            280.14,
+            310.96
+          ]
+        }
+      }
+    ],
+    "holding": [
+      {
+        "symbol": "VBL.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 517.1500244140625,
+        "tech": {
+          "price": 517.1500244140625,
+          "chg_1d_pct": 1.1045991034335234,
+          "chg_5d_pct": 5.897413320486811,
+          "chg_1m_pct": 10.845576668099177,
+          "chg_3m_pct": 13.285876103847215,
+          "ema20": 496.7146583394773,
+          "ema50": 475.077374160158,
+          "ema200": 464.9117880720433,
+          "rsi14": 64.67307968636712,
+          "macd": 13.6215802362982,
+          "macd_sig": 15.885662497027715,
+          "macd_hist": -2.2640822607295146,
+          "atr14": 14.27419942519568,
+          "atr_pct": 2.760166054592868,
+          "bb_low": 483.4719425753037,
+          "bb_high": 528.608059255751,
+          "vol_ratio": 0.38814878970136985,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 100.0,
+          "matched": 1,
+          "pos": 1,
+          "neg": 0,
+          "categories": {},
+          "samples": [
+            "Stocks to buy for short term: From Bharti Airtel, PB Fintech to VBL - Experts suggest 6 stock picks for next 1-2 weeks"
+          ]
+        },
+        "patterns": [
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 499.8,
+          "resistance": 534.7,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 506.83,
+          "pivot_r1": 519.37,
+          "pivot_s1": 498.97
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 7.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum fading (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Candle pattern suggests buyers in control",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 71.0,
+        "bucket_score": 61.0,
+        "levels": {
+          "entry": 517.15,
+          "sl": 497.3,
+          "target": 646.44,
+          "support": 499.8,
+          "resistance": 534.7,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 3.84,
+          "rr": 6.51,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            502.88,
+            531.42
+          ],
+          "forecast_3d": [
+            492.88,
+            541.42
+          ],
+          "forecast_5d": [
+            485.75,
+            548.55
+          ]
+        }
+      },
+      {
+        "symbol": "IDEA.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 13.619999885559082,
+        "tech": {
+          "price": 13.619999885559082,
+          "chg_1d_pct": 5.909799760276235,
+          "chg_5d_pct": 14.550037782024706,
+          "chg_1m_pct": 43.82259241300239,
+          "chg_3m_pct": 18.641118716507176,
+          "ema20": 11.539938055624614,
+          "ema50": 10.696825537464633,
+          "ema200": 10.579837450167028,
+          "rsi14": 83.30468992584427,
+          "macd": 0.936200185557496,
+          "macd_sig": 0.6867371516483894,
+          "macd_hist": 0.2494630339091065,
+          "atr14": 0.5388041846174543,
+          "atr_pct": 3.955977893867193,
+          "bb_low": 8.482344103683797,
+          "bb_high": 13.85765595353666,
+          "vol_ratio": 2.0099273173611207,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 100.0,
+          "matched": 4,
+          "pos": 4,
+          "neg": 0,
+          "categories": {
+            "earnings": {
+              "pos": 1,
+              "neg": 0,
+              "score": 100.0
+            },
+            "political": {
+              "pos": 1,
+              "neg": 0,
+              "score": 100.0
+            }
+          },
+          "samples": [
+            "Vodafone Idea shares jump 4% to fresh record high but Nomura, other brokerages remain cautious; here\u2019s why",
+            "'Worst behind us, Vodafone Idea starting FY27 with a clear plan', says executive",
+            "Vodafone Idea, Fineotex Chemical, Ola Electric, JP Power among most traded stocks on NSE today, 19 May 2026"
+          ]
+        },
+        "patterns": [
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 9.37,
+          "resistance": 14.3,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 12.79,
+          "pivot_r1": 13.12,
+          "pivot_s1": 12.52
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 8.15,
+          "macro_bias": 4,
+          "senti_bias": 1.15,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Overbought \u2014 likely short-term pullback",
+            "Trading volume is 2.0\u00d7 the usual \u2014 strong interest",
+            "Candle pattern suggests buyers in control",
+            "Positive earnings news (+1/-0)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.8,
+        "bucket_score": 60.0,
+        "levels": {
+          "entry": 13.62,
+          "sl": 12.26,
+          "target": 17.02,
+          "support": 9.37,
+          "resistance": 14.3,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 10.0,
+          "rr": 2.5,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            13.08,
+            14.16
+          ],
+          "forecast_3d": [
+            12.7,
+            14.54
+          ],
+          "forecast_5d": [
+            12.43,
+            14.81
+          ]
+        }
+      },
+      {
+        "symbol": "SUNPHARMA.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1891.0999755859375,
+        "tech": {
+          "price": 1891.0999755859375,
+          "chg_1d_pct": -0.7713334487123413,
+          "chg_5d_pct": 2.4597727482864817,
+          "chg_1m_pct": 13.334532138049916,
+          "chg_3m_pct": 10.733102325625943,
+          "ema20": 1821.80902794707,
+          "ema50": 1778.0606545836486,
+          "ema200": 1747.6626026184579,
+          "rsi14": 64.76748624724266,
+          "macd": 41.89161290422794,
+          "macd_sig": 33.66060007592903,
+          "macd_hist": 8.231012828298908,
+          "atr14": 41.281527120605936,
+          "atr_pct": 2.18293731973717,
+          "bb_low": 1649.3666842450457,
+          "bb_high": 1961.1033230791732,
+          "vol_ratio": 0.20956070854802736,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 1737.9,
+          "resistance": 1985.65,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 1893.93,
+          "pivot_r1": 1922.87,
+          "pivot_s1": 1876.87
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 8.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 58.0,
+        "levels": {
+          "entry": 1891.1,
+          "sl": 1729.21,
+          "target": 2363.87,
+          "support": 1737.9,
+          "resistance": 1985.65,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 8.56,
+          "rr": 2.92,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            1849.82,
+            1932.38
+          ],
+          "forecast_3d": [
+            1820.92,
+            1961.28
+          ],
+          "forecast_5d": [
+            1800.28,
+            1981.92
+          ]
+        }
+      },
+      {
+        "symbol": "GRASIM.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 2948.0,
+        "tech": {
+          "price": 2948.0,
+          "chg_1d_pct": 0.1426710748763993,
+          "chg_5d_pct": 1.550120564932822,
+          "chg_1m_pct": 6.807720578804588,
+          "chg_3m_pct": -0.19973264290603643,
+          "ema20": 2878.556143069995,
+          "ema50": 2812.4959852654665,
+          "ema200": 2785.137401549797,
+          "rsi14": 64.03250631038772,
+          "macd": 58.26897808541389,
+          "macd_sig": 56.024159589253344,
+          "macd_hist": 2.2448184961605477,
+          "atr14": 61.9746715303064,
+          "atr_pct": 2.102261585152863,
+          "bb_low": 2699.339610837849,
+          "bb_high": 3037.950428224651,
+          "vol_ratio": 0.3075700936700644,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 2893.7,
+          "resistance": 3007.3,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 2928.17,
+          "pivot_r1": 2971.13,
+          "pivot_s1": 2900.83
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 8.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 58.0,
+        "levels": {
+          "entry": 2948.0,
+          "sl": 2879.23,
+          "target": 3685.0,
+          "support": 2893.7,
+          "resistance": 3007.3,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 2.33,
+          "rr": 10.72,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            2886.03,
+            3009.97
+          ],
+          "forecast_3d": [
+            2842.64,
+            3053.36
+          ],
+          "forecast_5d": [
+            2811.66,
+            3084.34
+          ]
+        }
+      },
+      {
+        "symbol": "DRREDDY.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1324.5999755859375,
+        "tech": {
+          "price": 1324.5999755859375,
+          "chg_1d_pct": -0.495791453427219,
+          "chg_5d_pct": 4.299210676058074,
+          "chg_1m_pct": 7.46389760037649,
+          "chg_3m_pct": 5.46178149569565,
+          "ema20": 1297.185964167847,
+          "ema50": 1281.3882421460467,
+          "ema200": 1262.4764245506224,
+          "rsi14": 57.063694364973735,
+          "macd": 12.773135971666534,
+          "macd_sig": 10.518593344188925,
+          "macd_hist": 2.2545426274776084,
+          "atr14": 35.7620077300633,
+          "atr_pct": 2.699834545462977,
+          "bb_low": 1240.2599537367826,
+          "bb_high": 1370.9400340561863,
+          "vol_ratio": 0.2852573007540813,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 1268.5,
+          "resistance": 1327.0,
+          "support_strength": 2,
+          "resistance_strength": 2,
+          "pivot_p": 1331.7,
+          "pivot_r1": 1341.4,
+          "pivot_s1": 1321.5
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 7.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Price near resistance \u20b91327.00 \u2014 may struggle to break above",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 58.0,
+        "levels": {
+          "entry": 1324.6,
+          "sl": 1262.16,
+          "target": 1655.75,
+          "support": 1268.5,
+          "resistance": 1327.0,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 4.71,
+          "rr": 5.3,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            1288.84,
+            1360.36
+          ],
+          "forecast_3d": [
+            1263.8,
+            1385.4
+          ],
+          "forecast_5d": [
+            1245.92,
+            1403.28
+          ]
+        }
+      }
+    ],
+    "sell": [
+      {
+        "symbol": "SBIN.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 947.0999755859375,
+        "tech": {
+          "price": 947.0999755859375,
+          "chg_1d_pct": 0.8196669120460909,
+          "chg_5d_pct": -2.821670499577711,
+          "chg_1m_pct": -14.51008742541877,
+          "chg_3m_pct": -17.21877495007451,
+          "ema20": 1017.6156238006193,
+          "ema50": 1049.429792432779,
+          "ema200": 1049.6930864535695,
+          "rsi14": 30.623661636290976,
+          "macd": -33.38016101053836,
+          "macd_sig": -20.902570462071886,
+          "macd_hist": -12.477590548466473,
+          "atr14": 27.219216995570143,
+          "atr_pct": 2.8739539327651835,
+          "bb_low": 917.6836936438017,
+          "bb_high": 1163.226303914792,
+          "vol_ratio": 0.51924443236589,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 899.74,
+          "resistance": 1077.8,
+          "support_strength": 0,
+          "resistance_strength": 1,
+          "pivot_p": 942.73,
+          "pivot_r1": 951.57,
+          "pivot_s1": 930.57
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 70,
+          "score": 2.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 45.5,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 947.1,
+          "sl": 895.24,
+          "target": 1183.87,
+          "support": 899.74,
+          "resistance": 1077.8,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 5.48,
+          "rr": 4.57,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            919.88,
+            974.32
+          ],
+          "forecast_3d": [
+            900.83,
+            993.37
+          ],
+          "forecast_5d": [
+            887.22,
+            1006.98
+          ]
+        }
+      },
+      {
+        "symbol": "ABB.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 6372.0,
+        "tech": {
+          "price": 6372.0,
+          "chg_1d_pct": -0.6470725812738776,
+          "chg_5d_pct": 0.6873666745674356,
+          "chg_1m_pct": -10.980720871751881,
+          "chg_3m_pct": 8.551959114139684,
+          "ema20": 6725.126540526107,
+          "ema50": 6579.504436425601,
+          "ema200": 5860.219512195122,
+          "rsi14": 37.07106077770039,
+          "macd": -106.44307088852838,
+          "macd_sig": 12.443085808470574,
+          "macd_hist": -118.88615669699895,
+          "atr14": 224.81837234256855,
+          "atr_pct": 3.5282230436686843,
+          "bb_low": 6034.116418421134,
+          "bb_high": 7915.683581578865,
+          "vol_ratio": 0.46339788382674324,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 1,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": [
+            "AbbVie loses patent plea for Hep C drug"
+          ]
+        },
+        "patterns": [],
+        "sr": {
+          "support": 6171.5,
+          "resistance": 6554.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 6361.17,
+          "pivot_r1": 6497.33,
+          "pivot_s1": 6277.33
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 70,
+          "score": 2.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 45.5,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 6372.0,
+          "sl": 6140.64,
+          "target": 7965.0,
+          "support": 6171.5,
+          "resistance": 6554.0,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 3.63,
+          "rr": 6.89,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            6147.18,
+            6596.82
+          ],
+          "forecast_3d": [
+            5989.81,
+            6754.19
+          ],
+          "forecast_5d": [
+            5877.4,
+            6866.6
+          ]
+        }
+      },
+      {
+        "symbol": "CANBK.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 126.12000274658203,
+        "tech": {
+          "price": 126.12000274658203,
+          "chg_1d_pct": 0.9767823905513229,
+          "chg_5d_pct": -2.992071321139367,
+          "chg_1m_pct": -11.643549185219825,
+          "chg_3m_pct": -14.104746186887585,
+          "ema20": 132.608482405201,
+          "ema50": 136.8312575828661,
+          "ema200": 144.55113759854945,
+          "rsi14": 35.2547327458025,
+          "macd": -3.0947969117941057,
+          "macd_sig": -2.1185807955895117,
+          "macd_hist": -0.9762161162045939,
+          "atr14": 4.047120537842955,
+          "atr_pct": 3.208944219558095,
+          "bb_low": 123.58501412203168,
+          "bb_high": 145.1129823989644,
+          "vol_ratio": 0.4835307703909414,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 121.79,
+          "resistance": 139.4,
+          "support_strength": 1,
+          "resistance_strength": 2,
+          "pivot_p": 125.3,
+          "pivot_r1": 126.6,
+          "pivot_s1": 123.6
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 70,
+          "score": 2.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 45.5,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 126.12,
+          "sl": 121.18,
+          "target": 157.65,
+          "support": 121.79,
+          "resistance": 139.4,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 3.92,
+          "rr": 6.38,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            122.07,
+            130.17
+          ],
+          "forecast_3d": [
+            119.24,
+            133.0
+          ],
+          "forecast_5d": [
+            117.22,
+            135.02
+          ]
+        }
+      },
+      {
+        "symbol": "NAUKRI.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 941.2000122070312,
+        "tech": {
+          "price": 941.2000122070312,
+          "chg_1d_pct": 1.6469571574010855,
+          "chg_5d_pct": 1.1064547774023215,
+          "chg_1m_pct": -11.864407651507381,
+          "chg_3m_pct": -21.192332435173334,
+          "ema20": 965.1634886447198,
+          "ema50": 1008.6488670690267,
+          "ema200": 1156.0890259781504,
+          "rsi14": 39.76229285949554,
+          "macd": -21.94841898938705,
+          "macd_sig": -18.220365206694275,
+          "macd_hist": -3.7280537826927755,
+          "atr14": 28.004955236089614,
+          "atr_pct": 2.9754520689412716,
+          "bb_low": 904.687656956001,
+          "bb_high": 1038.6823381611864,
+          "vol_ratio": 0.5204857265279007,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 930.5,
+          "resistance": 996.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 924.95,
+          "pivot_r1": 935.1,
+          "pivot_s1": 915.8
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 80,
+          "score": 3.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Candle pattern suggests buyers in control",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 45.5,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 941.2,
+          "sl": 925.85,
+          "target": 1176.5,
+          "support": 930.5,
+          "resistance": 996.0,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 1.63,
+          "rr": 15.33,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            913.2,
+            969.2
+          ],
+          "forecast_3d": [
+            893.59,
+            988.81
+          ],
+          "forecast_5d": [
+            879.59,
+            1002.81
+          ]
+        }
+      },
+      {
+        "symbol": "PNB.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 101.23999786376953,
+        "tech": {
+          "price": 101.23999786376953,
+          "chg_1d_pct": 1.7589707885975248,
+          "chg_5d_pct": -1.498346890268254,
+          "chg_1m_pct": -10.989977347257994,
+          "chg_3m_pct": -17.664282191301606,
+          "ema20": 106.3164221800215,
+          "ema50": 110.53385284629611,
+          "ema200": 117.9513819624738,
+          "rsi14": 35.60175218821598,
+          "macd": -2.8476704455665356,
+          "macd_sig": -2.0854254132406878,
+          "macd_hist": -0.7622450323258478,
+          "atr14": 2.907041742881649,
+          "atr_pct": 2.871435997848814,
+          "bb_low": 98.75679927708003,
+          "bb_high": 116.8741997158399,
+          "vol_ratio": 0.4581155532938041,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 99.79,
+          "resistance": 111.74,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 99.66,
+          "pivot_r1": 100.83,
+          "pivot_s1": 98.33
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 70,
+          "score": 2.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Crude fell -4.7% \u2014 inflation relief"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 45.5,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 101.24,
+          "sl": 99.29,
+          "target": 126.55,
+          "support": 99.79,
+          "resistance": 111.74,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 1.93,
+          "rr": 12.99,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            98.33,
+            104.15
+          ],
+          "forecast_3d": [
+            96.3,
+            106.18
+          ],
+          "forecast_5d": [
+            94.84,
+            107.64
+          ]
+        }
+      }
+    ]
+  },
+  "mfs": [
+    {
+      "code": "118560",
+      "name": "Franklin India Ultra Short Bond Fund - Super Institutional Plan - Direct - Growth",
+      "cat": "Debt Scheme - Ultra Short Duration Fund",
+      "nav": 34.2355,
+      "r_1m": 0.58,
+      "r_3m": 1.28,
+      "r_1y": 11.09,
+      "r_3y": 27.04,
+      "score": 6.04
+    },
+    {
+      "code": "118989",
+      "name": "HDFC Mid Cap Fund - Growth Option - Direct Plan",
+      "cat": "Equity Scheme - Mid Cap Fund",
+      "nav": 217.978,
+      "r_1m": -0.11,
+      "r_3m": -4.05,
+      "r_1y": 12.35,
+      "r_3y": 95.8,
+      "score": 4.94
+    },
+    {
+      "code": "118834",
+      "name": "Mirae Asset Large & Midcap Fund - Direct Plan - Growth",
+      "cat": "Equity Scheme - Large & Mid Cap Fund",
+      "nav": 169.622,
+      "r_1m": -0.29,
+      "r_3m": -4.83,
+      "r_1y": 9.2,
+      "r_3y": 63.09,
+      "score": 3.09
+    },
+    {
+      "code": "125354",
+      "name": "Axis Small Cap Fund - Direct Plan - Growth",
+      "cat": "Equity Scheme - Small Cap Fund",
+      "nav": 122.25,
+      "r_1m": 2.26,
+      "r_3m": 1.07,
+      "r_1y": 4.51,
+      "r_3y": 68.39,
+      "score": 3.03
+    },
+    {
+      "code": "119598",
+      "name": "SBI Large Cap FUND-DIRECT PLAN -GROWTH",
+      "cat": "Equity Scheme - Large Cap Fund",
+      "nav": 100.7781,
+      "r_1m": -1.94,
+      "r_3m": -5.88,
+      "r_1y": -0.16,
+      "r_3y": 42.06,
+      "score": -2.23
+    }
+  ],
+  "watchlist": [
+    "TATAPOWER.NS",
+    "IRFC.NS",
+    "SUZLON.NS",
+    "IREDA.NS",
+    "BHEL.NS",
+    "KPITTECH.NS",
+    "POLYCAB.NS",
+    "PERSISTENT.NS",
+    "ITC.NS",
+    "POWERGRID.NS",
+    "COALINDIA.NS"
+  ],
+  "macro": {
+    "regime": "neutral",
+    "bias": 4,
+    "geo": {
+      "level": 58.0,
+      "risk_off_hits": 29,
+      "risk_on_hits": 21,
+      "off_samples": [
+        "Gold prices snap 2-day fall, silver at Rs 2.75 lakh/kg. What should you do amid Iran war uncertainty?",
+        "Global Market: Japan economy shows resilience but Iran conflict clouds outlook",
+        "Petrol, diesel price hike impact: HPCL, BPCL &amp; IOC shares jump 2% each. What lies ahead for the OMCs?",
+        "Afcons Infrastructure shares crash 9% after Rs 89 crore net loss in Q4, guidance miss"
+      ],
+      "on_samples": [
+        "Small &amp; midcaps rally! Coforge, Ola Electric, FirstCry &amp; other stocks jump up to 7%",
+        "Vodafone Idea shares jump 4% to fresh record high but Nomura, other brokerages remain cautious; here\u2019s why",
+        "Is AI boom overheating? Micron stock slides as AI momentum faces reality check",
+        "Apollo Micro Systems shares rally 7% after Q4 profit surges 163% YoY"
+      ]
+    },
+    "snapshot": {
+      "SPY": {
+        "last": 738.65,
+        "chg_pct": -0.07
+      },
+      "QQQ": {
+        "last": 705.88,
+        "chg_pct": -0.43
+      },
+      "DJI": {
+        "last": 49686.12,
+        "chg_pct": 0.32
+      },
+      "VIX": {
+        "last": 18.02,
+        "chg_pct": 1.12
+      },
+      "OIL": {
+        "last": 103.56,
+        "chg_pct": -4.69
+      },
+      "DXY": {
+        "last": 99.18,
+        "chg_pct": 0.21
+      },
+      "GOLD": {
+        "last": 4549.3,
+        "chg_pct": -0.07
+      },
+      "INR": {
+        "last": 96.42,
+        "chg_pct": 0.47
+      },
+      "NIFTY": {
+        "last": 23711.6,
+        "chg_pct": 0.26
+      },
+      "NIFTY_NEXT50": {
+        "last": 69167.9,
+        "chg_pct": 0.8
+      },
+      "NIFTY100": {
+        "last": 24623.05,
+        "chg_pct": 0.36
+      },
+      "NIFTY200": {
+        "last": 13651.35,
+        "chg_pct": 0.56
+      },
+      "NIFTY500": {
+        "last": 22600.65,
+        "chg_pct": 0.62
+      },
+      "NIFTY_MIDCAP": {
+        "last": 61298.05,
+        "chg_pct": 1.36
+      },
+      "NIFTY_SMALLCAP": {
+        "last": 17904.4,
+        "chg_pct": 0.0
+      },
+      "BANKNIFTY": {
+        "last": 53577.25,
+        "chg_pct": 0.08
+      },
+      "FINNIFTY": {
+        "last": 25390.9,
+        "chg_pct": 0.16
+      },
+      "NIFTY_IT": {
+        "last": 29344.15,
+        "chg_pct": 3.36
+      },
+      "NIFTY_AUTO": {
+        "last": 25846.6,
+        "chg_pct": 0.87
+      },
+      "NIFTY_PHARMA": {
+        "last": 24894.55,
+        "chg_pct": 0.53
+      },
+      "NIFTY_FMCG": {
+        "last": 51161.05,
+        "chg_pct": 0.51
+      },
+      "NIFTY_ENERGY": {
+        "last": 39652.7,
+        "chg_pct": 0.34
+      },
+      "NIFTY_METAL": {
+        "last": 13181.4,
+        "chg_pct": 0.09
+      },
+      "NIFTY_REALTY": {
+        "last": 766.0,
+        "chg_pct": 1.87
+      },
+      "NIFTY_PSU_BANK": {
+        "last": 7933.75,
+        "chg_pct": 0.77
+      },
+      "INDIA_VIX": {
+        "last": 18.56,
+        "chg_pct": -5.45
+      },
+      "SENSEX": {
+        "last": 75583.83,
+        "chg_pct": 0.36
+      },
+      "BSE500": {
+        "last": 35340.04,
+        "chg_pct": 0.64
+      },
+      "regime": "neutral"
+    }
+  },
+  "market_forecast": {
+    "direction": "UP",
+    "confidence": 95,
+    "band_pct": [
+      -1.08,
+      4.05
+    ],
+    "reasons": [
+      "Breadth 68/104 advancing (65%), 34% trending up.",
+      "10 per-stock predictions avg 94% confidence, net direction score +2.81.",
+      "Macro regime NEUTRAL, bias +4.",
+      "Nifty opening expectation: FLAT OPEN."
+    ],
+    "components": {
+      "breadth_vote": 4.81,
+      "pred_vote": 2.81,
+      "macro_vote": 2.4,
+      "total_score": 10.03,
+      "median_atr": 2.7,
+      "advancing": 68,
+      "declining": 25,
+      "trending_up": 35,
+      "universe": 104
+    }
+  },
+  "self_review": {
+    "updated_at": null,
+    "window_runs": null,
+    "overall_accuracy": null,
+    "picks_scored": 0,
+    "picks_won": 0,
+    "n_features": 0,
+    "best_features": [],
+    "worst_features": [],
+    "calibration": {}
+  }
+}
