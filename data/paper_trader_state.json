@@ -51,26 +51,8 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 6872.0,
+      "peak_price": 6893.0,
       "initial_sl": 6734.21,
-      "trail_active": false
-    },
-    {
-      "symbol": "HINDALCO.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 10,
-      "entry_price": 1076.3,
-      "sl": 1047.31,
-      "target": 1077.84,
-      "order_id": null,
-      "opened_at": "2026-05-20 13:13:21",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1076.3,
-      "initial_sl": 1047.31,
       "trail_active": false
     },
     {
@@ -110,12 +92,31 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "HINDALCO.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 10,
+      "entry_price": 1076.3,
+      "sl": 1047.31,
+      "target": 1077.84,
+      "order_id": null,
+      "opened_at": "2026-05-20 13:13:21",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-05-20 16:08:40",
+      "exit_price": 1085.5,
+      "realised_pnl": 75.79,
+      "peak_price": 1085.5,
+      "initial_sl": 1047.31,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": 75.79,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": 864.44,
-  "cumulative_wins": 28,
+  "cumulative_pnl": 940.23,
+  "cumulative_wins": 29,
   "cumulative_losses": 32,
   "history": [
     {
