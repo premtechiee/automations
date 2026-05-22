@@ -51,26 +51,8 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 818.25,
+      "peak_price": 820.2,
       "initial_sl": 800.85,
-      "trail_active": false
-    },
-    {
-      "symbol": "ASIANPAINT.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 4,
-      "entry_price": 2662.8,
-      "sl": 2600.22,
-      "target": 2660.37,
-      "order_id": null,
-      "opened_at": "2026-05-22 13:04:54",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 2662.8,
-      "initial_sl": 2600.22,
       "trail_active": false
     },
     {
@@ -87,7 +69,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 204.8,
+      "peak_price": 205.2,
       "initial_sl": 200.99,
       "trail_active": false
     },
@@ -105,18 +87,37 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 538.1,
+      "peak_price": 538.8,
       "initial_sl": 523.32,
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "ASIANPAINT.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 4,
+      "entry_price": 2662.8,
+      "sl": 2600.22,
+      "target": 2660.37,
+      "order_id": null,
+      "opened_at": "2026-05-22 13:04:54",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-05-22 13:13:31",
+      "exit_price": 2661.7,
+      "realised_pnl": -20.37,
+      "peak_price": 2662.8,
+      "initial_sl": 2600.22,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": -20.37,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": 687.58,
+  "cumulative_pnl": 667.21,
   "cumulative_wins": 31,
-  "cumulative_losses": 38,
+  "cumulative_losses": 39,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
