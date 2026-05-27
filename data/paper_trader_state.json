@@ -1,5 +1,5 @@
 {
-  "date": "2026-05-26",
+  "date": "2026-05-27",
   "open_trades": [
     {
       "symbol": "SUNPHARMA.NS",
@@ -38,24 +38,6 @@
       "trail_active": false
     },
     {
-      "symbol": "NAUKRI.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 13,
-      "entry_price": 978.75,
-      "sl": 961.97,
-      "target": 994.01,
-      "order_id": null,
-      "opened_at": "2026-05-26 13:04:59",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 979.5,
-      "initial_sl": 961.97,
-      "trail_active": false
-    },
-    {
       "symbol": "ADANIPOWER.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -69,9 +51,29 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 243.76,
+      "peak_price": 246.5,
       "initial_sl": 234.98,
       "trail_active": false
+    }
+  ],
+  "closed_today": [
+    {
+      "symbol": "NAUKRI.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 13,
+      "entry_price": 978.75,
+      "sl": 999.34,
+      "target": 994.01,
+      "order_id": null,
+      "opened_at": "2026-05-26 13:04:59",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-05-27 13:25:04",
+      "exit_price": 1007.4,
+      "realised_pnl": 353.09,
+      "peak_price": 1007.4,
+      "initial_sl": 961.97,
+      "trail_active": true
     },
     {
       "symbol": "LICI.NS",
@@ -83,10 +85,10 @@
       "target": 854.64,
       "order_id": null,
       "opened_at": "2026-05-26 13:04:59",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
+      "status": "CLOSED_SL",
+      "closed_at": "2026-05-27 13:25:04",
+      "exit_price": 826.15,
+      "realised_pnl": -284.43,
       "peak_price": 851.95,
       "initial_sl": 831.87,
       "trail_active": false
@@ -97,26 +99,25 @@
       "side": "BUY",
       "qty": 17,
       "entry_price": 447.2,
-      "sl": 441.03,
+      "sl": 452.85,
       "target": 450.65,
       "order_id": null,
       "opened_at": "2026-05-26 13:04:59",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 447.2,
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-05-27 13:25:04",
+      "exit_price": 456.5,
+      "realised_pnl": 146.58,
+      "peak_price": 456.5,
       "initial_sl": 441.03,
-      "trail_active": false
+      "trail_active": true
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "realised_pnl": 215.24,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": 415.65,
-  "cumulative_wins": 35,
-  "cumulative_losses": 42,
+  "cumulative_pnl": 630.89,
+  "cumulative_wins": 37,
+  "cumulative_losses": 43,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
