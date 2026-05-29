@@ -2,24 +2,6 @@
   "date": "2026-05-29",
   "open_trades": [
     {
-      "symbol": "SUNPHARMA.NS",
-      "bucket": "swing",
-      "side": "BUY",
-      "qty": 4,
-      "entry_price": 1890.2,
-      "sl": 1815.89,
-      "target": 2055.33,
-      "order_id": null,
-      "opened_at": "2026-05-19 13:14:49",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1894.7,
-      "initial_sl": 1815.89,
-      "trail_active": false
-    },
-    {
       "symbol": "DRREDDY.NS",
       "bucket": "swing",
       "side": "BUY",
@@ -53,24 +35,6 @@
       "realised_pnl": 0.0,
       "peak_price": 204.64,
       "initial_sl": 200.99,
-      "trail_active": false
-    },
-    {
-      "symbol": "INFY.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 9,
-      "entry_price": 1199.5,
-      "sl": 1170.58,
-      "target": 1204.49,
-      "order_id": null,
-      "opened_at": "2026-05-29 13:14:50",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1199.5,
-      "initial_sl": 1170.58,
       "trail_active": false
     },
     {
@@ -110,13 +74,50 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "SUNPHARMA.NS",
+      "bucket": "swing",
+      "side": "BUY",
+      "qty": 4,
+      "entry_price": 1890.2,
+      "sl": 1815.89,
+      "target": 2055.33,
+      "order_id": null,
+      "opened_at": "2026-05-19 13:14:49",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-05-29 16:29:46",
+      "exit_price": 1799.2,
+      "realised_pnl": -375.07,
+      "peak_price": 1894.7,
+      "initial_sl": 1815.89,
+      "trail_active": false
+    },
+    {
+      "symbol": "INFY.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 9,
+      "entry_price": 1199.5,
+      "sl": 1170.58,
+      "target": 1204.49,
+      "order_id": null,
+      "opened_at": "2026-05-29 13:14:50",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-05-29 16:29:46",
+      "exit_price": 1160.9,
+      "realised_pnl": -363.33,
+      "peak_price": 1199.5,
+      "initial_sl": 1170.58,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": -738.4,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": 942.03,
+  "cumulative_pnl": 203.63,
   "cumulative_wins": 41,
-  "cumulative_losses": 47,
+  "cumulative_losses": 49,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
