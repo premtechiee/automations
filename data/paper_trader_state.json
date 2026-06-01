@@ -38,24 +38,6 @@
       "trail_active": false
     },
     {
-      "symbol": "COALINDIA.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 25,
-      "entry_price": 474.0,
-      "sl": 459.05,
-      "target": 472.65,
-      "order_id": null,
-      "opened_at": "2026-06-01 14:38:54",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 474.0,
-      "initial_sl": 459.05,
-      "trail_active": false
-    },
-    {
       "symbol": "PERSISTENT.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -71,24 +53,6 @@
       "realised_pnl": 0.0,
       "peak_price": 5456.0,
       "initial_sl": 5288.07,
-      "trail_active": false
-    },
-    {
-      "symbol": "INFY.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 7,
-      "entry_price": 1205.7,
-      "sl": 1174.5,
-      "target": 1204.49,
-      "order_id": null,
-      "opened_at": "2026-06-01 14:38:54",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1205.7,
-      "initial_sl": 1174.5,
       "trail_active": false
     },
     {
@@ -110,13 +74,50 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "COALINDIA.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 25,
+      "entry_price": 474.0,
+      "sl": 459.05,
+      "target": 472.65,
+      "order_id": null,
+      "opened_at": "2026-06-01 14:38:54",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-06-01 14:55:57",
+      "exit_price": 472.75,
+      "realised_pnl": -49.0,
+      "peak_price": 474.0,
+      "initial_sl": 459.05,
+      "trail_active": false
+    },
+    {
+      "symbol": "INFY.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 7,
+      "entry_price": 1205.7,
+      "sl": 1174.5,
+      "target": 1204.49,
+      "order_id": null,
+      "opened_at": "2026-06-01 14:38:54",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-06-01 14:55:57",
+      "exit_price": 1205.2,
+      "realised_pnl": -16.16,
+      "peak_price": 1205.7,
+      "initial_sl": 1174.5,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": -65.16,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": 89.42,
+  "cumulative_pnl": 24.26,
   "cumulative_wins": 41,
-  "cumulative_losses": 52,
+  "cumulative_losses": 54,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
