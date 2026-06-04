@@ -69,26 +69,8 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 526.75,
+      "peak_price": 527.5,
       "initial_sl": 523.07,
-      "trail_active": false
-    },
-    {
-      "symbol": "BANKBARODA.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 35,
-      "entry_price": 269.95,
-      "sl": 265.37,
-      "target": 269.71,
-      "order_id": null,
-      "opened_at": "2026-06-04 13:41:35",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 269.95,
-      "initial_sl": 265.37,
       "trail_active": false
     },
     {
@@ -105,18 +87,37 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 481.8,
+      "peak_price": 482.4,
       "initial_sl": 468.59,
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "BANKBARODA.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 35,
+      "entry_price": 269.95,
+      "sl": 265.37,
+      "target": 269.71,
+      "order_id": null,
+      "opened_at": "2026-06-04 13:41:35",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-06-04 13:50:17",
+      "exit_price": 270.0,
+      "realised_pnl": -12.42,
+      "peak_price": 270.0,
+      "initial_sl": 265.37,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": -12.42,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -332.19,
+  "cumulative_pnl": -344.61,
   "cumulative_wins": 48,
-  "cumulative_losses": 60,
+  "cumulative_losses": 61,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
