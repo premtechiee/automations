@@ -33,26 +33,8 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 340.8,
+      "peak_price": 343.9,
       "initial_sl": 332.44,
-      "trail_active": false
-    },
-    {
-      "symbol": "CANBK.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 82,
-      "entry_price": 134.34,
-      "sl": 132.46,
-      "target": 135.23,
-      "order_id": null,
-      "opened_at": "2026-06-05 13:35:58",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 134.34,
-      "initial_sl": 132.46,
       "trail_active": false
     },
     {
@@ -69,7 +51,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 106.45,
+      "peak_price": 106.85,
       "initial_sl": 104.92,
       "trail_active": false
     },
@@ -79,7 +61,7 @@
       "side": "BUY",
       "qty": 5,
       "entry_price": 1482.3,
-      "sl": 1430.4,
+      "sl": 1513.49,
       "target": 1529.43,
       "order_id": null,
       "opened_at": "2026-06-05 13:35:58",
@@ -87,9 +69,9 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1482.3,
+      "peak_price": 1525.7,
       "initial_sl": 1430.4,
-      "trail_active": false
+      "trail_active": true
     }
   ],
   "closed_today": [
@@ -110,13 +92,31 @@
       "peak_price": 1317.0,
       "initial_sl": 1271.53,
       "trail_active": false
+    },
+    {
+      "symbol": "CANBK.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 82,
+      "entry_price": 134.34,
+      "sl": 132.46,
+      "target": 135.23,
+      "order_id": null,
+      "opened_at": "2026-06-05 13:35:58",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-06-05 16:50:13",
+      "exit_price": 135.81,
+      "realised_pnl": 103.93,
+      "peak_price": 135.81,
+      "initial_sl": 132.46,
+      "trail_active": false
     }
   ],
-  "realised_pnl": -259.69,
+  "realised_pnl": -155.76,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -581.37,
-  "cumulative_wins": 49,
+  "cumulative_pnl": -477.44,
+  "cumulative_wins": 50,
   "cumulative_losses": 64,
   "history": [
     {
