@@ -33,26 +33,8 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 981.3,
+      "peak_price": 981.95,
       "initial_sl": 970.92,
-      "trail_active": false
-    },
-    {
-      "symbol": "BANKINDIA.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 62,
-      "entry_price": 141.14,
-      "sl": 140.34,
-      "target": 145.8,
-      "order_id": null,
-      "opened_at": "2026-06-08 14:13:24",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 141.14,
-      "initial_sl": 140.34,
       "trail_active": false
     },
     {
@@ -128,14 +110,32 @@
       "peak_price": 1505.1,
       "initial_sl": 1455.33,
       "trail_active": false
+    },
+    {
+      "symbol": "BANKINDIA.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 62,
+      "entry_price": 141.14,
+      "sl": 140.34,
+      "target": 145.8,
+      "order_id": null,
+      "opened_at": "2026-06-08 14:13:24",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-06-08 18:16:15",
+      "exit_price": 140.08,
+      "realised_pnl": -78.8,
+      "peak_price": 141.14,
+      "initial_sl": 140.34,
+      "trail_active": false
     }
   ],
-  "realised_pnl": -431.82,
+  "realised_pnl": -510.62,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -586.72,
+  "cumulative_pnl": -665.52,
   "cumulative_wins": 54,
-  "cumulative_losses": 65,
+  "cumulative_losses": 66,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
