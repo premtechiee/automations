@@ -20,24 +20,6 @@
       "trail_active": false
     },
     {
-      "symbol": "TECHM.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 7,
-      "entry_price": 1502.0,
-      "sl": 1455.33,
-      "target": 1503.79,
-      "order_id": null,
-      "opened_at": "2026-06-08 14:13:24",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1502.0,
-      "initial_sl": 1455.33,
-      "trail_active": false
-    },
-    {
       "symbol": "SBIN.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -87,8 +69,26 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 5067.5,
+      "peak_price": 5068.0,
       "initial_sl": 4900.38,
+      "trail_active": false
+    },
+    {
+      "symbol": "COALINDIA.NS",
+      "bucket": "swing",
+      "side": "BUY",
+      "qty": 16,
+      "entry_price": 465.1,
+      "sl": 450.44,
+      "target": 516.69,
+      "order_id": null,
+      "opened_at": "2026-06-08 14:24:42",
+      "status": "OPEN",
+      "closed_at": null,
+      "exit_price": null,
+      "realised_pnl": 0.0,
+      "peak_price": 465.1,
+      "initial_sl": 450.44,
       "trail_active": false
     }
   ],
@@ -110,13 +110,31 @@
       "peak_price": 1142.3,
       "initial_sl": 1086.6,
       "trail_active": false
+    },
+    {
+      "symbol": "TECHM.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 7,
+      "entry_price": 1502.0,
+      "sl": 1455.33,
+      "target": 1503.79,
+      "order_id": null,
+      "opened_at": "2026-06-08 14:13:24",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-06-08 14:24:42",
+      "exit_price": 1505.1,
+      "realised_pnl": 5.91,
+      "peak_price": 1505.1,
+      "initial_sl": 1455.33,
+      "trail_active": false
     }
   ],
-  "realised_pnl": -437.73,
+  "realised_pnl": -431.82,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -592.63,
-  "cumulative_wins": 53,
+  "cumulative_pnl": -586.72,
+  "cumulative_wins": 54,
   "cumulative_losses": 65,
   "history": [
     {
