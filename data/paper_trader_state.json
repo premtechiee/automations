@@ -20,24 +20,6 @@
       "trail_active": false
     },
     {
-      "symbol": "BANKBARODA.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 50,
-      "entry_price": 270.6,
-      "sl": 265.37,
-      "target": 271.36,
-      "order_id": null,
-      "opened_at": "2026-06-09 13:05:58",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 270.6,
-      "initial_sl": 265.37,
-      "trail_active": false
-    },
-    {
       "symbol": "CANBK.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -51,7 +33,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 136.27,
+      "peak_price": 136.67,
       "initial_sl": 133.93,
       "trail_active": false
     },
@@ -69,7 +51,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 144.8,
+      "peak_price": 145.25,
       "initial_sl": 142.29,
       "trail_active": false
     },
@@ -87,7 +69,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 108.85,
+      "peak_price": 109.23,
       "initial_sl": 107.28,
       "trail_active": false
     },
@@ -105,17 +87,36 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 4509.9,
+      "peak_price": 4519.8,
       "initial_sl": 4379.12,
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "BANKBARODA.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 50,
+      "entry_price": 270.6,
+      "sl": 265.37,
+      "target": 271.36,
+      "order_id": null,
+      "opened_at": "2026-06-09 13:05:58",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-06-09 13:15:24",
+      "exit_price": 271.9,
+      "realised_pnl": 44.66,
+      "peak_price": 271.9,
+      "initial_sl": 265.37,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": 44.66,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -782.5,
-  "cumulative_wins": 54,
+  "cumulative_pnl": -737.84,
+  "cumulative_wins": 55,
   "cumulative_losses": 69,
   "history": [
     {
