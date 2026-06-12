@@ -15,7 +15,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 2284.1,
+      "peak_price": 2285.2,
       "initial_sl": 2249.0,
       "trail_active": false
     },
@@ -38,24 +38,6 @@
       "trail_active": false
     },
     {
-      "symbol": "BANKBARODA.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 45,
-      "entry_price": 273.3,
-      "sl": 265.61,
-      "target": 273.7,
-      "order_id": null,
-      "opened_at": "2026-06-12 13:45:01",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 273.3,
-      "initial_sl": 265.61,
-      "trail_active": false
-    },
-    {
       "symbol": "PIDILITIND.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -69,7 +51,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1534.7,
+      "peak_price": 1537.0,
       "initial_sl": 1502.41,
       "trail_active": false
     },
@@ -105,17 +87,36 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 167.71,
+      "peak_price": 167.74,
       "initial_sl": 160.56,
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "BANKBARODA.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 45,
+      "entry_price": 273.3,
+      "sl": 265.61,
+      "target": 273.7,
+      "order_id": null,
+      "opened_at": "2026-06-12 13:45:01",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-06-12 13:55:21",
+      "exit_price": 273.8,
+      "realised_pnl": 4.04,
+      "peak_price": 273.8,
+      "initial_sl": 265.61,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": 4.04,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -1443.5,
-  "cumulative_wins": 60,
+  "cumulative_pnl": -1439.46,
+  "cumulative_wins": 61,
   "cumulative_losses": 79,
   "history": [
     {
