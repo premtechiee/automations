@@ -15,7 +15,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 2285.2,
+      "peak_price": 2293.3,
       "initial_sl": 2249.0,
       "trail_active": false
     },
@@ -33,7 +33,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 4703.1,
+      "peak_price": 4709.7,
       "initial_sl": 4573.38,
       "trail_active": false
     },
@@ -56,30 +56,12 @@
       "trail_active": false
     },
     {
-      "symbol": "TITAN.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 2,
-      "entry_price": 4122.3,
-      "sl": 4032.74,
-      "target": 4161.66,
-      "order_id": null,
-      "opened_at": "2026-06-12 13:45:01",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 4122.3,
-      "initial_sl": 4032.74,
-      "trail_active": false
-    },
-    {
       "symbol": "GAIL.NS",
       "bucket": "swing",
       "side": "BUY",
       "qty": 47,
       "entry_price": 167.71,
-      "sl": 160.56,
+      "sl": 169.14,
       "target": 183.66,
       "order_id": null,
       "opened_at": "2026-06-12 13:45:01",
@@ -87,9 +69,9 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 167.74,
+      "peak_price": 170.5,
       "initial_sl": 160.56,
-      "trail_active": false
+      "trail_active": true
     }
   ],
   "closed_today": [
@@ -110,13 +92,31 @@
       "peak_price": 273.8,
       "initial_sl": 265.61,
       "trail_active": false
+    },
+    {
+      "symbol": "TITAN.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 2,
+      "entry_price": 4122.3,
+      "sl": 4150.53,
+      "target": 4161.66,
+      "order_id": null,
+      "opened_at": "2026-06-12 13:45:01",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-06-12 17:24:14",
+      "exit_price": 4184.0,
+      "realised_pnl": 110.94,
+      "peak_price": 4184.0,
+      "initial_sl": 4032.74,
+      "trail_active": true
     }
   ],
-  "realised_pnl": 4.04,
+  "realised_pnl": 114.98,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -1439.46,
-  "cumulative_wins": 61,
+  "cumulative_pnl": -1328.52,
+  "cumulative_wins": 62,
   "cumulative_losses": 79,
   "history": [
     {
