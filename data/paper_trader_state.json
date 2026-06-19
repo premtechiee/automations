@@ -7,7 +7,7 @@
       "side": "BUY",
       "qty": 3,
       "entry_price": 2281.0,
-      "sl": 2321.97,
+      "sl": 2322.27,
       "target": 2458.98,
       "order_id": null,
       "opened_at": "2026-06-11 14:15:53",
@@ -15,7 +15,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 2340.7,
+      "peak_price": 2341.0,
       "initial_sl": 2249.0,
       "trail_active": true
     },
@@ -33,7 +33,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 7237.5,
+      "peak_price": 7238.0,
       "initial_sl": 7066.49,
       "trail_active": false
     },
@@ -51,7 +51,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 544.7,
+      "peak_price": 545.3,
       "initial_sl": 526.01,
       "trail_active": false
     },
@@ -87,10 +87,12 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 59.06,
+      "peak_price": 59.14,
       "initial_sl": 57.09,
       "trail_active": false
-    },
+    }
+  ],
+  "closed_today": [
     {
       "symbol": "ICICIGI.NS",
       "bucket": "intraday",
@@ -101,22 +103,21 @@
       "target": 1859.07,
       "order_id": null,
       "opened_at": "2026-06-19 14:27:17",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-06-19 14:35:36",
+      "exit_price": 1860.8,
+      "realised_pnl": -19.17,
       "peak_price": 1862.8,
       "initial_sl": 1816.97,
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "realised_pnl": -19.17,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -1023.33,
+  "cumulative_pnl": -1042.5,
   "cumulative_wins": 69,
-  "cumulative_losses": 92,
+  "cumulative_losses": 93,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
