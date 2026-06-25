@@ -33,7 +33,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 3580.8,
+      "peak_price": 3582.3,
       "initial_sl": 3494.09,
       "trail_active": false
     },
@@ -51,26 +51,8 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 5433.1,
+      "peak_price": 5434.3,
       "initial_sl": 5294.49,
-      "trail_active": false
-    },
-    {
-      "symbol": "M&M.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 2,
-      "entry_price": 3191.0,
-      "sl": 3114.13,
-      "target": 3185.62,
-      "order_id": null,
-      "opened_at": "2026-06-25 13:02:06",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 3191.0,
-      "initial_sl": 3114.13,
       "trail_active": false
     },
     {
@@ -89,6 +71,24 @@
       "realised_pnl": 0.0,
       "peak_price": 4267.2,
       "initial_sl": 4090.64,
+      "trail_active": false
+    },
+    {
+      "symbol": "DMART.NS",
+      "bucket": "swing",
+      "side": "BUY",
+      "qty": 2,
+      "entry_price": 4305.3,
+      "sl": 4281.48,
+      "target": 4705.86,
+      "order_id": null,
+      "opened_at": "2026-06-25 13:11:28",
+      "status": "OPEN",
+      "closed_at": null,
+      "exit_price": null,
+      "realised_pnl": 0.0,
+      "peak_price": 4305.3,
+      "initial_sl": 4281.48,
       "trail_active": false
     }
   ],
@@ -110,13 +110,31 @@
       "peak_price": 2383.6,
       "initial_sl": 2249.0,
       "trail_active": true
+    },
+    {
+      "symbol": "M&M.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 2,
+      "entry_price": 3191.0,
+      "sl": 3114.13,
+      "target": 3185.62,
+      "order_id": null,
+      "opened_at": "2026-06-25 13:02:06",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-06-25 13:11:28",
+      "exit_price": 3198.4,
+      "realised_pnl": 5.22,
+      "peak_price": 3198.4,
+      "initial_sl": 3114.13,
+      "trail_active": false
     }
   ],
-  "realised_pnl": 231.05,
+  "realised_pnl": 236.27,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -1247.34,
-  "cumulative_wins": 74,
+  "cumulative_pnl": -1242.12,
+  "cumulative_wins": 75,
   "cumulative_losses": 105,
   "history": [
     {
