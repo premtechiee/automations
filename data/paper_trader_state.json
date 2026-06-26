@@ -54,7 +54,9 @@
       "peak_price": 4305.3,
       "initial_sl": 4281.48,
       "trail_active": false
-    },
+    }
+  ],
+  "closed_today": [
     {
       "symbol": "TVSMOTOR.NS",
       "bucket": "intraday",
@@ -65,10 +67,10 @@
       "target": 3594.8,
       "order_id": null,
       "opened_at": "2026-06-26 13:11:10",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
+      "status": "CLOSED_EOD",
+      "closed_at": "2026-06-26 17:44:38",
+      "exit_price": 3569.7,
+      "realised_pnl": -16.06,
       "peak_price": 3569.7,
       "initial_sl": 3483.19,
       "trail_active": false
@@ -83,10 +85,10 @@
       "target": 3185.62,
       "order_id": null,
       "opened_at": "2026-06-26 13:11:10",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
+      "status": "CLOSED_EOD",
+      "closed_at": "2026-06-26 17:44:38",
+      "exit_price": 3182.2,
+      "realised_pnl": -14.32,
       "peak_price": 3182.2,
       "initial_sl": 3103.54,
       "trail_active": false
@@ -101,22 +103,21 @@
       "target": 1885.38,
       "order_id": null,
       "opened_at": "2026-06-26 13:11:10",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
+      "status": "CLOSED_EOD",
+      "closed_at": "2026-06-26 17:44:38",
+      "exit_price": 1799.2,
+      "realised_pnl": -10.8,
       "peak_price": 1799.2,
       "initial_sl": 1751.66,
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "realised_pnl": -41.18,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -1274.03,
+  "cumulative_pnl": -1315.21,
   "cumulative_wins": 76,
-  "cumulative_losses": 106,
+  "cumulative_losses": 109,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
