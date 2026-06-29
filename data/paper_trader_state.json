@@ -15,7 +15,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 7048.5,
+      "peak_price": 7128.0,
       "initial_sl": 6922.22,
       "trail_active": false
     },
@@ -43,7 +43,7 @@
       "side": "BUY",
       "qty": 2,
       "entry_price": 4305.3,
-      "sl": 4281.48,
+      "sl": 4322.14,
       "target": 4705.86,
       "order_id": null,
       "opened_at": "2026-06-25 13:11:28",
@@ -51,27 +51,9 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 4341.2,
+      "peak_price": 4357.0,
       "initial_sl": 4281.48,
-      "trail_active": false
-    },
-    {
-      "symbol": "TORNTPHARM.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 2,
-      "entry_price": 4632.3,
-      "sl": 4524.72,
-      "target": 4656.67,
-      "order_id": null,
-      "opened_at": "2026-06-29 14:17:51",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 4634.6,
-      "initial_sl": 4524.72,
-      "trail_active": false
+      "trail_active": true
     },
     {
       "symbol": "DRREDDY.NS",
@@ -110,12 +92,31 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "TORNTPHARM.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 2,
+      "entry_price": 4632.3,
+      "sl": 4524.72,
+      "target": 4656.67,
+      "order_id": null,
+      "opened_at": "2026-06-29 14:17:51",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-06-29 18:16:23",
+      "exit_price": 4657.6,
+      "realised_pnl": 36.67,
+      "peak_price": 4657.6,
+      "initial_sl": 4524.72,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": 36.67,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -1315.21,
-  "cumulative_wins": 76,
+  "cumulative_pnl": -1278.54,
+  "cumulative_wins": 77,
   "cumulative_losses": 109,
   "history": [
     {
