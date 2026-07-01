@@ -69,26 +69,8 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 442.2,
+      "peak_price": 444.75,
       "initial_sl": 438.15,
-      "trail_active": false
-    },
-    {
-      "symbol": "NESTLEIND.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 6,
-      "entry_price": 1450.7,
-      "sl": 1420.63,
-      "target": 1451.99,
-      "order_id": null,
-      "opened_at": "2026-07-01 13:31:34",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1450.7,
-      "initial_sl": 1420.63,
       "trail_active": false
     },
     {
@@ -105,7 +87,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1187.4,
+      "peak_price": 1188.8,
       "initial_sl": 1170.42,
       "trail_active": false
     }
@@ -128,13 +110,31 @@
       "peak_price": 4380.7,
       "initial_sl": 4281.48,
       "trail_active": true
+    },
+    {
+      "symbol": "NESTLEIND.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 6,
+      "entry_price": 1450.7,
+      "sl": 1420.63,
+      "target": 1451.99,
+      "order_id": null,
+      "opened_at": "2026-07-01 13:31:34",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-07-01 16:54:18",
+      "exit_price": 1453.8,
+      "realised_pnl": 5.53,
+      "peak_price": 1453.8,
+      "initial_sl": 1420.63,
+      "trail_active": false
     }
   ],
-  "realised_pnl": 31.45,
+  "realised_pnl": 36.98,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -1405.46,
-  "cumulative_wins": 78,
+  "cumulative_pnl": -1399.93,
+  "cumulative_wins": 79,
   "cumulative_losses": 113,
   "history": [
     {
