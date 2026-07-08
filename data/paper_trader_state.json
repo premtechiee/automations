@@ -56,24 +56,6 @@
       "trail_active": false
     },
     {
-      "symbol": "INDUSINDBK.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 9,
-      "entry_price": 1020.5,
-      "sl": 995.86,
-      "target": 1069.23,
-      "order_id": null,
-      "opened_at": "2026-07-08 11:50:42",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1020.5,
-      "initial_sl": 995.86,
-      "trail_active": false
-    },
-    {
       "symbol": "ICICIGI.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -128,14 +110,32 @@
       "peak_price": 1375.7,
       "initial_sl": 1338.28,
       "trail_active": false
+    },
+    {
+      "symbol": "INDUSINDBK.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 9,
+      "entry_price": 1020.5,
+      "sl": 995.86,
+      "target": 1069.23,
+      "order_id": null,
+      "opened_at": "2026-07-08 11:50:42",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-07-08 16:04:55",
+      "exit_price": 994.65,
+      "realised_pnl": -246.25,
+      "peak_price": 1020.5,
+      "initial_sl": 995.86,
+      "trail_active": false
     }
   ],
-  "realised_pnl": -258.66,
+  "realised_pnl": -504.91,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -2023.66,
+  "cumulative_pnl": -2269.91,
   "cumulative_wins": 88,
-  "cumulative_losses": 124,
+  "cumulative_losses": 125,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
