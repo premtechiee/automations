@@ -56,24 +56,6 @@
       "trail_active": false
     },
     {
-      "symbol": "BAJAJFINSV.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 5,
-      "entry_price": 1890.2,
-      "sl": 1849.45,
-      "target": 1912.17,
-      "order_id": null,
-      "opened_at": "2026-07-09 12:57:03",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1895.7,
-      "initial_sl": 1849.45,
-      "trail_active": false
-    },
-    {
       "symbol": "INDUSINDBK.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -92,12 +74,31 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "BAJAJFINSV.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 5,
+      "entry_price": 1890.2,
+      "sl": 1900.67,
+      "target": 1912.17,
+      "order_id": null,
+      "opened_at": "2026-07-09 12:57:03",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-07-10 16:02:21",
+      "exit_price": 1916.0,
+      "realised_pnl": 114.73,
+      "peak_price": 1916.0,
+      "initial_sl": 1849.45,
+      "trail_active": true
+    }
+  ],
+  "realised_pnl": 114.73,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -2463.07,
-  "cumulative_wins": 89,
+  "cumulative_pnl": -2348.34,
+  "cumulative_wins": 90,
   "cumulative_losses": 128,
   "history": [
     {
