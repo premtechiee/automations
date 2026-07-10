@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-09",
+  "date": "2026-07-10",
   "open_trades": [
     {
       "symbol": "SHRIRAMFIN.NS",
@@ -92,27 +92,8 @@
       "trail_active": false
     }
   ],
-  "closed_today": [
-    {
-      "symbol": "TITAN.NS",
-      "bucket": "swing",
-      "side": "BUY",
-      "qty": 1,
-      "entry_price": 4267.2,
-      "sl": 4567.96,
-      "target": 4661.82,
-      "order_id": null,
-      "opened_at": "2026-06-25 13:02:06",
-      "status": "CLOSED_SL",
-      "closed_at": "2026-07-09 16:06:09",
-      "exit_price": 4555.8,
-      "realised_pnl": 281.98,
-      "peak_price": 4604.8,
-      "initial_sl": 4090.64,
-      "trail_active": true
-    }
-  ],
-  "realised_pnl": 281.98,
+  "closed_today": [],
+  "realised_pnl": 0.0,
   "halted": false,
   "halted_reason": "",
   "cumulative_pnl": -2463.07,
@@ -3988,6 +3969,24 @@
       "peak_price": 1825.0,
       "initial_sl": 1787.25,
       "trail_active": false
+    },
+    {
+      "symbol": "TITAN.NS",
+      "bucket": "swing",
+      "side": "BUY",
+      "qty": 1,
+      "entry_price": 4267.2,
+      "sl": 4567.96,
+      "target": 4661.82,
+      "order_id": null,
+      "opened_at": "2026-06-25 13:02:06",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-07-09 16:06:09",
+      "exit_price": 4555.8,
+      "realised_pnl": 281.98,
+      "peak_price": 4604.8,
+      "initial_sl": 4090.64,
+      "trail_active": true
     }
   ]
 }
