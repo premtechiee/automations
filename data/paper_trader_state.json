@@ -51,26 +51,8 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 7792.5,
+      "peak_price": 7808.5,
       "initial_sl": 7553.44,
-      "trail_active": false
-    },
-    {
-      "symbol": "SIEMENS.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 3,
-      "entry_price": 3690.6,
-      "sl": 3621.4,
-      "target": 3717.05,
-      "order_id": null,
-      "opened_at": "2026-07-16 11:39:43",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 3690.6,
-      "initial_sl": 3621.4,
       "trail_active": false
     },
     {
@@ -87,7 +69,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 2866.7,
+      "peak_price": 2870.0,
       "initial_sl": 2794.06,
       "trail_active": false
     },
@@ -105,17 +87,36 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 510.8,
+      "peak_price": 511.3,
       "initial_sl": 495.79,
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "SIEMENS.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 3,
+      "entry_price": 3690.6,
+      "sl": 3621.4,
+      "target": 3717.05,
+      "order_id": null,
+      "opened_at": "2026-07-16 11:39:43",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-07-16 11:48:36",
+      "exit_price": 3723.1,
+      "realised_pnl": 80.82,
+      "peak_price": 3723.1,
+      "initial_sl": 3621.4,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": 80.82,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -3350.1,
-  "cumulative_wins": 92,
+  "cumulative_pnl": -3269.28,
+  "cumulative_wins": 93,
   "cumulative_losses": 143,
   "history": [
     {
