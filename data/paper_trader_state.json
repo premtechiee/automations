@@ -74,24 +74,6 @@
       "trail_active": false
     },
     {
-      "symbol": "BAJFINANCE.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 8,
-      "entry_price": 1051.1,
-      "sl": 1026.04,
-      "target": 1050.79,
-      "order_id": null,
-      "opened_at": "2026-07-17 11:40:12",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1051.1,
-      "initial_sl": 1026.04,
-      "trail_active": false
-    },
-    {
       "symbol": "HCLTECH.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -110,13 +92,32 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "BAJFINANCE.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 8,
+      "entry_price": 1051.1,
+      "sl": 1026.04,
+      "target": 1050.79,
+      "order_id": null,
+      "opened_at": "2026-07-17 11:40:12",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-07-17 11:44:56",
+      "exit_price": 1051.1,
+      "realised_pnl": -12.61,
+      "peak_price": 1051.1,
+      "initial_sl": 1026.04,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": -12.61,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -3385.63,
+  "cumulative_pnl": -3398.24,
   "cumulative_wins": 95,
-  "cumulative_losses": 145,
+  "cumulative_losses": 146,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
