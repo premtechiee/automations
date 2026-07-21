@@ -1,0 +1,2227 @@
+{
+  "generated_at": "2026-07-21T06:27:04",
+  "buckets": {
+    "intraday": [
+      {
+        "symbol": "INDUSINDBK.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1059.8499755859375,
+        "tech": {
+          "price": 1059.8499755859375,
+          "chg_1d_pct": 3.1785461415583027,
+          "chg_5d_pct": 4.635200912255311,
+          "chg_1m_pct": 11.863418853842944,
+          "chg_3m_pct": 24.402835894130458,
+          "ema20": 988.8326360011984,
+          "ema50": 949.7425514856474,
+          "ema200": 904.447155960207,
+          "rsi14": 72.2003599773985,
+          "macd": 29.80263015410685,
+          "macd_sig": 24.779243130278704,
+          "macd_hist": 5.023387023828146,
+          "atr14": 25.261249907078057,
+          "atr_pct": 2.3834741226570664,
+          "bb_low": 882.1015748061931,
+          "bb_high": 1072.7134215316976,
+          "vol_ratio": 1.1574501109101878,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 992.0,
+          "resistance": 1112.84,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 1022.8,
+          "pivot_r1": 1035.6,
+          "pivot_s1": 1014.4
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 60,
+          "score": 1.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Overbought \u2014 likely short-term pullback",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 59.0,
+        "bucket_score": 131.9,
+        "levels": {
+          "entry": 1059.85,
+          "sl": 1034.59,
+          "target": 1110.61,
+          "support": 992.0,
+          "resistance": 1112.84,
+          "expected_profit_pct": 4.79,
+          "risk_pct": 2.38,
+          "rr": 2.01,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            1034.59,
+            1085.11
+          ],
+          "forecast_3d": [
+            1016.91,
+            1102.79
+          ],
+          "forecast_5d": [
+            1004.28,
+            1115.42
+          ]
+        }
+      },
+      {
+        "symbol": "ULTRACEMCO.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 11986.0,
+        "tech": {
+          "price": 11986.0,
+          "chg_1d_pct": 0.6973032008737334,
+          "chg_5d_pct": 4.262352122477386,
+          "chg_1m_pct": 5.121908437116285,
+          "chg_3m_pct": -0.4402358999916922,
+          "ema20": 11626.442258210664,
+          "ema50": 11546.28903980655,
+          "ema200": 11765.072580645161,
+          "rsi14": 62.543021415137325,
+          "macd": 124.26911940700484,
+          "macd_sig": 83.30429295736815,
+          "macd_hist": 40.96482644963669,
+          "atr14": 216.4529810092276,
+          "atr_pct": 1.8058817037312498,
+          "bb_low": 11206.952226321486,
+          "bb_high": 11980.647773678513,
+          "vol_ratio": 2.0221023079492966,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 11355.0,
+          "resistance": 12275.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 11852.0,
+          "pivot_r1": 12052.0,
+          "pivot_s1": 11703.0
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 70,
+          "score": 2.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume is 2.0\u00d7 the usual \u2014 strong interest",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 63.5,
+        "bucket_score": 129.2,
+        "levels": {
+          "entry": 11986.0,
+          "sl": 11769.55,
+          "target": 12250.45,
+          "support": 11355.0,
+          "resistance": 12275.0,
+          "expected_profit_pct": 2.21,
+          "risk_pct": 1.81,
+          "rr": 1.22,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            11769.55,
+            12202.45
+          ],
+          "forecast_3d": [
+            11618.03,
+            12353.97
+          ],
+          "forecast_5d": [
+            11509.8,
+            12462.2
+          ]
+        }
+      },
+      {
+        "symbol": "TORNTPHARM.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 5002.7001953125,
+        "tech": {
+          "price": 5002.7001953125,
+          "chg_1d_pct": 5.032546615840849,
+          "chg_5d_pct": 1.0421945959177226,
+          "chg_1m_pct": 12.932873174511661,
+          "chg_3m_pct": 19.361995661948896,
+          "ema20": 4798.369203955555,
+          "ema50": 4614.591479261925,
+          "ema200": 4347.947160426194,
+          "rsi14": 65.3622947672417,
+          "macd": 123.64944369227214,
+          "macd_sig": 117.89933386334374,
+          "macd_hist": 5.750109828928402,
+          "atr14": 136.8937980164464,
+          "atr_pct": 2.7363981984112313,
+          "bb_low": 4411.06714524183,
+          "bb_high": 5132.962932883171,
+          "vol_ratio": 0.156100215160568,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 4778.8,
+          "resistance": 5252.84,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 4797.0,
+          "pivot_r1": 4898.9,
+          "pivot_s1": 4661.1
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 80,
+          "score": 3.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 122.3,
+        "levels": {
+          "entry": 5002.7,
+          "sl": 4865.81,
+          "target": 5242.33,
+          "support": 4778.8,
+          "resistance": 5252.84,
+          "expected_profit_pct": 4.79,
+          "risk_pct": 2.74,
+          "rr": 1.75,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            4865.81,
+            5139.59
+          ],
+          "forecast_3d": [
+            4769.98,
+            5235.42
+          ],
+          "forecast_5d": [
+            4701.53,
+            5303.87
+          ]
+        }
+      },
+      {
+        "symbol": "HAVELLS.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1213.9000244140625,
+        "tech": {
+          "price": 1213.9000244140625,
+          "chg_1d_pct": 2.240375178304088,
+          "chg_5d_pct": 2.9776021489676063,
+          "chg_1m_pct": 3.1964612790245095,
+          "chg_3m_pct": -6.773669674034477,
+          "ema20": 1186.5278210208296,
+          "ema50": 1196.4478579463298,
+          "ema200": 1257.9195149739583,
+          "rsi14": 57.823058541193056,
+          "macd": 2.055210191153037,
+          "macd_sig": 0.24130784183720747,
+          "macd_hist": 1.8139023493158297,
+          "atr14": 29.58778918954521,
+          "atr_pct": 2.437415651575338,
+          "bb_low": 1152.3138738934858,
+          "bb_high": 1217.5261651690143,
+          "vol_ratio": 0.5353841693203698,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": [],
+          "filings_seen": 1
+        },
+        "patterns": [
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 1176.3,
+          "resistance": 1218.2,
+          "support_strength": 1,
+          "resistance_strength": 2,
+          "pivot_p": 1174.2,
+          "pivot_r1": 1207.2,
+          "pivot_s1": 1154.3
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 60,
+          "score": 1.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Candle pattern suggests buyers in control",
+            "Price near resistance \u20b91218.20 \u2014 may struggle to break above"
+          ]
+        },
+        "filings": [
+          {
+            "symbol": "HAVELLS",
+            "subject": "Analysts/Institutional Investor Meet/Con. Call Updates",
+            "date": "21-Jul-2026 11:09:32"
+          }
+        ],
+        "option_chain": {},
+        "composite": 59.0,
+        "bucket_score": 119.8,
+        "levels": {
+          "entry": 1213.9,
+          "sl": 1184.31,
+          "target": 1215.76,
+          "support": 1176.3,
+          "resistance": 1218.2,
+          "expected_profit_pct": 0.15,
+          "risk_pct": 2.44,
+          "rr": 0.06,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            1184.31,
+            1243.49
+          ],
+          "forecast_3d": [
+            1163.6,
+            1264.2
+          ],
+          "forecast_5d": [
+            1148.81,
+            1278.99
+          ]
+        }
+      },
+      {
+        "symbol": "UPL.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 618.0,
+        "tech": {
+          "price": 618.0,
+          "chg_1d_pct": 1.9717865601398987,
+          "chg_5d_pct": 4.189492466174194,
+          "chg_1m_pct": 2.064409578860449,
+          "chg_3m_pct": -5.54791203885131,
+          "ema20": 603.1332089095042,
+          "ema50": 612.6416958244652,
+          "ema200": 642.7504011584866,
+          "rsi14": 55.48800495713827,
+          "macd": -0.01689709731556377,
+          "macd_sig": -4.599135914951802,
+          "macd_hist": 4.582238817636238,
+          "atr14": 16.23945644278282,
+          "atr_pct": 2.627743760968094,
+          "bb_low": 562.1709426681115,
+          "bb_high": 627.5840561111853,
+          "vol_ratio": 0.5804758289298092,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 592.25,
+          "resistance": 629.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 608.3,
+          "pivot_r1": 611.6,
+          "pivot_s1": 602.75
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 60,
+          "score": 1.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 59.0,
+        "bucket_score": 119.6,
+        "levels": {
+          "entry": 618.0,
+          "sl": 601.76,
+          "target": 627.74,
+          "support": 592.25,
+          "resistance": 629.0,
+          "expected_profit_pct": 1.58,
+          "risk_pct": 2.63,
+          "rr": 0.6,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            601.76,
+            634.24
+          ],
+          "forecast_3d": [
+            590.39,
+            645.61
+          ],
+          "forecast_5d": [
+            582.27,
+            653.73
+          ]
+        }
+      }
+    ],
+    "swing": [
+      {
+        "symbol": "SHREECEM.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 26980.0,
+        "tech": {
+          "price": 26980.0,
+          "chg_1d_pct": 1.7537243069960295,
+          "chg_5d_pct": 2.1196063588190706,
+          "chg_1m_pct": 7.597208374875364,
+          "chg_3m_pct": 5.845429580227535,
+          "ema20": 26209.635521301298,
+          "ema50": 25618.909018308266,
+          "ema200": 25287.72357723577,
+          "rsi14": 60.94249891004289,
+          "macd": 464.4692703031287,
+          "macd_sig": 435.55597915981303,
+          "macd_hist": 28.91329114331569,
+          "atr14": 573.8429355356434,
+          "atr_pct": 2.126919701762948,
+          "bb_low": 25006.23133378496,
+          "bb_high": 27409.26866621504,
+          "vol_ratio": 0.27493151615313216,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 25805.0,
+          "resistance": 28329.0,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 26636.67,
+          "pivot_r1": 26873.33,
+          "pivot_s1": 26278.33
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 90,
+          "score": 4.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 95.9,
+        "levels": {
+          "entry": 26980.0,
+          "sl": 25947.08,
+          "target": 29275.37,
+          "support": 25805.0,
+          "resistance": 28329.0,
+          "expected_profit_pct": 8.51,
+          "risk_pct": 3.83,
+          "rr": 2.22,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            26406.16,
+            27553.84
+          ],
+          "forecast_3d": [
+            26004.47,
+            27955.53
+          ],
+          "forecast_5d": [
+            25717.55,
+            28242.45
+          ]
+        }
+      },
+      {
+        "symbol": "HAL.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 4470.2998046875,
+        "tech": {
+          "price": 4470.2998046875,
+          "chg_1d_pct": -0.6754591353732464,
+          "chg_5d_pct": -0.9088289800070148,
+          "chg_1m_pct": 1.4110320921324249,
+          "chg_3m_pct": 2.8956106499597123,
+          "ema20": 4426.071224314628,
+          "ema50": 4376.092824740495,
+          "ema200": 4241.56828990409,
+          "rsi14": 55.361677576851584,
+          "macd": 29.23370624500967,
+          "macd_sig": 25.874792714886407,
+          "macd_hist": 3.3589135301232638,
+          "atr14": 89.48702173144872,
+          "atr_pct": 2.001812532519939,
+          "bb_low": 4319.335890399422,
+          "bb_high": 4530.474070538078,
+          "vol_ratio": 0.20341601036918172,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 75.0,
+          "matched": 2,
+          "pos": 3,
+          "neg": 1,
+          "categories": {
+            "earnings": {
+              "pos": 2,
+              "neg": 0,
+              "score": 100.0
+            },
+            "corp_action": {
+              "pos": 1,
+              "neg": 0,
+              "score": 100.0
+            }
+          },
+          "samples": [
+            "Deloitte projects 6.5-6.8% GDP expansion in FY27, growth to strengthen in second half",
+            "Buy or sell: Vaishali Parekh recommends three intraday stocks to buy today \u2014 21 July 2026"
+          ]
+        },
+        "patterns": [],
+        "sr": {
+          "support": 4305.8,
+          "resistance": 4474.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 4478.97,
+          "pivot_r1": 4531.13,
+          "pivot_s1": 4448.53
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 5.1,
+          "macro_bias": 0,
+          "senti_bias": 2.1,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Price near resistance \u20b94474.00 \u2014 may struggle to break above",
+            "Positive earnings news (+2/-0)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 69.5,
+        "bucket_score": 94.7,
+        "levels": {
+          "entry": 4470.3,
+          "sl": 4309.22,
+          "target": 4828.25,
+          "support": 4305.8,
+          "resistance": 4474.0,
+          "expected_profit_pct": 8.01,
+          "risk_pct": 3.6,
+          "rr": 2.22,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            4380.81,
+            4559.79
+          ],
+          "forecast_3d": [
+            4318.17,
+            4622.43
+          ],
+          "forecast_5d": [
+            4273.43,
+            4667.17
+          ]
+        }
+      },
+      {
+        "symbol": "BAJAJ-AUTO.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 10485.5,
+        "tech": {
+          "price": 10485.5,
+          "chg_1d_pct": -0.35162746495605024,
+          "chg_5d_pct": 3.1428290379696966,
+          "chg_1m_pct": 2.8898047296634255,
+          "chg_3m_pct": 7.071377514551203,
+          "ema20": 10211.25596513245,
+          "ema50": 10113.748031323865,
+          "ema200": 9845.33064516129,
+          "rsi14": 62.01110835307729,
+          "macd": 102.65339700052391,
+          "macd_sig": 41.46196849923372,
+          "macd_hist": 61.19142850129019,
+          "atr14": 198.3493044424514,
+          "atr_pct": 1.8916532777879107,
+          "bb_low": 9518.302171869336,
+          "bb_high": 10635.697828130664,
+          "vol_ratio": 0.2394471359330188,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 3,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": [
+            "Bajaj Auto Q1 results 2026 LIVE: Here's what brokerages expect from the automaker's earnings",
+            "Q1 results 2026: Bajaj Auto to Adani Energy among companies to declare Q1 results today; full list here",
+            "Stocks to watch: Bajaj Auto, Adani Energy, Paytm among shares in focus today; check list here"
+          ]
+        },
+        "patterns": [],
+        "sr": {
+          "support": 10078.5,
+          "resistance": 10785.0,
+          "support_strength": 1,
+          "resistance_strength": 2,
+          "pivot_p": 10486.33,
+          "pivot_r1": 10571.17,
+          "pivot_s1": 10437.67
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 90,
+          "score": 4.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 65.8,
+        "bucket_score": 93.8,
+        "levels": {
+          "entry": 10485.5,
+          "sl": 10128.47,
+          "target": 11278.9,
+          "support": 10078.5,
+          "resistance": 10785.0,
+          "expected_profit_pct": 7.57,
+          "risk_pct": 3.4,
+          "rr": 2.22,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            10287.15,
+            10683.85
+          ],
+          "forecast_3d": [
+            10148.31,
+            10822.69
+          ],
+          "forecast_5d": [
+            10049.13,
+            10921.87
+          ]
+        }
+      },
+      {
+        "symbol": "BHEL.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 413.75,
+        "tech": {
+          "price": 413.75,
+          "chg_1d_pct": -0.8982035928143728,
+          "chg_5d_pct": 2.4387240040513847,
+          "chg_1m_pct": 0.5467800729040073,
+          "chg_3m_pct": 24.39494249178178,
+          "ema20": 405.82880004048235,
+          "ema50": 391.11532769036484,
+          "ema200": 332.5067750253985,
+          "rsi14": 54.996385453497346,
+          "macd": 6.282202210121284,
+          "macd_sig": 4.0288642340700624,
+          "macd_hist": 2.2533379760512213,
+          "atr14": 15.247061905447586,
+          "atr_pct": 3.6850904907426187,
+          "bb_low": 371.8275047477118,
+          "bb_high": 435.5575019661553,
+          "vol_ratio": 0.20199274943719492,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 393.85,
+          "resistance": 417.9,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 419.72,
+          "pivot_r1": 425.03,
+          "pivot_s1": 412.18
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 90,
+          "score": 4.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 65.8,
+        "bucket_score": 93.4,
+        "levels": {
+          "entry": 413.75,
+          "sl": 391.88,
+          "target": 474.74,
+          "support": 393.85,
+          "resistance": 417.9,
+          "expected_profit_pct": 14.74,
+          "risk_pct": 5.29,
+          "rr": 2.79,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            398.5,
+            429.0
+          ],
+          "forecast_3d": [
+            387.83,
+            439.67
+          ],
+          "forecast_5d": [
+            380.21,
+            447.29
+          ]
+        }
+      },
+      {
+        "symbol": "EICHERMOT.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 7600.0,
+        "tech": {
+          "price": 7600.0,
+          "chg_1d_pct": 0.4825808157598921,
+          "chg_5d_pct": 4.159528541081348,
+          "chg_1m_pct": -0.14452765733806716,
+          "chg_3m_pct": 4.928896865939536,
+          "ema20": 7413.117452518122,
+          "ema50": 7341.741820516709,
+          "ema200": 7283.154471544715,
+          "rsi14": 59.942455557430236,
+          "macd": 38.88746619432641,
+          "macd_sig": 25.877629087271117,
+          "macd_hist": 13.00983710705529,
+          "atr14": 152.72273654393615,
+          "atr_pct": 2.009509691367581,
+          "bb_low": 7104.594872561375,
+          "bb_high": 7724.305127438624,
+          "vol_ratio": 0.1914034471269583,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 7140.0,
+          "resistance": 7603.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 7529.5,
+          "pivot_r1": 7609.0,
+          "pivot_s1": 7484.0
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 80,
+          "score": 3.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Price near resistance \u20b97603.00 \u2014 may struggle to break above",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 65.8,
+        "bucket_score": 92.5,
+        "levels": {
+          "entry": 7600.0,
+          "sl": 7325.1,
+          "target": 8210.89,
+          "support": 7140.0,
+          "resistance": 7603.0,
+          "expected_profit_pct": 8.04,
+          "risk_pct": 3.62,
+          "rr": 2.22,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            7447.28,
+            7752.72
+          ],
+          "forecast_3d": [
+            7340.37,
+            7859.63
+          ],
+          "forecast_5d": [
+            7264.01,
+            7935.99
+          ]
+        }
+      }
+    ],
+    "holding": [
+      {
+        "symbol": "INDIGO.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 5282.0,
+        "tech": {
+          "price": 5282.0,
+          "chg_1d_pct": 0.6382776031246928,
+          "chg_5d_pct": 1.003920068840225,
+          "chg_1m_pct": 5.1876929204421,
+          "chg_3m_pct": 13.875476699002242,
+          "ema20": 5193.071622444386,
+          "ema50": 4961.673152063765,
+          "ema200": 4671.85000760438,
+          "rsi14": 57.48151196212474,
+          "macd": 101.86536900568899,
+          "macd_sig": 138.51549525913498,
+          "macd_hist": -36.65012625344599,
+          "atr14": 123.12589296292641,
+          "atr_pct": 2.3310468186847104,
+          "bb_low": 5023.344120220134,
+          "bb_high": 5556.175899311116,
+          "vol_ratio": 0.27529175948500334,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 100.0,
+          "matched": 4,
+          "pos": 2,
+          "neg": 0,
+          "categories": {
+            "earnings": {
+              "pos": 1,
+              "neg": 0,
+              "score": 100.0
+            },
+            "corp_action": {
+              "pos": 1,
+              "neg": 0,
+              "score": 100.0
+            }
+          },
+          "samples": [
+            "IndiGo shares in focus on MoU with CFM International for over 1,000 LEAP engines",
+            "IndiGo to place order for over 1,000 aircraft engines with CFM International",
+            "IndiGo selects Honeywell Aerospace's avionics, power systems for 810 A320 neo family planes"
+          ]
+        },
+        "patterns": [],
+        "sr": {
+          "support": 5094.0,
+          "resistance": 5464.9,
+          "support_strength": 1,
+          "resistance_strength": 2,
+          "pivot_p": 5260.17,
+          "pivot_r1": 5295.33,
+          "pivot_s1": 5213.33
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 83,
+          "score": 3.35,
+          "macro_bias": 0,
+          "senti_bias": 1.35,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum fading (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Positive earnings news (+1/-0)",
+            "Positive corp action news (+1/-0)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 71.0,
+        "bucket_score": 61.0,
+        "levels": {
+          "entry": 5282.0,
+          "sl": 5068.53,
+          "target": 6602.5,
+          "support": 5094.0,
+          "resistance": 5464.9,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 4.04,
+          "rr": 6.19,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            5158.87,
+            5405.13
+          ],
+          "forecast_3d": [
+            5072.69,
+            5491.31
+          ],
+          "forecast_5d": [
+            5011.12,
+            5552.88
+          ]
+        }
+      },
+      {
+        "symbol": "HAL.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 4470.2998046875,
+        "tech": {
+          "price": 4470.2998046875,
+          "chg_1d_pct": -0.6754591353732464,
+          "chg_5d_pct": -0.9088289800070148,
+          "chg_1m_pct": 1.4110320921324249,
+          "chg_3m_pct": 2.8956106499597123,
+          "ema20": 4426.071224314628,
+          "ema50": 4376.092824740495,
+          "ema200": 4241.56828990409,
+          "rsi14": 55.361677576851584,
+          "macd": 29.23370624500967,
+          "macd_sig": 25.874792714886407,
+          "macd_hist": 3.3589135301232638,
+          "atr14": 89.48702173144872,
+          "atr_pct": 2.001812532519939,
+          "bb_low": 4319.335890399422,
+          "bb_high": 4530.474070538078,
+          "vol_ratio": 0.20341601036918172,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 75.0,
+          "matched": 2,
+          "pos": 3,
+          "neg": 1,
+          "categories": {
+            "earnings": {
+              "pos": 2,
+              "neg": 0,
+              "score": 100.0
+            },
+            "corp_action": {
+              "pos": 1,
+              "neg": 0,
+              "score": 100.0
+            }
+          },
+          "samples": [
+            "Deloitte projects 6.5-6.8% GDP expansion in FY27, growth to strengthen in second half",
+            "Buy or sell: Vaishali Parekh recommends three intraday stocks to buy today \u2014 21 July 2026"
+          ]
+        },
+        "patterns": [],
+        "sr": {
+          "support": 4305.8,
+          "resistance": 4474.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 4478.97,
+          "pivot_r1": 4531.13,
+          "pivot_s1": 4448.53
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 5.1,
+          "macro_bias": 0,
+          "senti_bias": 2.1,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Price near resistance \u20b94474.00 \u2014 may struggle to break above",
+            "Positive earnings news (+2/-0)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 69.5,
+        "bucket_score": 59.5,
+        "levels": {
+          "entry": 4470.3,
+          "sl": 4284.27,
+          "target": 5587.87,
+          "support": 4305.8,
+          "resistance": 4474.0,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 4.16,
+          "rr": 6.01,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            4380.81,
+            4559.79
+          ],
+          "forecast_3d": [
+            4318.17,
+            4622.43
+          ],
+          "forecast_5d": [
+            4273.43,
+            4667.17
+          ]
+        }
+      },
+      {
+        "symbol": "SUNPHARMA.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1957.0,
+        "tech": {
+          "price": 1957.0,
+          "chg_1d_pct": 1.262549142207492,
+          "chg_5d_pct": 1.8528143610695436,
+          "chg_1m_pct": 6.457049884078692,
+          "chg_3m_pct": 17.283952333319984,
+          "ema20": 1906.998969132684,
+          "ema50": 1860.798281091893,
+          "ema200": 1782.8325244934579,
+          "rsi14": 67.36578434203741,
+          "macd": 30.761562721649852,
+          "macd_sig": 27.796176312727237,
+          "macd_hist": 2.9653864089226154,
+          "atr14": 30.143906451174075,
+          "atr_pct": 1.5403120312301521,
+          "bb_low": 1834.492075830931,
+          "bb_high": 1973.6179339346938,
+          "vol_ratio": 0.23044322345153537,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Hammer (bullish reversal)"
+        ],
+        "sr": {
+          "support": 1855.9,
+          "resistance": 1962.7,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 1935.9,
+          "pivot_r1": 1949.3,
+          "pivot_s1": 1919.2
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 80,
+          "score": 3.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Candle pattern suggests buyers in control",
+            "Price near resistance \u20b91962.70 \u2014 may struggle to break above",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 58.0,
+        "levels": {
+          "entry": 1957.0,
+          "sl": 1846.62,
+          "target": 2446.25,
+          "support": 1855.9,
+          "resistance": 1962.7,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 5.64,
+          "rr": 4.43,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            1926.86,
+            1987.14
+          ],
+          "forecast_3d": [
+            1905.76,
+            2008.24
+          ],
+          "forecast_5d": [
+            1890.68,
+            2023.32
+          ]
+        }
+      },
+      {
+        "symbol": "SRF.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 2921.39990234375,
+        "tech": {
+          "price": 2921.39990234375,
+          "chg_1d_pct": 1.7306805034277284,
+          "chg_5d_pct": 6.430106972181182,
+          "chg_1m_pct": 7.3767763727649704,
+          "chg_3m_pct": 18.227434332001224,
+          "ema20": 2796.1695035487573,
+          "ema50": 2737.828316002571,
+          "ema200": 2665.6983839465724,
+          "rsi14": 65.5137638115028,
+          "macd": 41.84981765544853,
+          "macd_sig": 28.441454349361763,
+          "macd_hist": 13.40836330608677,
+          "atr14": 67.55179330115081,
+          "atr_pct": 2.312309014830735,
+          "bb_low": 2651.6271574636266,
+          "bb_high": 2915.4328034738737,
+          "vol_ratio": 0.3951121432690659,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 2716.0,
+          "resistance": 3067.47,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 2870.73,
+          "pivot_r1": 2895.57,
+          "pivot_s1": 2846.87
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 90,
+          "score": 4.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Candle pattern suggests buyers in control",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 58.0,
+        "levels": {
+          "entry": 2921.4,
+          "sl": 2702.42,
+          "target": 3651.75,
+          "support": 2716.0,
+          "resistance": 3067.47,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 7.5,
+          "rr": 3.34,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            2853.85,
+            2988.95
+          ],
+          "forecast_3d": [
+            2806.56,
+            3036.24
+          ],
+          "forecast_5d": [
+            2772.79,
+            3070.01
+          ]
+        }
+      },
+      {
+        "symbol": "SHREECEM.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 26980.0,
+        "tech": {
+          "price": 26980.0,
+          "chg_1d_pct": 1.7537243069960295,
+          "chg_5d_pct": 2.1196063588190706,
+          "chg_1m_pct": 7.597208374875364,
+          "chg_3m_pct": 5.845429580227535,
+          "ema20": 26209.635521301298,
+          "ema50": 25618.909018308266,
+          "ema200": 25287.72357723577,
+          "rsi14": 60.94249891004289,
+          "macd": 464.4692703031287,
+          "macd_sig": 435.55597915981303,
+          "macd_hist": 28.91329114331569,
+          "atr14": 573.8429355356434,
+          "atr_pct": 2.126919701762948,
+          "bb_low": 25006.23133378496,
+          "bb_high": 27409.26866621504,
+          "vol_ratio": 0.27493151615313216,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 25805.0,
+          "resistance": 28329.0,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 26636.67,
+          "pivot_r1": 26873.33,
+          "pivot_s1": 26278.33
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 90,
+          "score": 4.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 58.0,
+        "levels": {
+          "entry": 26980.0,
+          "sl": 25675.97,
+          "target": 33725.0,
+          "support": 25805.0,
+          "resistance": 28329.0,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 4.83,
+          "rr": 5.17,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            26406.16,
+            27553.84
+          ],
+          "forecast_3d": [
+            26004.47,
+            27955.53
+          ],
+          "forecast_5d": [
+            25717.55,
+            28242.45
+          ]
+        }
+      }
+    ],
+    "sell": [
+      {
+        "symbol": "SUZLON.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 53.119998931884766,
+        "tech": {
+          "price": 53.119998931884766,
+          "chg_1d_pct": 0.05650551744331711,
+          "chg_5d_pct": 1.2387987346285323,
+          "chg_1m_pct": -10.436692460091201,
+          "chg_3m_pct": 0.037665646588336266,
+          "ema20": 54.25233603656564,
+          "ema50": 54.24831250917296,
+          "ema200": 50.12467744273524,
+          "rsi14": 41.82990345385036,
+          "macd": -0.9726252131869231,
+          "macd_sig": -0.6516842585624931,
+          "macd_hist": -0.32094095462442995,
+          "atr14": 1.3462555212307612,
+          "atr_pct": 2.5343666195420127,
+          "bb_low": 50.224787911933475,
+          "bb_high": 59.77721175237316,
+          "vol_ratio": 0.28555943335921324,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Doji (indecision)"
+        ],
+        "sr": {
+          "support": 53.07,
+          "resistance": 54.51,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 52.66,
+          "pivot_r1": 53.72,
+          "pivot_s1": 52.04
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 60,
+          "score": -1.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Price near support \u20b953.07 \u2014 good risk:reward if it holds",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 50.0,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 53.12,
+          "sl": 52.8,
+          "target": 66.4,
+          "support": 53.07,
+          "resistance": 54.51,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 0.59,
+          "rr": 42.11,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            51.77,
+            54.47
+          ],
+          "forecast_3d": [
+            50.83,
+            55.41
+          ],
+          "forecast_5d": [
+            50.16,
+            56.08
+          ]
+        }
+      },
+      {
+        "symbol": "POLYCAB.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 8845.0,
+        "tech": {
+          "price": 8845.0,
+          "chg_1d_pct": -0.19183028661701185,
+          "chg_5d_pct": -4.95889969376242,
+          "chg_1m_pct": -12.278091837746707,
+          "chg_3m_pct": 7.885588827224499,
+          "ema20": 9344.27216713009,
+          "ema50": 9245.177506604363,
+          "ema200": 8430.90650406504,
+          "rsi14": 35.90876975574638,
+          "macd": -127.17146181660792,
+          "macd_sig": -44.06812998158753,
+          "macd_hist": -83.10333183502038,
+          "atr14": 253.209953950016,
+          "atr_pct": 2.8627467942342113,
+          "bb_low": 8820.731938347757,
+          "bb_high": 10069.368061652242,
+          "vol_ratio": 0.24002963242514141,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 8402.75,
+          "resistance": 9632.5,
+          "support_strength": 0,
+          "resistance_strength": 1,
+          "pivot_p": 8952.67,
+          "pivot_r1": 9079.33,
+          "pivot_s1": 8735.33
+        },
+        "predict": {
+          "direction": "DOWN",
+          "confidence": 70,
+          "score": -2.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 45.5,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 8845.0,
+          "sl": 8360.74,
+          "target": 11056.25,
+          "support": 8402.75,
+          "resistance": 9632.5,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 5.48,
+          "rr": 4.57,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            8591.79,
+            9098.21
+          ],
+          "forecast_3d": [
+            8414.54,
+            9275.46
+          ],
+          "forecast_5d": [
+            8287.94,
+            9402.06
+          ]
+        }
+      },
+      {
+        "symbol": "BANKBARODA.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 249.4499969482422,
+        "tech": {
+          "price": 249.4499969482422,
+          "chg_1d_pct": -2.1188970084152325,
+          "chg_5d_pct": 1.155714020351728,
+          "chg_1m_pct": -12.794963260483039,
+          "chg_3m_pct": -12.180951357739522,
+          "ema20": 255.51426405541918,
+          "ema50": 263.1885818538511,
+          "ema200": 276.31991909396265,
+          "rsi14": 41.447253248324074,
+          "macd": -5.850737242294855,
+          "macd_sig": -5.8139210789439,
+          "macd_hist": -0.036816163350954945,
+          "atr14": 6.549929236996449,
+          "atr_pct": 2.6257483732723714,
+          "bb_low": 230.9285018538419,
+          "bb_high": 283.681494178873,
+          "vol_ratio": 0.5105629413083996,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 239.0,
+          "resistance": 254.35,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 252.35,
+          "pivot_r1": 258.65,
+          "pivot_s1": 248.55
+        },
+        "predict": {
+          "direction": "DOWN",
+          "confidence": 70,
+          "score": -2.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 50.0,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 249.45,
+          "sl": 237.81,
+          "target": 311.81,
+          "support": 239.0,
+          "resistance": 254.35,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 4.67,
+          "rr": 5.36,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            242.9,
+            256.0
+          ],
+          "forecast_3d": [
+            238.32,
+            260.58
+          ],
+          "forecast_5d": [
+            235.04,
+            263.86
+          ]
+        }
+      },
+      {
+        "symbol": "ICICIGI.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1622.800048828125,
+        "tech": {
+          "price": 1622.800048828125,
+          "chg_1d_pct": 0.6574927414273235,
+          "chg_5d_pct": -9.2038267501787,
+          "chg_1m_pct": -13.22388802664568,
+          "chg_3m_pct": -13.519848183952842,
+          "ema20": 1748.2296489073542,
+          "ema50": 1774.735592946567,
+          "ema200": 1813.0097477610518,
+          "rsi14": 32.011209096981474,
+          "macd": -30.598682757277857,
+          "macd_sig": -10.59986664461201,
+          "macd_hist": -19.998816112665846,
+          "atr14": 54.388596627176014,
+          "atr_pct": 3.35152791414147,
+          "bb_low": 1631.0681576338727,
+          "bb_high": 1902.4918277176896,
+          "vol_ratio": 0.16452920089354878,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Doji (indecision)"
+        ],
+        "sr": {
+          "support": 1541.66,
+          "resistance": 1802.4,
+          "support_strength": 0,
+          "resistance_strength": 1,
+          "pivot_p": 1600.3,
+          "pivot_r1": 1628.8,
+          "pivot_s1": 1583.7
+        },
+        "predict": {
+          "direction": "DOWN",
+          "confidence": 70,
+          "score": -2.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 45.5,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 1622.8,
+          "sl": 1533.95,
+          "target": 2028.5,
+          "support": 1541.66,
+          "resistance": 1802.4,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 5.48,
+          "rr": 4.57,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            1568.41,
+            1677.19
+          ],
+          "forecast_3d": [
+            1530.34,
+            1715.26
+          ],
+          "forecast_5d": [
+            1503.15,
+            1742.45
+          ]
+        }
+      },
+      {
+        "symbol": "TATAELXSI.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 3483.199951171875,
+        "tech": {
+          "price": 3483.199951171875,
+          "chg_1d_pct": -0.5709066076376779,
+          "chg_5d_pct": -8.902608478669883,
+          "chg_1m_pct": -14.322962706386056,
+          "chg_3m_pct": -22.880045258393057,
+          "ema20": 3725.633478790107,
+          "ema50": 3951.828625136145,
+          "ema200": 4354.01627802655,
+          "rsi14": 31.81784262636947,
+          "macd": -147.81365303622943,
+          "macd_sig": -136.39832927317696,
+          "macd_hist": -11.41532376305247,
+          "atr14": 112.0117800376459,
+          "atr_pct": 3.215772324524783,
+          "bb_low": 3350.4185367092523,
+          "bb_high": 4126.851482821998,
+          "vol_ratio": 0.4107846965608655,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Evening Star (bearish reversal)"
+        ],
+        "sr": {
+          "support": 3469.7,
+          "resistance": 3840.0,
+          "support_strength": 1,
+          "resistance_strength": 2,
+          "pivot_p": 3521.27,
+          "pivot_r1": 3561.43,
+          "pivot_s1": 3463.03
+        },
+        "predict": {
+          "direction": "DOWN",
+          "confidence": 70,
+          "score": -2.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Candle pattern suggests sellers in control",
+            "Price near support \u20b93469.70 \u2014 good risk:reward if it holds",
+            "Geopolitical mood positive: \u201cHDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should \u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 45.5,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 3483.2,
+          "sl": 3452.35,
+          "target": 4354.0,
+          "support": 3469.7,
+          "resistance": 3840.0,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 0.89,
+          "rr": 28.23,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            3371.19,
+            3595.21
+          ],
+          "forecast_3d": [
+            3292.78,
+            3673.62
+          ],
+          "forecast_5d": [
+            3236.77,
+            3729.63
+          ]
+        }
+      }
+    ]
+  },
+  "mfs": [],
+  "watchlist": [
+    "TATAPOWER.NS",
+    "IRFC.NS",
+    "SUZLON.NS",
+    "IREDA.NS",
+    "BHEL.NS",
+    "KPITTECH.NS",
+    "POLYCAB.NS",
+    "PERSISTENT.NS",
+    "ITC.NS",
+    "POWERGRID.NS",
+    "COALINDIA.NS"
+  ],
+  "macro": {
+    "regime": "neutral",
+    "bias": 0,
+    "geo": {
+      "level": 27.3,
+      "risk_off_hits": 9,
+      "risk_on_hits": 24,
+      "off_samples": [
+        "South Korea\u2019s Kospi jumps 4% after 31% crash from June peak. What\u2019s ahead?",
+        "Oil Price Today (July 21): Crude oil dips below $90 on hopes of 10-day ceasefire in Iran war. What are experts saying?",
+        "Protein inflation surges as costlier fodder pushes up milk, chicken prices",
+        "Macros strong, but weak rains, war can hit growth: RBI Guv Sanjay Malhotra"
+      ],
+      "on_samples": [
+        "HDFC Bank shares fall for 2nd day but Jefferies, others brokerages remain bullish. Should you buy the dip?",
+        "Mrs Bectors Food shares surge 30% in 4 days after Sunil Singhania's Abakkus acquires 1% stake. Do you own?",
+        "Global Market: Chinese tech stocks rebound as semiconductor rally lifts mainland markets",
+        "Global Market: Indonesia stocks attract bargain hunters as AI rally loses steam"
+      ]
+    },
+    "snapshot": {
+      "SPY": {
+        "last": 742.09,
+        "chg_pct": -0.16
+      },
+      "QQQ": {
+        "last": 696.06,
+        "chg_pct": 0.1
+      },
+      "DJI": {
+        "last": 51839.26,
+        "chg_pct": -0.59
+      },
+      "VIX": {
+        "last": 18.65,
+        "chg_pct": -0.64
+      },
+      "OIL": {
+        "last": 82.03,
+        "chg_pct": -1.44
+      },
+      "DXY": {
+        "last": 100.93,
+        "chg_pct": -0.06
+      },
+      "GOLD": {
+        "last": 4076.1,
+        "chg_pct": 1.64
+      },
+      "INR": {
+        "last": 96.24,
+        "chg_pct": -0.04
+      },
+      "NIFTY": {
+        "last": 24170.55,
+        "chg_pct": -0.28
+      },
+      "NIFTY_NEXT50": {
+        "last": 72343.4,
+        "chg_pct": 0.72
+      },
+      "NIFTY100": {
+        "last": 25221.25,
+        "chg_pct": -0.26
+      },
+      "NIFTY200": {
+        "last": 13986.9,
+        "chg_pct": -0.18
+      },
+      "NIFTY500": {
+        "last": 23312.6,
+        "chg_pct": -0.11
+      },
+      "NIFTY_MIDCAP": {
+        "last": 62872.75,
+        "chg_pct": 0.71
+      },
+      "NIFTY_SMALLCAP": {
+        "last": 19374.6,
+        "chg_pct": 0.0
+      },
+      "BANKNIFTY": {
+        "last": 57847.5,
+        "chg_pct": -0.17
+      },
+      "FINNIFTY": {
+        "last": 26538.45,
+        "chg_pct": -1.36
+      },
+      "NIFTY_IT": {
+        "last": 29100.8,
+        "chg_pct": -0.21
+      },
+      "NIFTY_AUTO": {
+        "last": 27020.0,
+        "chg_pct": -0.29
+      },
+      "NIFTY_PHARMA": {
+        "last": 25970.1,
+        "chg_pct": -0.13
+      },
+      "NIFTY_FMCG": {
+        "last": 48821.35,
+        "chg_pct": 0.15
+      },
+      "NIFTY_ENERGY": {
+        "last": 39586.6,
+        "chg_pct": 0.79
+      },
+      "NIFTY_METAL": {
+        "last": 12576.25,
+        "chg_pct": 1.12
+      },
+      "NIFTY_REALTY": {
+        "last": 920.9,
+        "chg_pct": 0.24
+      },
+      "NIFTY_PSU_BANK": {
+        "last": 8552.05,
+        "chg_pct": 2.03
+      },
+      "INDIA_VIX": {
+        "last": 12.74,
+        "chg_pct": -1.85
+      },
+      "SENSEX": {
+        "last": 77442.05,
+        "chg_pct": -0.34
+      },
+      "BSE500": {
+        "last": 36456.56,
+        "chg_pct": -0.13
+      },
+      "regime": "neutral"
+    }
+  },
+  "market_forecast": {
+    "direction": "UP",
+    "confidence": 80,
+    "band_pct": [
+      -0.89,
+      3.32
+    ],
+    "reasons": [
+      "Breadth 52/104 advancing (50%), 39% trending up.",
+      "10 per-stock predictions avg 78% confidence, net direction score +1.58.",
+      "Macro regime NEUTRAL, bias +0.",
+      "Nifty opening expectation: FLAT OPEN."
+    ],
+    "components": {
+      "breadth_vote": 1.63,
+      "pred_vote": 1.58,
+      "macro_vote": 0.0,
+      "total_score": 3.21,
+      "median_atr": 2.22,
+      "advancing": 52,
+      "declining": 40,
+      "trending_up": 41,
+      "universe": 104
+    }
+  },
+  "self_review": {
+    "updated_at": null,
+    "window_runs": null,
+    "overall_accuracy": null,
+    "picks_scored": 0,
+    "picks_won": 0,
+    "n_features": 0,
+    "best_features": [],
+    "worst_features": [],
+    "calibration": {}
+  }
+}
