@@ -33,7 +33,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1451.2,
+      "peak_price": 1451.9,
       "initial_sl": 1391.51,
       "trail_active": false
     },
@@ -51,7 +51,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1059.5,
+      "peak_price": 1063.45,
       "initial_sl": 1032.64,
       "trail_active": false
     },
@@ -69,26 +69,8 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 5003.5,
+      "peak_price": 5040.7,
       "initial_sl": 4865.41,
-      "trail_active": false
-    },
-    {
-      "symbol": "HAVELLS.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 7,
-      "entry_price": 1212.6,
-      "sl": 1182.41,
-      "target": 1215.76,
-      "order_id": null,
-      "opened_at": "2026-07-21 11:52:40",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1215.0,
-      "initial_sl": 1182.41,
       "trail_active": false
     },
     {
@@ -110,12 +92,31 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "HAVELLS.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 7,
+      "entry_price": 1212.6,
+      "sl": 1182.41,
+      "target": 1215.76,
+      "order_id": null,
+      "opened_at": "2026-07-21 11:52:40",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-07-21 16:08:14",
+      "exit_price": 1217.6,
+      "realised_pnl": 22.24,
+      "peak_price": 1217.6,
+      "initial_sl": 1182.41,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": 22.24,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -3182.18,
-  "cumulative_wins": 100,
+  "cumulative_pnl": -3159.94,
+  "cumulative_wins": 101,
   "cumulative_losses": 151,
   "history": [
     {
