@@ -20,24 +20,6 @@
       "trail_active": false
     },
     {
-      "symbol": "NESTLEIND.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 7,
-      "entry_price": 1450.1,
-      "sl": 1418.59,
-      "target": 1451.99,
-      "order_id": null,
-      "opened_at": "2026-07-24 11:47:51",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1450.1,
-      "initial_sl": 1418.59,
-      "trail_active": false
-    },
-    {
       "symbol": "TORNTPHARM.NS",
       "bucket": "swing",
       "side": "BUY",
@@ -110,14 +92,32 @@
       "peak_price": 1424.3,
       "initial_sl": 1412.9,
       "trail_active": false
+    },
+    {
+      "symbol": "NESTLEIND.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 7,
+      "entry_price": 1450.1,
+      "sl": 1418.59,
+      "target": 1451.99,
+      "order_id": null,
+      "opened_at": "2026-07-24 11:47:51",
+      "status": "CLOSED_EOD",
+      "closed_at": "2026-07-24 17:15:32",
+      "exit_price": 1443.5,
+      "realised_pnl": -61.39,
+      "peak_price": 1450.1,
+      "initial_sl": 1418.59,
+      "trail_active": false
     }
   ],
-  "realised_pnl": 23.16,
+  "realised_pnl": -38.23,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -3462.93,
+  "cumulative_pnl": -3524.32,
   "cumulative_wins": 106,
-  "cumulative_losses": 162,
+  "cumulative_losses": 163,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
