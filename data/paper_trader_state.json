@@ -51,26 +51,8 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1078.5,
+      "peak_price": 1079.2,
       "initial_sl": 1046.79,
-      "trail_active": false
-    },
-    {
-      "symbol": "CANBK.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 71,
-      "entry_price": 128.36,
-      "sl": 128.16,
-      "target": 130.94,
-      "order_id": null,
-      "opened_at": "2026-07-27 12:24:20",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 128.42,
-      "initial_sl": 128.16,
       "trail_active": false
     },
     {
@@ -87,7 +69,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1106.4,
+      "peak_price": 1107.4,
       "initial_sl": 1088.13,
       "trail_active": false
     }
@@ -110,14 +92,32 @@
       "peak_price": 1065.5,
       "initial_sl": 1038.8,
       "trail_active": false
+    },
+    {
+      "symbol": "CANBK.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 71,
+      "entry_price": 128.36,
+      "sl": 128.16,
+      "target": 130.94,
+      "order_id": null,
+      "opened_at": "2026-07-27 12:24:20",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-07-27 16:02:01",
+      "exit_price": 127.26,
+      "realised_pnl": -91.71,
+      "peak_price": 128.42,
+      "initial_sl": 128.16,
+      "trail_active": false
     }
   ],
-  "realised_pnl": 5.54,
+  "realised_pnl": -86.17,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -3518.78,
+  "cumulative_pnl": -3610.49,
   "cumulative_wins": 107,
-  "cumulative_losses": 163,
+  "cumulative_losses": 164,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
