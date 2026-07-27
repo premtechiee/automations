@@ -7,7 +7,7 @@
       "side": "BUY",
       "qty": 4,
       "entry_price": 1942.5,
-      "sl": 1888.35,
+      "sl": 1958.21,
       "target": 2064.76,
       "order_id": null,
       "opened_at": "2026-07-22 11:49:59",
@@ -15,9 +15,9 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1959.8,
+      "peak_price": 1974.0,
       "initial_sl": 1888.35,
-      "trail_active": false
+      "trail_active": true
     },
     {
       "symbol": "TORNTPHARM.NS",
@@ -25,7 +25,7 @@
       "side": "BUY",
       "qty": 1,
       "entry_price": 4971.3,
-      "sl": 5000.08,
+      "sl": 5002.06,
       "target": 5496.93,
       "order_id": null,
       "opened_at": "2026-07-24 11:47:51",
@@ -33,27 +33,9 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 5040.4,
+      "peak_price": 5042.4,
       "initial_sl": 4754.91,
       "trail_active": true
-    },
-    {
-      "symbol": "JINDALSTEL.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 11,
-      "entry_price": 1063.4,
-      "sl": 1038.8,
-      "target": 1061.47,
-      "order_id": null,
-      "opened_at": "2026-07-27 12:24:20",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1063.4,
-      "initial_sl": 1038.8,
-      "trail_active": false
     },
     {
       "symbol": "INFY.NS",
@@ -69,7 +51,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1077.8,
+      "peak_price": 1078.5,
       "initial_sl": 1046.79,
       "trail_active": false
     },
@@ -87,7 +69,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 128.36,
+      "peak_price": 128.42,
       "initial_sl": 128.16,
       "trail_active": false
     },
@@ -110,12 +92,31 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "JINDALSTEL.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 11,
+      "entry_price": 1063.4,
+      "sl": 1038.8,
+      "target": 1061.47,
+      "order_id": null,
+      "opened_at": "2026-07-27 12:24:20",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-07-27 12:59:06",
+      "exit_price": 1065.5,
+      "realised_pnl": 5.54,
+      "peak_price": 1065.5,
+      "initial_sl": 1038.8,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": 5.54,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -3524.32,
-  "cumulative_wins": 106,
+  "cumulative_pnl": -3518.78,
+  "cumulative_wins": 107,
   "cumulative_losses": 163,
   "history": [
     {
