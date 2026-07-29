@@ -43,7 +43,7 @@
       "side": "BUY",
       "qty": 18,
       "entry_price": 615.15,
-      "sl": 594.2,
+      "sl": 631.9,
       "target": 669.97,
       "order_id": null,
       "opened_at": "2026-07-29 11:54:30",
@@ -51,9 +51,9 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 617.95,
+      "peak_price": 637.0,
       "initial_sl": 594.2,
-      "trail_active": false
+      "trail_active": true
     },
     {
       "symbol": "INFY.NS",
@@ -90,7 +90,9 @@
       "peak_price": 1485.5,
       "initial_sl": 1451.3,
       "trail_active": false
-    },
+    }
+  ],
+  "closed_today": [
     {
       "symbol": "TCS.NS",
       "bucket": "intraday",
@@ -101,22 +103,21 @@
       "target": 2452.49,
       "order_id": null,
       "opened_at": "2026-07-29 11:54:30",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-07-29 14:51:28",
+      "exit_price": 2452.6,
+      "realised_pnl": -8.36,
       "peak_price": 2453.1,
       "initial_sl": 2389.29,
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "realised_pnl": -8.36,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -3809.98,
+  "cumulative_pnl": -3818.34,
   "cumulative_wins": 109,
-  "cumulative_losses": 170,
+  "cumulative_losses": 171,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
