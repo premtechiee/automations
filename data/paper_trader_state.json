@@ -2,30 +2,12 @@
   "date": "2026-07-31",
   "open_trades": [
     {
-      "symbol": "SUNPHARMA.NS",
-      "bucket": "swing",
-      "side": "BUY",
-      "qty": 4,
-      "entry_price": 1942.5,
-      "sl": 2007.01,
-      "target": 2064.76,
-      "order_id": null,
-      "opened_at": "2026-07-22 11:49:59",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 2023.2,
-      "initial_sl": 1888.35,
-      "trail_active": true
-    },
-    {
       "symbol": "BAJAJFINSV.NS",
       "bucket": "swing",
       "side": "BUY",
       "qty": 3,
       "entry_price": 1898.9,
-      "sl": 1994.52,
+      "sl": 2009.49,
       "target": 2058.6,
       "order_id": null,
       "opened_at": "2026-07-30 11:46:00",
@@ -33,7 +15,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 2010.6,
+      "peak_price": 2025.7,
       "initial_sl": 1832.29,
       "trail_active": true
     },
@@ -51,7 +33,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1135.9,
+      "peak_price": 1141.1,
       "initial_sl": 1100.65,
       "trail_active": false
     },
@@ -87,7 +69,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 3782.7,
+      "peak_price": 3785.0,
       "initial_sl": 3679.97,
       "trail_active": false
     },
@@ -110,12 +92,31 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "SUNPHARMA.NS",
+      "bucket": "swing",
+      "side": "BUY",
+      "qty": 4,
+      "entry_price": 1942.5,
+      "sl": 2007.01,
+      "target": 2064.76,
+      "order_id": null,
+      "opened_at": "2026-07-22 11:49:59",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-07-31 15:01:44",
+      "exit_price": 1989.0,
+      "realised_pnl": 174.21,
+      "peak_price": 2023.2,
+      "initial_sl": 1888.35,
+      "trail_active": true
+    }
+  ],
+  "realised_pnl": 174.21,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -4050.2,
-  "cumulative_wins": 112,
+  "cumulative_pnl": -3875.99,
+  "cumulative_wins": 113,
   "cumulative_losses": 176,
   "history": [
     {
