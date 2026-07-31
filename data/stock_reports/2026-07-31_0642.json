@@ -1,0 +1,2231 @@
+{
+  "generated_at": "2026-07-31T06:42:18",
+  "buckets": {
+    "intraday": [
+      {
+        "symbol": "BAJFINANCE.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1131.699951171875,
+        "tech": {
+          "price": 1131.699951171875,
+          "chg_1d_pct": 7.42287149234695,
+          "chg_5d_pct": 11.73972796326801,
+          "chg_1m_pct": 11.12528712113885,
+          "chg_3m_pct": 20.77907696604855,
+          "ema20": 1041.313588616273,
+          "ema50": 999.8275675783774,
+          "ema200": 949.668,
+          "rsi14": 72.98560971837222,
+          "macd": 25.490519057483198,
+          "macd_sig": 22.882480609623244,
+          "macd_hist": 2.608038447859954,
+          "atr14": 28.445496765197944,
+          "atr_pct": 2.5135193065743833,
+          "bb_low": 983.264038688052,
+          "bb_high": 1100.0459649740574,
+          "vol_ratio": 2.7890416843139763,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 1001.3,
+          "resistance": 1188.28,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 1052.2,
+          "pivot_r1": 1069.3,
+          "pivot_s1": 1036.4
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 7.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Overbought \u2014 likely short-term pullback",
+            "Trading volume is 2.8\u00d7 the usual \u2014 strong interest",
+            "Candle pattern suggests buyers in control",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 61.2,
+        "bucket_score": 150.0,
+        "levels": {
+          "entry": 1131.7,
+          "sl": 1103.25,
+          "target": 1185.9,
+          "support": 1001.3,
+          "resistance": 1188.28,
+          "expected_profit_pct": 4.79,
+          "risk_pct": 2.51,
+          "rr": 1.91,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            1103.25,
+            1160.15
+          ],
+          "forecast_3d": [
+            1083.34,
+            1180.06
+          ],
+          "forecast_5d": [
+            1069.12,
+            1194.28
+          ]
+        }
+      },
+      {
+        "symbol": "M&M.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 3430.60009765625,
+        "tech": {
+          "price": 3430.60009765625,
+          "chg_1d_pct": 6.480850632058077,
+          "chg_5d_pct": 6.220396616455948,
+          "chg_1m_pct": 9.603836985822678,
+          "chg_3m_pct": 10.753836889628744,
+          "ema20": 3196.9047429795933,
+          "ema50": 3157.0534668537084,
+          "ema200": 3194.508066485005,
+          "rsi14": 67.29277592329139,
+          "macd": 48.664107908937694,
+          "macd_sig": 28.31795380108839,
+          "macd_hist": 20.346154107849305,
+          "atr14": 84.33832652400784,
+          "atr_pct": 2.458413225768486,
+          "bb_low": 3019.394916761264,
+          "bb_high": 3338.7250295277986,
+          "vol_ratio": 1.6082329116983443,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 100.0,
+          "matched": 3,
+          "pos": 1,
+          "neg": 0,
+          "categories": {
+            "political": {
+              "pos": 1,
+              "neg": 0,
+              "score": 100.0
+            }
+          },
+          "samples": [
+            "Tourism ministry, IndiGo join hands to promote India as global tourism destination",
+            "DoT, Madhya Pradesh sign MoU for telecom manufacturing zone in Gwalior",
+            "PM Modi chairs second high-level meeting with Secretaries, reviews agenda for Viksit Bharat"
+          ]
+        },
+        "patterns": [
+          "Hammer (bullish reversal)"
+        ],
+        "sr": {
+          "support": 3135.1,
+          "resistance": 3602.13,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 3251.6,
+          "pivot_r1": 3291.4,
+          "pivot_s1": 3182.0
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 6.4,
+          "macro_bias": 4,
+          "senti_bias": 0.4,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum turning positive (MACD)",
+            "Trading volume is 1.6\u00d7 the usual \u2014 strong interest",
+            "Candle pattern suggests buyers in control",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 71.0,
+        "bucket_score": 144.1,
+        "levels": {
+          "entry": 3430.6,
+          "sl": 3346.26,
+          "target": 3594.93,
+          "support": 3135.1,
+          "resistance": 3602.13,
+          "expected_profit_pct": 4.79,
+          "risk_pct": 2.46,
+          "rr": 1.95,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            3346.26,
+            3514.94
+          ],
+          "forecast_3d": [
+            3287.22,
+            3573.98
+          ],
+          "forecast_5d": [
+            3245.06,
+            3616.14
+          ]
+        }
+      },
+      {
+        "symbol": "BAJAJFINSV.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 2002.300048828125,
+        "tech": {
+          "price": 2002.300048828125,
+          "chg_1d_pct": 4.04801618300652,
+          "chg_5d_pct": 5.975443154187254,
+          "chg_1m_pct": 11.387409658562353,
+          "chg_3m_pct": 14.600509660336837,
+          "ema20": 1884.7996616146609,
+          "ema50": 1839.048410870094,
+          "ema200": 1829.6959651823968,
+          "rsi14": 71.00998311291436,
+          "macd": 36.80853443134083,
+          "macd_sig": 30.01141929753795,
+          "macd_hist": 6.79711513380288,
+          "atr14": 42.61845655058828,
+          "atr_pct": 2.1284750292810184,
+          "bb_low": 1816.8579556843906,
+          "bb_high": 1964.062039432797,
+          "vol_ratio": 1.5592476638356323,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": [],
+          "filings_seen": 3
+        },
+        "patterns": [],
+        "sr": {
+          "support": 1841.5,
+          "resistance": 2102.42,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 1926.1,
+          "pivot_r1": 1943.3,
+          "pivot_s1": 1907.2
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 6.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Overbought \u2014 likely short-term pullback",
+            "Trading volume is 1.6\u00d7 the usual \u2014 strong interest",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [
+          {
+            "symbol": "BAJAJFINSV",
+            "subject": "General Updates",
+            "date": "31-Jul-2026 12:04:30"
+          },
+          {
+            "symbol": "BAJAJFINSV",
+            "subject": "Issue of Securities",
+            "date": "31-Jul-2026 11:59:10"
+          },
+          {
+            "symbol": "BAJAJFINSV",
+            "subject": "Outcome of Board Meeting",
+            "date": "31-Jul-2026 11:56:45"
+          }
+        ],
+        "option_chain": {},
+        "composite": 61.2,
+        "bucket_score": 137.5,
+        "levels": {
+          "entry": 2002.3,
+          "sl": 1959.68,
+          "target": 2098.22,
+          "support": 1841.5,
+          "resistance": 2102.42,
+          "expected_profit_pct": 4.79,
+          "risk_pct": 2.13,
+          "rr": 2.25,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            1959.68,
+            2044.92
+          ],
+          "forecast_3d": [
+            1929.85,
+            2074.75
+          ],
+          "forecast_5d": [
+            1908.54,
+            2096.06
+          ]
+        }
+      },
+      {
+        "symbol": "SIEMENS.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 3781.0,
+        "tech": {
+          "price": 3781.0,
+          "chg_1d_pct": 3.566340238591481,
+          "chg_5d_pct": 2.5689702389250835,
+          "chg_1m_pct": 6.186987161207491,
+          "chg_3m_pct": -0.7142469282240493,
+          "ema20": 3647.5848582940266,
+          "ema50": 3621.0852080545774,
+          "ema200": 3490.401613297001,
+          "rsi14": 63.08758341685295,
+          "macd": 29.376874113968825,
+          "macd_sig": 11.349298174307517,
+          "macd_hist": 18.027575939661308,
+          "atr14": 99.02592617873326,
+          "atr_pct": 2.6190406289006414,
+          "bb_low": 3410.300049170871,
+          "bb_high": 3799.7699947744413,
+          "vol_ratio": 0.9556716295896291,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 3639.6,
+          "resistance": 3807.7,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 3636.0,
+          "pivot_r1": 3695.9,
+          "pivot_s1": 3590.9
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 8.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Candle pattern suggests buyers in control",
+            "Price near resistance \u20b93807.70 \u2014 may struggle to break above",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 130.0,
+        "levels": {
+          "entry": 3781.0,
+          "sl": 3681.97,
+          "target": 3800.08,
+          "support": 3639.6,
+          "resistance": 3807.7,
+          "expected_profit_pct": 0.5,
+          "risk_pct": 2.62,
+          "rr": 0.19,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            3681.97,
+            3880.03
+          ],
+          "forecast_3d": [
+            3612.66,
+            3949.34
+          ],
+          "forecast_5d": [
+            3563.14,
+            3998.86
+          ]
+        }
+      },
+      {
+        "symbol": "BAJAJHLDNG.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 11438.0,
+        "tech": {
+          "price": 11438.0,
+          "chg_1d_pct": 4.266180492251603,
+          "chg_5d_pct": 7.1074070605861905,
+          "chg_1m_pct": 5.341683551298582,
+          "chg_3m_pct": 11.40547384825168,
+          "ema20": 10735.268742260077,
+          "ema50": 10580.03667452102,
+          "ema200": 10408.152,
+          "rsi14": 71.26176082060778,
+          "macd": 136.44592653047948,
+          "macd_sig": 60.20558251205564,
+          "macd_hist": 76.24034401842384,
+          "atr14": 255.47683279192876,
+          "atr_pct": 2.233579583772764,
+          "bb_low": 10118.22888896819,
+          "bb_high": 11203.371111031809,
+          "vol_ratio": 0.7171988923790239,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 10523.0,
+          "resistance": 12009.9,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 10945.0,
+          "pivot_r1": 11015.0,
+          "pivot_s1": 10900.0
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 5.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Overbought \u2014 likely short-term pullback",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 59.0,
+        "bucket_score": 127.1,
+        "levels": {
+          "entry": 11438.0,
+          "sl": 11182.52,
+          "target": 11985.88,
+          "support": 10523.0,
+          "resistance": 12009.9,
+          "expected_profit_pct": 4.79,
+          "risk_pct": 2.23,
+          "rr": 2.14,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            11182.52,
+            11693.48
+          ],
+          "forecast_3d": [
+            11003.69,
+            11872.31
+          ],
+          "forecast_5d": [
+            10875.95,
+            12000.05
+          ]
+        }
+      }
+    ],
+    "swing": [
+      {
+        "symbol": "EICHERMOT.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 7867.0,
+        "tech": {
+          "price": 7867.0,
+          "chg_1d_pct": 1.131250803445183,
+          "chg_5d_pct": 1.8843488959399135,
+          "chg_1m_pct": 10.197506653592935,
+          "chg_3m_pct": 10.662540441693636,
+          "ema20": 7600.434773674622,
+          "ema50": 7450.579659568901,
+          "ema200": 7323.689516129032,
+          "rsi14": 64.72844817018859,
+          "macd": 119.06900087251779,
+          "macd_sig": 85.17640801933275,
+          "macd_hist": 33.892592853185036,
+          "atr14": 156.1749061004534,
+          "atr_pct": 1.9851901118654303,
+          "bb_low": 7174.7231311100295,
+          "bb_high": 7919.32686888997,
+          "vol_ratio": 0.7144549127908979,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Hammer (bullish reversal)"
+        ],
+        "sr": {
+          "support": 7140.0,
+          "resistance": 8260.35,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 7815.0,
+          "pivot_r1": 7879.0,
+          "pivot_s1": 7715.0
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 9.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Candle pattern suggests buyers in control",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 96.7,
+        "levels": {
+          "entry": 7867.0,
+          "sl": 7585.89,
+          "target": 8491.7,
+          "support": 7140.0,
+          "resistance": 8260.35,
+          "expected_profit_pct": 7.94,
+          "risk_pct": 3.57,
+          "rr": 2.22,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            7710.83,
+            8023.17
+          ],
+          "forecast_3d": [
+            7601.5,
+            8132.5
+          ],
+          "forecast_5d": [
+            7523.42,
+            8210.58
+          ]
+        }
+      },
+      {
+        "symbol": "JSWSTEEL.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1264.699951171875,
+        "tech": {
+          "price": 1264.699951171875,
+          "chg_1d_pct": -0.480020256678082,
+          "chg_5d_pct": 1.9261687139940253,
+          "chg_1m_pct": 3.3420412413706524,
+          "chg_3m_pct": 0.015812666814940535,
+          "ema20": 1252.3793901291017,
+          "ema50": 1252.7915564928396,
+          "ema200": 1241.228001953125,
+          "rsi14": 54.44992422454881,
+          "macd": 3.179047036926022,
+          "macd_sig": -0.8635590839551376,
+          "macd_hist": 4.0426061208811594,
+          "atr14": 25.270696812705367,
+          "atr_pct": 1.9981574909755835,
+          "bb_low": 1213.5690750820613,
+          "bb_high": 1279.7409468905948,
+          "vol_ratio": 0.222224084336335,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Evening Star (bearish reversal)"
+        ],
+        "sr": {
+          "support": 1252.5,
+          "resistance": 1279.3,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 1278.93,
+          "pivot_r1": 1296.37,
+          "pivot_s1": 1253.37
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 8.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Candle pattern suggests sellers in control",
+            "Price near support \u20b91252.50 \u2014 good risk:reward if it holds"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 65.8,
+        "bucket_score": 95.7,
+        "levels": {
+          "entry": 1264.7,
+          "sl": 1246.24,
+          "target": 1365.78,
+          "support": 1252.5,
+          "resistance": 1279.3,
+          "expected_profit_pct": 7.99,
+          "risk_pct": 1.46,
+          "rr": 5.48,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            1239.43,
+            1289.97
+          ],
+          "forecast_3d": [
+            1221.74,
+            1307.66
+          ],
+          "forecast_5d": [
+            1209.1,
+            1320.3
+          ]
+        }
+      },
+      {
+        "symbol": "BHARTIARTL.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1963.9000244140625,
+        "tech": {
+          "price": 1963.9000244140625,
+          "chg_1d_pct": 0.36283602865758713,
+          "chg_5d_pct": 3.461177691087114,
+          "chg_1m_pct": 4.741334635416661,
+          "chg_3m_pct": 4.086282255177154,
+          "ema20": 1921.895994894921,
+          "ema50": 1895.908583115551,
+          "ema200": 1880.5848046875,
+          "rsi14": 61.33473875988093,
+          "macd": 17.432458391387172,
+          "macd_sig": 16.23015848677667,
+          "macd_hist": 1.202299904610502,
+          "atr14": 31.524254524890594,
+          "atr_pct": 1.6051863197209328,
+          "bb_low": 1883.66324079197,
+          "bb_high": 1968.6367836220925,
+          "vol_ratio": 0.44414737872012566,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 1901.2,
+          "resistance": 1966.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 1954.63,
+          "pivot_r1": 1965.37,
+          "pivot_s1": 1946.07
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 7.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Price near resistance \u20b91966.00 \u2014 may struggle to break above",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 65.8,
+        "bucket_score": 95.2,
+        "levels": {
+          "entry": 1963.9,
+          "sl": 1907.16,
+          "target": 2090.0,
+          "support": 1901.2,
+          "resistance": 1966.0,
+          "expected_profit_pct": 6.42,
+          "risk_pct": 2.89,
+          "rr": 2.22,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            1932.38,
+            1995.42
+          ],
+          "forecast_3d": [
+            1910.31,
+            2017.49
+          ],
+          "forecast_5d": [
+            1894.55,
+            2033.25
+          ]
+        }
+      },
+      {
+        "symbol": "SIEMENS.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 3781.0,
+        "tech": {
+          "price": 3781.0,
+          "chg_1d_pct": 3.566340238591481,
+          "chg_5d_pct": 2.5689702389250835,
+          "chg_1m_pct": 6.186987161207491,
+          "chg_3m_pct": -0.7142469282240493,
+          "ema20": 3647.5848582940266,
+          "ema50": 3621.0852080545774,
+          "ema200": 3490.401613297001,
+          "rsi14": 63.08758341685295,
+          "macd": 29.376874113968825,
+          "macd_sig": 11.349298174307517,
+          "macd_hist": 18.027575939661308,
+          "atr14": 99.02592617873326,
+          "atr_pct": 2.6190406289006414,
+          "bb_low": 3410.300049170871,
+          "bb_high": 3799.7699947744413,
+          "vol_ratio": 0.9556716295896291,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 3639.6,
+          "resistance": 3807.7,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 3636.0,
+          "pivot_r1": 3695.9,
+          "pivot_s1": 3590.9
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 8.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Candle pattern suggests buyers in control",
+            "Price near resistance \u20b93807.70 \u2014 may struggle to break above",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 94.6,
+        "levels": {
+          "entry": 3781.0,
+          "sl": 3621.4,
+          "target": 4177.1,
+          "support": 3639.6,
+          "resistance": 3807.7,
+          "expected_profit_pct": 10.48,
+          "risk_pct": 4.22,
+          "rr": 2.48,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            3681.97,
+            3880.03
+          ],
+          "forecast_3d": [
+            3612.66,
+            3949.34
+          ],
+          "forecast_5d": [
+            3563.14,
+            3998.86
+          ]
+        }
+      },
+      {
+        "symbol": "NESTLEIND.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1510.5999755859375,
+        "tech": {
+          "price": 1510.5999755859375,
+          "chg_1d_pct": -0.664166233329222,
+          "chg_5d_pct": 4.648422278208342,
+          "chg_1m_pct": 4.453051209265935,
+          "chg_3m_pct": 3.565062448263845,
+          "ema20": 1463.0095424578915,
+          "ema50": 1433.9822844117355,
+          "ema200": 1360.252001953125,
+          "rsi14": 63.532306243917645,
+          "macd": 20.484574087863166,
+          "macd_sig": 14.02972763086231,
+          "macd_hist": 6.454846457000857,
+          "atr14": 33.07550082133678,
+          "atr_pct": 2.1895605293193072,
+          "bb_low": 1399.402016180533,
+          "bb_high": 1520.5279764952481,
+          "vol_ratio": 0.38022036386030617,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 1431.0,
+          "resistance": 1586.13,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 1516.77,
+          "pivot_r1": 1536.53,
+          "pivot_s1": 1500.93
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 8.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 65.8,
+        "bucket_score": 94.1,
+        "levels": {
+          "entry": 1510.6,
+          "sl": 1451.06,
+          "target": 1642.9,
+          "support": 1431.0,
+          "resistance": 1586.13,
+          "expected_profit_pct": 8.76,
+          "risk_pct": 3.94,
+          "rr": 2.22,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            1477.52,
+            1543.68
+          ],
+          "forecast_3d": [
+            1454.37,
+            1566.83
+          ],
+          "forecast_5d": [
+            1437.83,
+            1583.37
+          ]
+        }
+      }
+    ],
+    "holding": [
+      {
+        "symbol": "HAL.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 4647.2001953125,
+        "tech": {
+          "price": 4647.2001953125,
+          "chg_1d_pct": 1.202094845655477,
+          "chg_5d_pct": 1.1910766535111694,
+          "chg_1m_pct": 4.798852102993156,
+          "chg_3m_pct": 7.107965439931441,
+          "ema20": 4523.627860469637,
+          "ema50": 4437.991473888665,
+          "ema200": 4253.250805270287,
+          "rsi14": 65.91010572035407,
+          "macd": 61.847625459931805,
+          "macd_sig": 50.951660244781465,
+          "macd_hist": 10.89596521515034,
+          "atr14": 88.98805867492592,
+          "atr_pct": 1.914874654306601,
+          "bb_low": 4329.835944470786,
+          "bb_high": 4680.224016466715,
+          "vol_ratio": 0.6892861990150119,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 100.0,
+          "matched": 3,
+          "pos": 3,
+          "neg": 0,
+          "categories": {
+            "earnings": {
+              "pos": 1,
+              "neg": 0,
+              "score": 100.0
+            },
+            "macro": {
+              "pos": 1,
+              "neg": 0,
+              "score": 100.0
+            }
+          },
+          "samples": [
+            "Multibagger Astra Microwave shares rally 14% to 52-week high after Rs 2,205 crore order win from HAL",
+            "FSSAI cracks down on two firms over misleading product claims; halts sale of Folineuro Syrup, Neuherbs True Vitamin",
+            "Macroeconomic fundamentals of Indian economy remain strong amid global challenges"
+          ]
+        },
+        "patterns": [
+          "Bullish Engulfing",
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 4305.8,
+          "resistance": 4808.6,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 4582.67,
+          "pivot_r1": 4630.33,
+          "pivot_s1": 4544.33
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 10.15,
+          "macro_bias": 4,
+          "senti_bias": 1.15,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Candle pattern suggests buyers in control",
+            "Positive earnings news (+1/-0)",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 73.2,
+        "bucket_score": 62.0,
+        "levels": {
+          "entry": 4647.2,
+          "sl": 4284.27,
+          "target": 5809.0,
+          "support": 4305.8,
+          "resistance": 4808.6,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 7.81,
+          "rr": 3.2,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            4558.21,
+            4736.19
+          ],
+          "forecast_3d": [
+            4495.92,
+            4798.48
+          ],
+          "forecast_5d": [
+            4451.43,
+            4842.97
+          ]
+        }
+      },
+      {
+        "symbol": "PERSISTENT.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 5533.5,
+        "tech": {
+          "price": 5533.5,
+          "chg_1d_pct": 0.3409034765567087,
+          "chg_5d_pct": 6.403230458609754,
+          "chg_1m_pct": 20.802949002933467,
+          "chg_3m_pct": 15.281250000000002,
+          "ema20": 5186.224084445452,
+          "ema50": 5062.201605617573,
+          "ema200": 5060.93358984375,
+          "rsi14": 67.49985578465996,
+          "macd": 155.61452843092138,
+          "macd_sig": 106.1565774159648,
+          "macd_hist": 49.45795101495658,
+          "atr14": 181.8647158899759,
+          "atr_pct": 3.2866127385917756,
+          "bb_low": 4672.069824229466,
+          "bb_high": 5611.070068348659,
+          "vol_ratio": 1.0690234966922518,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 4965.1,
+          "resistance": 5612.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 5560.37,
+          "pivot_r1": 5652.33,
+          "pivot_s1": 5422.73
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 8.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Candle pattern suggests buyers in control",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 58.0,
+        "levels": {
+          "entry": 5533.5,
+          "sl": 4980.15,
+          "target": 6916.88,
+          "support": 4965.1,
+          "resistance": 5612.0,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 10.0,
+          "rr": 2.5,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            5351.64,
+            5715.36
+          ],
+          "forecast_3d": [
+            5224.33,
+            5842.67
+          ],
+          "forecast_5d": [
+            5133.4,
+            5933.6
+          ]
+        }
+      },
+      {
+        "symbol": "EICHERMOT.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 7867.0,
+        "tech": {
+          "price": 7867.0,
+          "chg_1d_pct": 1.131250803445183,
+          "chg_5d_pct": 1.8843488959399135,
+          "chg_1m_pct": 10.197506653592935,
+          "chg_3m_pct": 10.662540441693636,
+          "ema20": 7600.434773674622,
+          "ema50": 7450.579659568901,
+          "ema200": 7323.689516129032,
+          "rsi14": 64.72844817018859,
+          "macd": 119.06900087251779,
+          "macd_sig": 85.17640801933275,
+          "macd_hist": 33.892592853185036,
+          "atr14": 156.1749061004534,
+          "atr_pct": 1.9851901118654303,
+          "bb_low": 7174.7231311100295,
+          "bb_high": 7919.32686888997,
+          "vol_ratio": 0.7144549127908979,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Hammer (bullish reversal)"
+        ],
+        "sr": {
+          "support": 7140.0,
+          "resistance": 8260.35,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 7815.0,
+          "pivot_r1": 7879.0,
+          "pivot_s1": 7715.0
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 9.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Candle pattern suggests buyers in control",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 58.0,
+        "levels": {
+          "entry": 7867.0,
+          "sl": 7104.3,
+          "target": 9833.75,
+          "support": 7140.0,
+          "resistance": 8260.35,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 9.69,
+          "rr": 2.58,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            7710.83,
+            8023.17
+          ],
+          "forecast_3d": [
+            7601.5,
+            8132.5
+          ],
+          "forecast_5d": [
+            7523.42,
+            8210.58
+          ]
+        }
+      },
+      {
+        "symbol": "SIEMENS.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 3781.0,
+        "tech": {
+          "price": 3781.0,
+          "chg_1d_pct": 3.566340238591481,
+          "chg_5d_pct": 2.5689702389250835,
+          "chg_1m_pct": 6.186987161207491,
+          "chg_3m_pct": -0.7142469282240493,
+          "ema20": 3647.5848582940266,
+          "ema50": 3621.0852080545774,
+          "ema200": 3490.401613297001,
+          "rsi14": 63.08758341685295,
+          "macd": 29.376874113968825,
+          "macd_sig": 11.349298174307517,
+          "macd_hist": 18.027575939661308,
+          "atr14": 99.02592617873326,
+          "atr_pct": 2.6190406289006414,
+          "bb_low": 3410.300049170871,
+          "bb_high": 3799.7699947744413,
+          "vol_ratio": 0.9556716295896291,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 3639.6,
+          "resistance": 3807.7,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 3636.0,
+          "pivot_r1": 3695.9,
+          "pivot_s1": 3590.9
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 8.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Candle pattern suggests buyers in control",
+            "Price near resistance \u20b93807.70 \u2014 may struggle to break above",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 58.0,
+        "levels": {
+          "entry": 3781.0,
+          "sl": 3621.4,
+          "target": 4726.25,
+          "support": 3639.6,
+          "resistance": 3807.7,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 4.22,
+          "rr": 5.92,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            3681.97,
+            3880.03
+          ],
+          "forecast_3d": [
+            3612.66,
+            3949.34
+          ],
+          "forecast_5d": [
+            3563.14,
+            3998.86
+          ]
+        }
+      },
+      {
+        "symbol": "BHARTIARTL.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1963.9000244140625,
+        "tech": {
+          "price": 1963.9000244140625,
+          "chg_1d_pct": 0.36283602865758713,
+          "chg_5d_pct": 3.461177691087114,
+          "chg_1m_pct": 4.741334635416661,
+          "chg_3m_pct": 4.086282255177154,
+          "ema20": 1921.895994894921,
+          "ema50": 1895.908583115551,
+          "ema200": 1880.5848046875,
+          "rsi14": 61.33473875988093,
+          "macd": 17.432458391387172,
+          "macd_sig": 16.23015848677667,
+          "macd_hist": 1.202299904610502,
+          "atr14": 31.524254524890594,
+          "atr_pct": 1.6051863197209328,
+          "bb_low": 1883.66324079197,
+          "bb_high": 1968.6367836220925,
+          "vol_ratio": 0.44414737872012566,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 1901.2,
+          "resistance": 1966.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 1954.63,
+          "pivot_r1": 1965.37,
+          "pivot_s1": 1946.07
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 7.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume low \u2014 weak conviction",
+            "Price near resistance \u20b91966.00 \u2014 may struggle to break above",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 65.8,
+        "bucket_score": 57.0,
+        "levels": {
+          "entry": 1963.9,
+          "sl": 1891.69,
+          "target": 2454.88,
+          "support": 1901.2,
+          "resistance": 1966.0,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 3.68,
+          "rr": 6.8,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            1932.38,
+            1995.42
+          ],
+          "forecast_3d": [
+            1910.31,
+            2017.49
+          ],
+          "forecast_5d": [
+            1894.55,
+            2033.25
+          ]
+        }
+      }
+    ],
+    "sell": [
+      {
+        "symbol": "SUZLON.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 47.880001068115234,
+        "tech": {
+          "price": 47.880001068115234,
+          "chg_1d_pct": 1.0126572295029668,
+          "chg_5d_pct": -8.416216170464141,
+          "chg_1m_pct": -16.975892858796538,
+          "chg_3m_pct": -13.853905198393079,
+          "ema20": 51.74696571161576,
+          "ema50": 53.09313573591797,
+          "ema200": 50.321360046386715,
+          "rsi14": 28.74945981242213,
+          "macd": -1.873345893306471,
+          "macd_sig": -1.314868888723594,
+          "macd_hist": -0.5584770045828771,
+          "atr14": 1.599652617802995,
+          "atr_pct": 3.3409619509558715,
+          "bb_low": 47.27409249884894,
+          "bb_high": 56.77190779106805,
+          "vol_ratio": 0.42225648852238157,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 45.49,
+          "resistance": 53.7,
+          "support_strength": 0,
+          "resistance_strength": 1,
+          "pivot_p": 47.17,
+          "pivot_r1": 48.11,
+          "pivot_s1": 46.45
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 5.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Oversold \u2014 possible bounce",
+            "Trading volume low \u2014 weak conviction",
+            "Candle pattern suggests buyers in control",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 43.2,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 47.88,
+          "sl": 45.26,
+          "target": 59.85,
+          "support": 45.49,
+          "resistance": 53.7,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 5.47,
+          "rr": 4.57,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            46.28,
+            49.48
+          ],
+          "forecast_3d": [
+            45.16,
+            50.6
+          ],
+          "forecast_5d": [
+            44.36,
+            51.4
+          ]
+        }
+      },
+      {
+        "symbol": "DRREDDY.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1147.0,
+        "tech": {
+          "price": 1147.0,
+          "chg_1d_pct": 0.4114462900265625,
+          "chg_5d_pct": -1.6548099134109928,
+          "chg_1m_pct": -14.39659832071557,
+          "chg_3m_pct": -13.296547068397857,
+          "ema20": 1210.2872399457804,
+          "ema50": 1252.7538158520506,
+          "ema200": 1275.7564539755545,
+          "rsi14": 27.48412123892865,
+          "macd": -43.19206299387042,
+          "macd_sig": -34.07435659068781,
+          "macd_hist": -9.11770640318261,
+          "atr14": 29.437687704087967,
+          "atr_pct": 2.5664941328760214,
+          "bb_low": 1075.1468992947212,
+          "bb_high": 1385.9331055880912,
+          "vol_ratio": 0.12490108934040306,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 1101.0,
+          "resistance": 1293.7,
+          "support_strength": 1,
+          "resistance_strength": 2,
+          "pivot_p": 1140.4,
+          "pivot_r1": 1149.7,
+          "pivot_s1": 1133.0
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 90,
+          "score": 4.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Oversold \u2014 possible bounce",
+            "Trading volume low \u2014 weak conviction",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 43.2,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 1147.0,
+          "sl": 1095.49,
+          "target": 1433.75,
+          "support": 1101.0,
+          "resistance": 1293.7,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 4.49,
+          "rr": 5.57,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            1117.56,
+            1176.44
+          ],
+          "forecast_3d": [
+            1096.96,
+            1197.04
+          ],
+          "forecast_5d": [
+            1082.24,
+            1211.76
+          ]
+        }
+      },
+      {
+        "symbol": "ADANIPORTS.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1677.800048828125,
+        "tech": {
+          "price": 1677.800048828125,
+          "chg_1d_pct": 0.8232722458495045,
+          "chg_5d_pct": -5.117909715603719,
+          "chg_1m_pct": -10.906961962054751,
+          "chg_3m_pct": 1.236951631932648,
+          "ema20": 1776.6893713881984,
+          "ema50": 1773.4449574544362,
+          "ema200": 1649.08400390625,
+          "rsi14": 30.502558827050535,
+          "macd": -27.42744526918841,
+          "macd_sig": -9.347463053220073,
+          "macd_hist": -18.079982215968336,
+          "atr14": 40.28547542605468,
+          "atr_pct": 2.4010891794998126,
+          "bb_low": 1686.218151177018,
+          "bb_high": 1904.4518561472007,
+          "vol_ratio": 0.522748843412034,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Hammer (bullish reversal)"
+        ],
+        "sr": {
+          "support": 1593.91,
+          "resistance": 1823.9,
+          "support_strength": 0,
+          "resistance_strength": 1,
+          "pivot_p": 1683.4,
+          "pivot_r1": 1708.4,
+          "pivot_s1": 1639.1
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 80,
+          "score": 3.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Candle pattern suggests buyers in control",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 45.5,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 1677.8,
+          "sl": 1585.94,
+          "target": 2097.25,
+          "support": 1593.91,
+          "resistance": 1823.9,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 5.48,
+          "rr": 4.57,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            1637.51,
+            1718.09
+          ],
+          "forecast_3d": [
+            1609.31,
+            1746.29
+          ],
+          "forecast_5d": [
+            1589.17,
+            1766.43
+          ]
+        }
+      },
+      {
+        "symbol": "ADANIGREEN.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1362.0,
+        "tech": {
+          "price": 1362.0,
+          "chg_1d_pct": 0.2428828252535542,
+          "chg_5d_pct": -2.372588070043913,
+          "chg_1m_pct": -12.422836756540201,
+          "chg_3m_pct": 10.988874457328501,
+          "ema20": 1448.4337384990038,
+          "ema50": 1436.1652397656774,
+          "ema200": 1229.0107993164063,
+          "rsi14": 34.87086893740437,
+          "macd": -35.12362029879796,
+          "macd_sig": -15.087409012371683,
+          "macd_hist": -20.036211286426276,
+          "atr14": 48.35231591059193,
+          "atr_pct": 3.550096616049334,
+          "bb_low": 1317.636136826365,
+          "bb_high": 1637.4138509666038,
+          "vol_ratio": 0.228286745184365,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 1352.0,
+          "resistance": 1471.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 1360.9,
+          "pivot_r1": 1371.8,
+          "pivot_s1": 1347.8
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 80,
+          "score": 3.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Price near support \u20b91352.00 \u2014 good risk:reward if it holds",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 45.5,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 1362.0,
+          "sl": 1345.24,
+          "target": 1702.5,
+          "support": 1352.0,
+          "resistance": 1471.0,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 1.23,
+          "rr": 20.32,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            1313.65,
+            1410.35
+          ],
+          "forecast_3d": [
+            1279.8,
+            1444.2
+          ],
+          "forecast_5d": [
+            1255.62,
+            1468.38
+          ]
+        }
+      },
+      {
+        "symbol": "VBL.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 445.1000061035156,
+        "tech": {
+          "price": 445.1000061035156,
+          "chg_1d_pct": -1.3847346661089,
+          "chg_5d_pct": -2.6465454462928695,
+          "chg_1m_pct": -12.836578591295666,
+          "chg_3m_pct": -13.354098593221075,
+          "ema20": 465.6505810148411,
+          "ema50": 482.7032080829083,
+          "ema200": 474.27960009765627,
+          "rsi14": 36.43742469662998,
+          "macd": -15.019659478968606,
+          "macd_sig": -14.334939233546192,
+          "macd_hist": -0.6847202454224135,
+          "atr14": 13.245734993563836,
+          "atr_pct": 2.9759008788877246,
+          "bb_low": 435.09532366227137,
+          "bb_high": 493.9746806101895,
+          "vol_ratio": 0.42964269047129205,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 423.0,
+          "resistance": 470.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 451.03,
+          "pivot_r1": 455.47,
+          "pivot_s1": 446.92
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 70,
+          "score": 2.0,
+          "macro_bias": 4,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Trading volume low \u2014 weak conviction",
+            "Global markets risk-on (US indices up, volatility low)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 45.5,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 445.1,
+          "sl": 420.88,
+          "target": 556.38,
+          "support": 423.0,
+          "resistance": 470.0,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 5.44,
+          "rr": 4.6,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            431.85,
+            458.35
+          ],
+          "forecast_3d": [
+            422.58,
+            467.62
+          ],
+          "forecast_5d": [
+            415.96,
+            474.24
+          ]
+        }
+      }
+    ]
+  },
+  "mfs": [],
+  "watchlist": [
+    "TATAPOWER.NS",
+    "IRFC.NS",
+    "SUZLON.NS",
+    "IREDA.NS",
+    "BHEL.NS",
+    "KPITTECH.NS",
+    "POLYCAB.NS",
+    "PERSISTENT.NS",
+    "ITC.NS",
+    "POWERGRID.NS",
+    "COALINDIA.NS"
+  ],
+  "macro": {
+    "regime": "risk-on",
+    "bias": 4,
+    "geo": {
+      "level": 44.0,
+      "risk_off_hits": 11,
+      "risk_on_hits": 14,
+      "off_samples": [
+        "Stellantis India to hike vehicle prices by up to Rs 17,000 from April 30",
+        "Subramanian Swamy seeks ban on import of cement from Pakistan",
+        "Thermax shares crash 16% after firm expects weak quarters ahead after muted Q1 results",
+        "Global Market: BoE outlines inflation, growth paths under three economic scenarios after holding rates"
+      ],
+      "on_samples": [
+        "Sensex, Nifty gain for third day in a row; easing volatility to support bull trend",
+        "Mid-day Mood | Cooling volatility sparks market rally, India VIX sees steepest fall in 4 years",
+        "Steel stocks rally as govt extends MIP on 66 steel products",
+        "Global Market: Chinese tech stocks surge as AI optimism returns, policy support lifts markets"
+      ]
+    },
+    "snapshot": {
+      "SPY": {
+        "last": 741.69,
+        "chg_pct": 1.68
+      },
+      "QQQ": {
+        "last": 683.55,
+        "chg_pct": 3.3
+      },
+      "DJI": {
+        "last": 52208.06,
+        "chg_pct": 1.19
+      },
+      "VIX": {
+        "last": 17.09,
+        "chg_pct": -17.28
+      },
+      "OIL": {
+        "last": 81.92,
+        "chg_pct": -2.0
+      },
+      "DXY": {
+        "last": 100.13,
+        "chg_pct": 0.12
+      },
+      "GOLD": {
+        "last": 4141.0,
+        "chg_pct": 1.0
+      },
+      "INR": {
+        "last": 95.36,
+        "chg_pct": -0.39
+      },
+      "NIFTY": {
+        "last": 24368.6,
+        "chg_pct": 0.21
+      },
+      "NIFTY_NEXT50": {
+        "last": 73620.2,
+        "chg_pct": 1.27
+      },
+      "NIFTY100": {
+        "last": 25471.2,
+        "chg_pct": 0.4
+      },
+      "NIFTY200": {
+        "last": 14101.2,
+        "chg_pct": 0.42
+      },
+      "NIFTY500": {
+        "last": 23458.25,
+        "chg_pct": 0.45
+      },
+      "NIFTY_MIDCAP": {
+        "last": 62952.55,
+        "chg_pct": 0.84
+      },
+      "NIFTY_SMALLCAP": {
+        "last": 19395.3,
+        "chg_pct": 0.0
+      },
+      "BANKNIFTY": {
+        "last": 57192.15,
+        "chg_pct": 0.08
+      },
+      "FINNIFTY": {
+        "last": 26508.2,
+        "chg_pct": -1.47
+      },
+      "NIFTY_IT": {
+        "last": 30789.35,
+        "chg_pct": -1.3
+      },
+      "NIFTY_AUTO": {
+        "last": 28807.1,
+        "chg_pct": 6.3
+      },
+      "NIFTY_PHARMA": {
+        "last": 26620.8,
+        "chg_pct": 1.04
+      },
+      "NIFTY_FMCG": {
+        "last": 49194.9,
+        "chg_pct": 0.92
+      },
+      "NIFTY_ENERGY": {
+        "last": 38542.25,
+        "chg_pct": -1.87
+      },
+      "NIFTY_METAL": {
+        "last": 12725.8,
+        "chg_pct": 2.32
+      },
+      "NIFTY_REALTY": {
+        "last": 903.7,
+        "chg_pct": -1.63
+      },
+      "NIFTY_PSU_BANK": {
+        "last": 8342.9,
+        "chg_pct": -0.46
+      },
+      "INDIA_VIX": {
+        "last": 11.85,
+        "chg_pct": -2.55
+      },
+      "SENSEX": {
+        "last": 78034.28,
+        "chg_pct": 0.14
+      },
+      "BSE500": {
+        "last": 36677.78,
+        "chg_pct": 0.37
+      },
+      "regime": "risk-on"
+    }
+  },
+  "market_forecast": {
+    "direction": "UP",
+    "confidence": 95,
+    "band_pct": [
+      -0.89,
+      3.35
+    ],
+    "reasons": [
+      "Breadth 44/104 advancing (42%), 42% trending up.",
+      "10 per-stock predictions avg 95% confidence, net direction score +2.85.",
+      "Macro regime RISK-ON, bias +4.",
+      "Nifty opening expectation: MILD GAP-UP."
+    ],
+    "components": {
+      "breadth_vote": 2.88,
+      "pred_vote": 2.85,
+      "macro_vote": 3.9,
+      "total_score": 9.62,
+      "median_atr": 2.23,
+      "advancing": 44,
+      "declining": 43,
+      "trending_up": 44,
+      "universe": 104
+    }
+  },
+  "self_review": {
+    "updated_at": null,
+    "window_runs": null,
+    "overall_accuracy": null,
+    "picks_scored": 0,
+    "picks_won": 0,
+    "n_features": 0,
+    "best_features": [],
+    "worst_features": [],
+    "calibration": {}
+  }
+}
