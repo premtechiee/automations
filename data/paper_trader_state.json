@@ -38,24 +38,6 @@
       "trail_active": false
     },
     {
-      "symbol": "HINDALCO.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 9,
-      "entry_price": 1004.5,
-      "sl": 983.47,
-      "target": 1016.06,
-      "order_id": null,
-      "opened_at": "2026-08-04 11:48:27",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1013.2,
-      "initial_sl": 983.47,
-      "trail_active": false
-    },
-    {
       "symbol": "TRENT.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -69,7 +51,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 3082.2,
+      "peak_price": 3107.7,
       "initial_sl": 3004.91,
       "trail_active": false
     },
@@ -87,7 +69,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1289.8,
+      "peak_price": 1300.0,
       "initial_sl": 1263.95,
       "trail_active": false
     },
@@ -105,7 +87,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 531.7,
+      "peak_price": 533.8,
       "initial_sl": 517.27,
       "trail_active": false
     }
@@ -128,13 +110,31 @@
       "peak_price": 539.85,
       "initial_sl": 523.2,
       "trail_active": false
+    },
+    {
+      "symbol": "HINDALCO.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 9,
+      "entry_price": 1004.5,
+      "sl": 1011.84,
+      "target": 1016.06,
+      "order_id": null,
+      "opened_at": "2026-08-04 11:48:27",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-08-04 16:33:12",
+      "exit_price": 1020.0,
+      "realised_pnl": 125.83,
+      "peak_price": 1020.0,
+      "initial_sl": 983.47,
+      "trail_active": true
     }
   ],
-  "realised_pnl": 5.06,
+  "realised_pnl": 130.89,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -3400.92,
-  "cumulative_wins": 119,
+  "cumulative_pnl": -3275.09,
+  "cumulative_wins": 120,
   "cumulative_losses": 181,
   "history": [
     {
