@@ -2,30 +2,12 @@
   "date": "2026-08-06",
   "open_trades": [
     {
-      "symbol": "JSWSTEEL.NS",
-      "bucket": "swing",
-      "side": "BUY",
-      "qty": 5,
-      "entry_price": 1289.8,
-      "sl": 1319.36,
-      "target": 1390.25,
-      "order_id": null,
-      "opened_at": "2026-08-04 11:48:27",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1330.0,
-      "initial_sl": 1263.95,
-      "trail_active": true
-    },
-    {
       "symbol": "HAL.NS",
       "bucket": "swing",
       "side": "BUY",
       "qty": 1,
       "entry_price": 4617.0,
-      "sl": 4854.45,
+      "sl": 4902.46,
       "target": 4957.06,
       "order_id": null,
       "opened_at": "2026-08-05 11:47:23",
@@ -33,7 +15,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 4893.6,
+      "peak_price": 4942.0,
       "initial_sl": 4477.6,
       "trail_active": true
     },
@@ -87,7 +69,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1936.6,
+      "peak_price": 1940.6,
       "initial_sl": 1880.04,
       "trail_active": false
     },
@@ -110,12 +92,31 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "JSWSTEEL.NS",
+      "bucket": "swing",
+      "side": "BUY",
+      "qty": 5,
+      "entry_price": 1289.8,
+      "sl": 1319.36,
+      "target": 1390.25,
+      "order_id": null,
+      "opened_at": "2026-08-04 11:48:27",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-08-06 14:49:01",
+      "exit_price": 1312.9,
+      "realised_pnl": 105.74,
+      "peak_price": 1330.0,
+      "initial_sl": 1263.95,
+      "trail_active": true
+    }
+  ],
+  "realised_pnl": 105.74,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -3514.91,
-  "cumulative_wins": 123,
+  "cumulative_pnl": -3409.17,
+  "cumulative_wins": 124,
   "cumulative_losses": 186,
   "history": [
     {
