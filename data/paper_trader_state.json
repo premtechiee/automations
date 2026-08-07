@@ -51,7 +51,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 168.71,
+      "peak_price": 169.09,
       "initial_sl": 162.7,
       "trail_active": false
     },
@@ -71,24 +71,6 @@
       "realised_pnl": 0.0,
       "peak_price": 1647.0,
       "initial_sl": 1605.14,
-      "trail_active": false
-    },
-    {
-      "symbol": "TCS.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 3,
-      "entry_price": 2424.9,
-      "sl": 2358.79,
-      "target": 2452.49,
-      "order_id": null,
-      "opened_at": "2026-08-07 10:56:57",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 2446.6,
-      "initial_sl": 2358.79,
       "trail_active": false
     },
     {
@@ -128,13 +110,31 @@
       "peak_price": 4942.0,
       "initial_sl": 4477.6,
       "trail_active": true
+    },
+    {
+      "symbol": "TCS.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 3,
+      "entry_price": 2424.9,
+      "sl": 2436.35,
+      "target": 2452.49,
+      "order_id": null,
+      "opened_at": "2026-08-07 10:56:57",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-08-07 15:10:57",
+      "exit_price": 2456.0,
+      "realised_pnl": 82.32,
+      "peak_price": 2456.0,
+      "initial_sl": 2358.79,
+      "trail_active": true
     }
   ],
-  "realised_pnl": 273.76,
+  "realised_pnl": 356.08,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -3405.62,
-  "cumulative_wins": 126,
+  "cumulative_pnl": -3323.3,
+  "cumulative_wins": 127,
   "cumulative_losses": 189,
   "history": [
     {
