@@ -20,24 +20,6 @@
       "trail_active": false
     },
     {
-      "symbol": "NAUKRI.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 10,
-      "entry_price": 1353.4,
-      "sl": 1378.38,
-      "target": 1417.81,
-      "order_id": null,
-      "opened_at": "2026-08-11 10:27:33",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1389.5,
-      "initial_sl": 1312.9,
-      "trail_active": true
-    },
-    {
       "symbol": "IDEA.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -110,12 +92,31 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "NAUKRI.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 10,
+      "entry_price": 1353.4,
+      "sl": 1378.38,
+      "target": 1417.81,
+      "order_id": null,
+      "opened_at": "2026-08-11 10:27:33",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-08-11 14:12:20",
+      "exit_price": 1375.7,
+      "realised_pnl": 202.53,
+      "peak_price": 1389.5,
+      "initial_sl": 1312.9,
+      "trail_active": true
+    }
+  ],
+  "realised_pnl": 202.53,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -3931.95,
-  "cumulative_wins": 129,
+  "cumulative_pnl": -3729.42,
+  "cumulative_wins": 130,
   "cumulative_losses": 196,
   "history": [
     {
