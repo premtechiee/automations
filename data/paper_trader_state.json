@@ -54,7 +54,9 @@
       "peak_price": 4030.0,
       "initial_sl": 3724.88,
       "trail_active": true
-    },
+    }
+  ],
+  "closed_today": [
     {
       "symbol": "IDEA.NS",
       "bucket": "intraday",
@@ -65,10 +67,10 @@
       "target": 14.3,
       "order_id": null,
       "opened_at": "2026-08-12 10:52:14",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
+      "status": "CLOSED_EOD",
+      "closed_at": "2026-08-12 16:33:12",
+      "exit_price": 13.5,
+      "realised_pnl": -17.76,
       "peak_price": 13.5,
       "initial_sl": 13.11,
       "trail_active": false
@@ -83,10 +85,10 @@
       "target": 124.05,
       "order_id": null,
       "opened_at": "2026-08-12 10:52:14",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
+      "status": "CLOSED_EOD",
+      "closed_at": "2026-08-12 16:33:12",
+      "exit_price": 118.98,
+      "realised_pnl": 23.68,
       "peak_price": 118.98,
       "initial_sl": 116.28,
       "trail_active": false
@@ -101,22 +103,21 @@
       "target": 1140.97,
       "order_id": null,
       "opened_at": "2026-08-12 10:52:14",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
+      "status": "CLOSED_EOD",
+      "closed_at": "2026-08-12 16:33:12",
+      "exit_price": 1078.5,
+      "realised_pnl": -24.98,
       "peak_price": 1082.0,
       "initial_sl": 1055.89,
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "realised_pnl": -19.06,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -4021.04,
-  "cumulative_wins": 131,
-  "cumulative_losses": 198,
+  "cumulative_pnl": -4040.1,
+  "cumulative_wins": 132,
+  "cumulative_losses": 200,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
