@@ -56,24 +56,6 @@
       "trail_active": false
     },
     {
-      "symbol": "GRASIM.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 2,
-      "entry_price": 3250.0,
-      "sl": 3164.29,
-      "target": 3253.48,
-      "order_id": null,
-      "opened_at": "2026-08-13 10:56:02",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 3250.0,
-      "initial_sl": 3164.29,
-      "trail_active": false
-    },
-    {
       "symbol": "IDEA.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -164,13 +146,31 @@
       "peak_price": 557.85,
       "initial_sl": 539.14,
       "trail_active": false
+    },
+    {
+      "symbol": "GRASIM.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 2,
+      "entry_price": 3250.0,
+      "sl": 3164.29,
+      "target": 3253.48,
+      "order_id": null,
+      "opened_at": "2026-08-13 10:56:02",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-08-13 16:03:47",
+      "exit_price": 3257.0,
+      "realised_pnl": 4.24,
+      "peak_price": 3257.0,
+      "initial_sl": 3164.29,
+      "trail_active": false
     }
   ],
-  "realised_pnl": 0.61,
+  "realised_pnl": 4.85,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -4039.49,
-  "cumulative_wins": 134,
+  "cumulative_pnl": -4035.25,
+  "cumulative_wins": 135,
   "cumulative_losses": 201,
   "history": [
     {
