@@ -38,24 +38,6 @@
       "trail_active": true
     },
     {
-      "symbol": "IDEA.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 862,
-      "entry_price": 13.73,
-      "sl": 13.69,
-      "target": 14.3,
-      "order_id": null,
-      "opened_at": "2026-08-13 10:56:02",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 13.73,
-      "initial_sl": 13.69,
-      "trail_active": false
-    },
-    {
       "symbol": "SHRIRAMFIN.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -90,6 +72,24 @@
       "peak_price": 3250.0,
       "initial_sl": 3164.29,
       "trail_active": false
+    },
+    {
+      "symbol": "BERGEPAINT.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 14,
+      "entry_price": 555.85,
+      "sl": 539.14,
+      "target": 556.19,
+      "order_id": null,
+      "opened_at": "2026-08-13 11:09:25",
+      "status": "OPEN",
+      "closed_at": null,
+      "exit_price": null,
+      "realised_pnl": 0.0,
+      "peak_price": 555.85,
+      "initial_sl": 539.14,
+      "trail_active": false
     }
   ],
   "closed_today": [
@@ -110,14 +110,32 @@
       "peak_price": 4030.0,
       "initial_sl": 3724.88,
       "trail_active": true
+    },
+    {
+      "symbol": "IDEA.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 862,
+      "entry_price": 13.73,
+      "sl": 13.69,
+      "target": 14.3,
+      "order_id": null,
+      "opened_at": "2026-08-13 10:56:02",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-08-13 11:09:25",
+      "exit_price": 13.64,
+      "realised_pnl": -95.27,
+      "peak_price": 13.73,
+      "initial_sl": 13.69,
+      "trail_active": false
     }
   ],
-  "realised_pnl": 79.57,
+  "realised_pnl": -15.7,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -3960.53,
+  "cumulative_pnl": -4055.8,
   "cumulative_wins": 133,
-  "cumulative_losses": 200,
+  "cumulative_losses": 201,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
