@@ -25,7 +25,7 @@
       "side": "BUY",
       "qty": 915,
       "entry_price": 13.76,
-      "sl": 13.66,
+      "sl": 13.92,
       "target": 14.3,
       "order_id": null,
       "opened_at": "2026-08-18 09:53:22",
@@ -33,9 +33,9 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 13.82,
+      "peak_price": 14.03,
       "initial_sl": 13.66,
-      "trail_active": false
+      "trail_active": true
     },
     {
       "symbol": "DIVISLAB.NS",
@@ -90,24 +90,6 @@
       "peak_price": 3289.2,
       "initial_sl": 3200.17,
       "trail_active": false
-    },
-    {
-      "symbol": "DLF.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 12,
-      "entry_price": 671.0,
-      "sl": 654.08,
-      "target": 670.66,
-      "order_id": null,
-      "opened_at": "2026-08-18 11:24:32",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 671.0,
-      "initial_sl": 654.08,
-      "trail_active": false
     }
   ],
   "closed_today": [
@@ -128,13 +110,31 @@
       "peak_price": 117.8,
       "initial_sl": 112.1,
       "trail_active": true
+    },
+    {
+      "symbol": "DLF.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 12,
+      "entry_price": 671.0,
+      "sl": 654.08,
+      "target": 670.66,
+      "order_id": null,
+      "opened_at": "2026-08-18 11:24:32",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-08-18 13:52:40",
+      "exit_price": 673.1,
+      "realised_pnl": 13.1,
+      "peak_price": 673.1,
+      "initial_sl": 654.08,
+      "trail_active": false
     }
   ],
-  "realised_pnl": 20.1,
+  "realised_pnl": 33.2,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -4155.0,
-  "cumulative_wins": 144,
+  "cumulative_pnl": -4141.9,
+  "cumulative_wins": 145,
   "cumulative_losses": 209,
   "history": [
     {
