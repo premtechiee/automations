@@ -20,24 +20,6 @@
       "trail_active": false
     },
     {
-      "symbol": "DLF.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 20,
-      "entry_price": 667.35,
-      "sl": 650.85,
-      "target": 670.66,
-      "order_id": null,
-      "opened_at": "2026-08-19 09:54:30",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 670.0,
-      "initial_sl": 650.85,
-      "trail_active": false
-    },
-    {
       "symbol": "NAUKRI.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -69,7 +51,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 413.5,
+      "peak_price": 414.75,
       "initial_sl": 404.09,
       "trail_active": false
     },
@@ -110,12 +92,31 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "DLF.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 20,
+      "entry_price": 667.35,
+      "sl": 650.85,
+      "target": 670.66,
+      "order_id": null,
+      "opened_at": "2026-08-19 09:54:30",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-08-19 11:53:28",
+      "exit_price": 671.75,
+      "realised_pnl": 67.91,
+      "peak_price": 671.75,
+      "initial_sl": 650.85,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": 67.91,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -4081.6,
-  "cumulative_wins": 146,
+  "cumulative_pnl": -4013.69,
+  "cumulative_wins": 147,
   "cumulative_losses": 214,
   "history": [
     {
