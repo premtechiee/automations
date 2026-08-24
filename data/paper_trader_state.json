@@ -7,7 +7,7 @@
       "side": "BUY",
       "qty": 1,
       "entry_price": 3951.5,
-      "sl": 4055.4,
+      "sl": 4081.09,
       "target": 4386.29,
       "order_id": null,
       "opened_at": "2026-08-14 13:36:32",
@@ -15,7 +15,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 4088.1,
+      "peak_price": 4114.0,
       "initial_sl": 3755.85,
       "trail_active": true
     },
@@ -90,24 +90,6 @@
       "peak_price": 14.1,
       "initial_sl": 13.76,
       "trail_active": false
-    },
-    {
-      "symbol": "MUTHOOTFIN.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 2,
-      "entry_price": 3180.7,
-      "sl": 3090.78,
-      "target": 3207.57,
-      "order_id": null,
-      "opened_at": "2026-08-24 12:19:38",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 3199.8,
-      "initial_sl": 3090.78,
-      "trail_active": false
     }
   ],
   "closed_today": [
@@ -146,13 +128,31 @@
       "peak_price": 3173.6,
       "initial_sl": 3077.29,
       "trail_active": false
+    },
+    {
+      "symbol": "MUTHOOTFIN.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 2,
+      "entry_price": 3180.7,
+      "sl": 3090.78,
+      "target": 3207.57,
+      "order_id": null,
+      "opened_at": "2026-08-24 12:19:38",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-08-24 15:40:32",
+      "exit_price": 3209.0,
+      "realised_pnl": 47.02,
+      "peak_price": 3209.0,
+      "initial_sl": 3090.78,
+      "trail_active": false
     }
   ],
-  "realised_pnl": 38.07,
+  "realised_pnl": 85.09,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -4405.28,
-  "cumulative_wins": 153,
+  "cumulative_pnl": -4358.26,
+  "cumulative_wins": 154,
   "cumulative_losses": 223,
   "history": [
     {
