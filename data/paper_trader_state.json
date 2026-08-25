@@ -20,24 +20,6 @@
       "trail_active": false
     },
     {
-      "symbol": "IDEA.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 877,
-      "entry_price": 14.65,
-      "sl": 14.17,
-      "target": 14.82,
-      "order_id": null,
-      "opened_at": "2026-08-25 09:56:51",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 14.78,
-      "initial_sl": 14.17,
-      "trail_active": false
-    },
-    {
       "symbol": "UPL.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -105,7 +87,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 3035.0,
+      "peak_price": 3036.7,
       "initial_sl": 2965.98,
       "trail_active": false
     }
@@ -128,13 +110,31 @@
       "peak_price": 4114.0,
       "initial_sl": 3755.85,
       "trail_active": true
+    },
+    {
+      "symbol": "IDEA.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 877,
+      "entry_price": 14.65,
+      "sl": 14.8,
+      "target": 14.82,
+      "order_id": null,
+      "opened_at": "2026-08-25 09:56:51",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-08-25 11:29:11",
+      "exit_price": 14.92,
+      "realised_pnl": 217.34,
+      "peak_price": 14.92,
+      "initial_sl": 14.17,
+      "trail_active": true
     }
   ],
-  "realised_pnl": 117.68,
+  "realised_pnl": 335.02,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -4556.87,
-  "cumulative_wins": 155,
+  "cumulative_pnl": -4339.53,
+  "cumulative_wins": 156,
   "cumulative_losses": 226,
   "history": [
     {
