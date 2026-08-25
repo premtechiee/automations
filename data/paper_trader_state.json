@@ -2,24 +2,6 @@
   "date": "2026-08-25",
   "open_trades": [
     {
-      "symbol": "SIEMENS.NS",
-      "bucket": "swing",
-      "side": "BUY",
-      "qty": 1,
-      "entry_price": 3951.5,
-      "sl": 4081.09,
-      "target": 4386.29,
-      "order_id": null,
-      "opened_at": "2026-08-14 13:36:32",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 4114.0,
-      "initial_sl": 3755.85,
-      "trail_active": true
-    },
-    {
       "symbol": "HEROMOTOCO.NS",
       "bucket": "swing",
       "side": "BUY",
@@ -51,7 +33,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 14.68,
+      "peak_price": 14.72,
       "initial_sl": 14.17,
       "trail_active": false
     },
@@ -105,17 +87,36 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 426.05,
+      "peak_price": 426.55,
       "initial_sl": 418.3,
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "SIEMENS.NS",
+      "bucket": "swing",
+      "side": "BUY",
+      "qty": 1,
+      "entry_price": 3951.5,
+      "sl": 4081.09,
+      "target": 4386.29,
+      "order_id": null,
+      "opened_at": "2026-08-14 13:36:32",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-08-25 10:31:37",
+      "exit_price": 4075.2,
+      "realised_pnl": 117.68,
+      "peak_price": 4114.0,
+      "initial_sl": 3755.85,
+      "trail_active": true
+    }
+  ],
+  "realised_pnl": 117.68,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -4674.55,
-  "cumulative_wins": 154,
+  "cumulative_pnl": -4556.87,
+  "cumulative_wins": 155,
   "cumulative_losses": 226,
   "history": [
     {
