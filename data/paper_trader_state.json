@@ -51,7 +51,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 143.25,
+      "peak_price": 143.34,
       "initial_sl": 140.29,
       "trail_active": false
     },
@@ -89,24 +89,6 @@
       "realised_pnl": 0.0,
       "peak_price": 15.26,
       "initial_sl": 14.77,
-      "trail_active": false
-    },
-    {
-      "symbol": "ADANIENT.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 2,
-      "entry_price": 3064.7,
-      "sl": 3011.67,
-      "target": 3085.32,
-      "order_id": null,
-      "opened_at": "2026-08-25 14:37:44",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 3085.0,
-      "initial_sl": 3011.67,
       "trail_active": false
     }
   ],
@@ -182,13 +164,31 @@
       "peak_price": 15.2,
       "initial_sl": 14.46,
       "trail_active": true
+    },
+    {
+      "symbol": "ADANIENT.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 2,
+      "entry_price": 3064.7,
+      "sl": 3011.67,
+      "target": 3085.32,
+      "order_id": null,
+      "opened_at": "2026-08-25 14:37:44",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-08-25 15:28:11",
+      "exit_price": 3094.2,
+      "realised_pnl": 49.76,
+      "peak_price": 3094.2,
+      "initial_sl": 3011.67,
+      "trail_active": false
     }
   ],
-  "realised_pnl": 540.83,
+  "realised_pnl": 590.59,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -4133.72,
-  "cumulative_wins": 158,
+  "cumulative_pnl": -4083.96,
+  "cumulative_wins": 159,
   "cumulative_losses": 226,
   "history": [
     {
