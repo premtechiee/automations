@@ -20,24 +20,6 @@
       "trail_active": false
     },
     {
-      "symbol": "ADANIPOWER.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 64,
-      "entry_price": 211.2,
-      "sl": 208.0,
-      "target": 213.37,
-      "order_id": null,
-      "opened_at": "2026-08-26 09:58:13",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 211.2,
-      "initial_sl": 208.0,
-      "trail_active": false
-    },
-    {
       "symbol": "BANKINDIA.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -90,6 +72,24 @@
       "peak_price": 430.5,
       "initial_sl": 420.88,
       "trail_active": false
+    },
+    {
+      "symbol": "VEDL.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 27,
+      "entry_price": 283.35,
+      "sl": 275.62,
+      "target": 285.83,
+      "order_id": null,
+      "opened_at": "2026-08-26 14:08:07",
+      "status": "OPEN",
+      "closed_at": null,
+      "exit_price": null,
+      "realised_pnl": 0.0,
+      "peak_price": 283.35,
+      "initial_sl": 275.62,
+      "trail_active": false
     }
   ],
   "closed_today": [
@@ -128,14 +128,32 @@
       "peak_price": 282.8,
       "initial_sl": 274.59,
       "trail_active": false
+    },
+    {
+      "symbol": "ADANIPOWER.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 64,
+      "entry_price": 211.2,
+      "sl": 208.0,
+      "target": 213.37,
+      "order_id": null,
+      "opened_at": "2026-08-26 09:58:13",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-08-26 14:08:07",
+      "exit_price": 207.65,
+      "realised_pnl": -247.3,
+      "peak_price": 211.2,
+      "initial_sl": 208.0,
+      "trail_active": false
     }
   ],
-  "realised_pnl": 62.8,
+  "realised_pnl": -184.5,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -3851.2,
+  "cumulative_pnl": -4098.5,
   "cumulative_wins": 163,
-  "cumulative_losses": 228,
+  "cumulative_losses": 229,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
