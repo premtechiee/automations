@@ -74,24 +74,6 @@
       "trail_active": false
     },
     {
-      "symbol": "VEDL.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 27,
-      "entry_price": 283.35,
-      "sl": 275.62,
-      "target": 285.83,
-      "order_id": null,
-      "opened_at": "2026-08-26 14:08:07",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 285.25,
-      "initial_sl": 275.62,
-      "trail_active": false
-    },
-    {
       "symbol": "KOTAKBANK.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -164,13 +146,31 @@
       "peak_price": 211.2,
       "initial_sl": 208.0,
       "trail_active": false
+    },
+    {
+      "symbol": "VEDL.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 27,
+      "entry_price": 283.35,
+      "sl": 275.62,
+      "target": 285.83,
+      "order_id": null,
+      "opened_at": "2026-08-26 14:08:07",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-08-26 15:34:04",
+      "exit_price": 286.5,
+      "realised_pnl": 73.51,
+      "peak_price": 286.5,
+      "initial_sl": 275.62,
+      "trail_active": false
     }
   ],
-  "realised_pnl": -184.5,
+  "realised_pnl": -110.99,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -4098.5,
-  "cumulative_wins": 163,
+  "cumulative_pnl": -4024.99,
+  "cumulative_wins": 164,
   "cumulative_losses": 229,
   "history": [
     {
