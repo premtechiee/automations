@@ -56,24 +56,6 @@
       "trail_active": false
     },
     {
-      "symbol": "VEDL.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 34,
-      "entry_price": 280.45,
-      "sl": 272.37,
-      "target": 282.28,
-      "order_id": null,
-      "opened_at": "2026-08-26 09:58:13",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 281.5,
-      "initial_sl": 272.37,
-      "trail_active": false
-    },
-    {
       "symbol": "ADANIENT.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -110,12 +92,31 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "VEDL.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 34,
+      "entry_price": 280.45,
+      "sl": 272.37,
+      "target": 282.28,
+      "order_id": null,
+      "opened_at": "2026-08-26 09:58:13",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-08-26 11:18:27",
+      "exit_price": 282.5,
+      "realised_pnl": 55.34,
+      "peak_price": 282.5,
+      "initial_sl": 272.37,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": 55.34,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -3914.0,
-  "cumulative_wins": 161,
+  "cumulative_pnl": -3858.66,
+  "cumulative_wins": 162,
   "cumulative_losses": 228,
   "history": [
     {
