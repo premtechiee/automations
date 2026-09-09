@@ -38,24 +38,6 @@
       "trail_active": false
     },
     {
-      "symbol": "ADANIENT.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 3,
-      "entry_price": 3100.1,
-      "sl": 3014.52,
-      "target": 3098.79,
-      "order_id": null,
-      "opened_at": "2026-09-09 13:56:39",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 3100.1,
-      "initial_sl": 3014.52,
-      "trail_active": false
-    },
-    {
       "symbol": "ADANIPORTS.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -69,7 +51,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1776.7,
+      "peak_price": 1778.9,
       "initial_sl": 1761.65,
       "trail_active": false
     },
@@ -87,8 +69,28 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1327.7,
+      "peak_price": 1328.0,
       "initial_sl": 1287.66,
+      "trail_active": false
+    }
+  ],
+  "closed_today": [
+    {
+      "symbol": "ADANIENT.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 3,
+      "entry_price": 3100.1,
+      "sl": 3014.52,
+      "target": 3098.79,
+      "order_id": null,
+      "opened_at": "2026-09-09 13:56:39",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-09-09 14:07:45",
+      "exit_price": 3102.2,
+      "realised_pnl": -7.66,
+      "peak_price": 3102.2,
+      "initial_sl": 3014.52,
       "trail_active": false
     },
     {
@@ -101,22 +103,21 @@
       "target": 432.63,
       "order_id": null,
       "opened_at": "2026-09-09 13:56:39",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 432.5,
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-09-09 14:07:45",
+      "exit_price": 432.95,
+      "realised_pnl": -3.58,
+      "peak_price": 432.95,
       "initial_sl": 429.84,
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "realised_pnl": -11.24,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -3800.46,
+  "cumulative_pnl": -3811.7,
   "cumulative_wins": 178,
-  "cumulative_losses": 245,
+  "cumulative_losses": 247,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
