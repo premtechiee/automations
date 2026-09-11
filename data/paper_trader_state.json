@@ -38,24 +38,6 @@
       "trail_active": false
     },
     {
-      "symbol": "ADANIENT.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 3,
-      "entry_price": 3032.7,
-      "sl": 3011.67,
-      "target": 3052.48,
-      "order_id": null,
-      "opened_at": "2026-09-11 13:52:49",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 3044.1,
-      "initial_sl": 3011.67,
-      "trail_active": false
-    },
-    {
       "symbol": "GAIL.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -105,7 +87,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1831.0,
+      "peak_price": 1845.9,
       "initial_sl": 1811.99,
       "trail_active": false
     }
@@ -128,13 +110,31 @@
       "peak_price": 677.25,
       "initial_sl": 648.04,
       "trail_active": false
+    },
+    {
+      "symbol": "ADANIENT.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 3,
+      "entry_price": 3032.7,
+      "sl": 3011.67,
+      "target": 3052.48,
+      "order_id": null,
+      "opened_at": "2026-09-11 13:52:49",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-09-11 18:26:02",
+      "exit_price": 3060.0,
+      "realised_pnl": 68.19,
+      "peak_price": 3060.0,
+      "initial_sl": 3011.67,
+      "trail_active": false
     }
   ],
-  "realised_pnl": -416.77,
+  "realised_pnl": -348.58,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -4253.81,
-  "cumulative_wins": 181,
+  "cumulative_pnl": -4185.62,
+  "cumulative_wins": 182,
   "cumulative_losses": 253,
   "history": [
     {
