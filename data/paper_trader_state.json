@@ -33,26 +33,8 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 310.85,
+      "peak_price": 313.6,
       "initial_sl": 303.57,
-      "trail_active": false
-    },
-    {
-      "symbol": "COALINDIA.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 24,
-      "entry_price": 426.55,
-      "sl": 422.88,
-      "target": 427.64,
-      "order_id": null,
-      "opened_at": "2026-09-22 14:22:02",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 426.55,
-      "initial_sl": 422.88,
       "trail_active": false
     },
     {
@@ -69,7 +51,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 5026.0,
+      "peak_price": 5030.0,
       "initial_sl": 4891.12,
       "trail_active": false
     },
@@ -87,7 +69,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1794.6,
+      "peak_price": 1795.0,
       "initial_sl": 1774.28,
       "trail_active": false
     },
@@ -110,12 +92,31 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "COALINDIA.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 24,
+      "entry_price": 426.55,
+      "sl": 422.88,
+      "target": 427.64,
+      "order_id": null,
+      "opened_at": "2026-09-22 14:22:02",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-09-22 19:04:09",
+      "exit_price": 428.0,
+      "realised_pnl": 19.42,
+      "peak_price": 428.0,
+      "initial_sl": 422.88,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": 19.42,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -5798.55,
-  "cumulative_wins": 189,
+  "cumulative_pnl": -5779.13,
+  "cumulative_wins": 190,
   "cumulative_losses": 281,
   "history": [
     {
