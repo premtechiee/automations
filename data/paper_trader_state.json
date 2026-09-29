@@ -1,6 +1,7 @@
 {
-  "date": "2026-09-28",
-  "open_trades": [
+  "date": "2026-09-29",
+  "open_trades": [],
+  "closed_today": [
     {
       "symbol": "ZYDUSLIFE.NS",
       "bucket": "swing",
@@ -11,40 +12,20 @@
       "target": 1278.1,
       "order_id": null,
       "opened_at": "2026-09-22 14:22:02",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
+      "status": "CLOSED_SL",
+      "closed_at": "2026-09-29 15:41:43",
+      "exit_price": 1200.5,
+      "realised_pnl": 157.62,
       "peak_price": 1215.0,
       "initial_sl": 1120.97,
       "trail_active": true
     }
   ],
-  "closed_today": [
-    {
-      "symbol": "ADANIPORTS.NS",
-      "bucket": "swing",
-      "side": "BUY",
-      "qty": 4,
-      "entry_price": 1794.6,
-      "sl": 1774.28,
-      "target": 1953.39,
-      "order_id": null,
-      "opened_at": "2026-09-22 14:22:02",
-      "status": "CLOSED_SL",
-      "closed_at": "2026-09-28 15:44:36",
-      "exit_price": 1743.7,
-      "realised_pnl": -214.21,
-      "peak_price": 1807.3,
-      "initial_sl": 1774.28,
-      "trail_active": false
-    }
-  ],
-  "realised_pnl": -214.21,
+  "realised_pnl": 157.62,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -5939.48,
-  "cumulative_wins": 197,
+  "cumulative_pnl": -5781.86,
+  "cumulative_wins": 198,
   "cumulative_losses": 290,
   "history": [
     {
@@ -8775,6 +8756,24 @@
       "realised_pnl": -14.65,
       "peak_price": 531.25,
       "initial_sl": 528.39,
+      "trail_active": false
+    },
+    {
+      "symbol": "ADANIPORTS.NS",
+      "bucket": "swing",
+      "side": "BUY",
+      "qty": 4,
+      "entry_price": 1794.6,
+      "sl": 1774.28,
+      "target": 1953.39,
+      "order_id": null,
+      "opened_at": "2026-09-22 14:22:02",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-09-28 15:44:36",
+      "exit_price": 1743.7,
+      "realised_pnl": -214.21,
+      "peak_price": 1807.3,
+      "initial_sl": 1774.28,
       "trail_active": false
     }
   ]
