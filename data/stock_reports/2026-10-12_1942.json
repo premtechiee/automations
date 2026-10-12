@@ -1,0 +1,2240 @@
+{
+  "generated_at": "2026-10-12T19:42:21",
+  "buckets": {
+    "intraday": [
+      {
+        "symbol": "TCS.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 2156.0,
+        "tech": {
+          "price": 2156.0,
+          "chg_1d_pct": 3.8535645472061564,
+          "chg_5d_pct": 3.903614457831317,
+          "chg_1m_pct": -4.411438705386828,
+          "chg_3m_pct": 4.787363304981773,
+          "ema20": 2130.5952869134094,
+          "ema50": 2195.4670016881387,
+          "ema200": 2266.9822564894152,
+          "rsi14": 50.61930648453438,
+          "macd": -42.03526674233672,
+          "macd_sig": -51.58090969622947,
+          "macd_hist": 9.545642953892752,
+          "atr14": 62.86712945690866,
+          "atr_pct": 2.9159150954039266,
+          "bb_low": 2000.9987235358108,
+          "bb_high": 2237.7413033196576,
+          "vol_ratio": 3.0877671875500936,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 100.0,
+          "matched": 1,
+          "pos": 1,
+          "neg": 0,
+          "categories": {
+            "earnings": {
+              "pos": 1,
+              "neg": 0,
+              "score": 100.0
+            }
+          },
+          "samples": [
+            "TCS to hire 80% of workforce with digital, AI skills; expects margin gains"
+          ]
+        },
+        "patterns": [
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 2032.4,
+          "resistance": 2323.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 2092.5,
+          "pivot_r1": 2125.0,
+          "pivot_s1": 2043.5
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 87,
+          "score": 3.75,
+          "macro_bias": 0,
+          "senti_bias": 0.75,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume is 3.1\u00d7 the usual \u2014 strong interest",
+            "Candle pattern suggests buyers in control",
+            "Positive earnings news (+1/-0)"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.8,
+        "bucket_score": 146.6,
+        "levels": {
+          "entry": 2156.0,
+          "sl": 2093.13,
+          "target": 2313.17,
+          "support": 2032.4,
+          "resistance": 2323.0,
+          "expected_profit_pct": 7.29,
+          "risk_pct": 2.92,
+          "rr": 2.5,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            2093.13,
+            2218.87
+          ],
+          "forecast_3d": [
+            2049.13,
+            2262.87
+          ],
+          "forecast_5d": [
+            2017.69,
+            2294.31
+          ]
+        }
+      },
+      {
+        "symbol": "PERSISTENT.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 5770.0,
+        "tech": {
+          "price": 5770.0,
+          "chg_1d_pct": 5.523043160204821,
+          "chg_5d_pct": 7.50885038196385,
+          "chg_1m_pct": 3.7769784172661858,
+          "chg_3m_pct": 20.97704161861831,
+          "ema20": 5465.14250897956,
+          "ema50": 5428.024056497986,
+          "ema200": 5208.612084173387,
+          "rsi14": 63.08266296359235,
+          "macd": 15.133084951080491,
+          "macd_sig": -22.733960652860244,
+          "macd_hist": 37.86704560394074,
+          "atr14": 166.90417036860256,
+          "atr_pct": 2.892619937064169,
+          "bb_low": 5157.9628855457295,
+          "bb_high": 5688.887114454271,
+          "vol_ratio": 1.758029118068591,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Strong Bullish candle",
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 5390.0,
+          "resistance": 5910.0,
+          "support_strength": 2,
+          "resistance_strength": 1,
+          "pivot_p": 5509.0,
+          "pivot_r1": 5588.0,
+          "pivot_s1": 5389.0
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 7.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume is 1.8\u00d7 the usual \u2014 strong interest",
+            "Candle pattern suggests buyers in control",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 146.4,
+        "levels": {
+          "entry": 5770.0,
+          "sl": 5603.1,
+          "target": 5898.18,
+          "support": 5390.0,
+          "resistance": 5910.0,
+          "expected_profit_pct": 2.22,
+          "risk_pct": 2.89,
+          "rr": 0.77,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            5603.1,
+            5936.9
+          ],
+          "forecast_3d": [
+            5486.26,
+            6053.74
+          ],
+          "forecast_5d": [
+            5402.81,
+            6137.19
+          ]
+        }
+      },
+      {
+        "symbol": "ITC.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 266.0,
+        "tech": {
+          "price": 266.0,
+          "chg_1d_pct": 4.313725490196085,
+          "chg_5d_pct": 3.9468567191921267,
+          "chg_1m_pct": 0.9487666034155628,
+          "chg_3m_pct": -5.22002288084421,
+          "ema20": 264.5958681831749,
+          "ema50": 269.29640759849116,
+          "ema200": 283.9262094805318,
+          "rsi14": 50.45775616136835,
+          "macd": -1.4360671570617,
+          "macd_sig": -1.6001365527992695,
+          "macd_hist": 0.1640693957375694,
+          "atr14": 6.475529136708701,
+          "atr_pct": 2.434409449890489,
+          "bb_low": 255.30700006125323,
+          "bb_high": 272.7929999387468,
+          "vol_ratio": 1.611659494791416,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 2,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": [
+            "Market wrap: ITC, Apollo Hospital, Dr Reddy's Labs, Bajaj Auto top gainers and losers on Nifty and Sensex on Monday",
+            "Bitcoin trades near $83K as market attempts to stabilise; spot ETF outflows signal cautious institutional sentiment"
+          ]
+        },
+        "patterns": [],
+        "sr": {
+          "support": 265.0,
+          "resistance": 268.5,
+          "support_strength": 1,
+          "resistance_strength": 3,
+          "pivot_p": 257.6,
+          "pivot_r1": 262.05,
+          "pivot_s1": 250.55
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 60,
+          "score": 1.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume is 1.6\u00d7 the usual \u2014 strong interest",
+            "Price near resistance \u20b9268.50 \u2014 may struggle to break above",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 61.2,
+        "bucket_score": 142.1,
+        "levels": {
+          "entry": 266.0,
+          "sl": 263.68,
+          "target": 267.96,
+          "support": 265.0,
+          "resistance": 268.5,
+          "expected_profit_pct": 0.74,
+          "risk_pct": 0.87,
+          "rr": 0.84,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            259.52,
+            272.48
+          ],
+          "forecast_3d": [
+            254.99,
+            277.01
+          ],
+          "forecast_5d": [
+            251.75,
+            280.25
+          ]
+        }
+      },
+      {
+        "symbol": "ICICIGI.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1690.199951171875,
+        "tech": {
+          "price": 1690.199951171875,
+          "chg_1d_pct": 4.076351673145018,
+          "chg_5d_pct": 8.138192653350917,
+          "chg_1m_pct": 13.86418238837257,
+          "chg_3m_pct": -6.318590127771262,
+          "ema20": 1567.9793436611403,
+          "ema50": 1584.6662785361084,
+          "ema200": 1694.2943528698336,
+          "rsi14": 66.90993988707402,
+          "macd": 21.356285184435592,
+          "macd_sig": 0.9660941322063126,
+          "macd_hist": 20.39019105222928,
+          "atr14": 43.143366344775544,
+          "atr_pct": 2.5525599095457747,
+          "bb_low": 1392.8988484569388,
+          "bb_high": 1673.9211344532175,
+          "vol_ratio": 1.5736284159667075,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 1618.6,
+          "resistance": 1708.4,
+          "support_strength": 2,
+          "resistance_strength": 1,
+          "pivot_p": 1613.97,
+          "pivot_r1": 1638.63,
+          "pivot_s1": 1599.33
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 60,
+          "score": 1.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum turning positive (MACD)",
+            "Trading volume is 1.6\u00d7 the usual \u2014 strong interest",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 63.5,
+        "bucket_score": 140.8,
+        "levels": {
+          "entry": 1690.2,
+          "sl": 1647.06,
+          "target": 1704.98,
+          "support": 1618.6,
+          "resistance": 1708.4,
+          "expected_profit_pct": 0.87,
+          "risk_pct": 2.55,
+          "rr": 0.34,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            1647.06,
+            1733.34
+          ],
+          "forecast_3d": [
+            1616.86,
+            1763.54
+          ],
+          "forecast_5d": [
+            1595.28,
+            1785.12
+          ]
+        }
+      },
+      {
+        "symbol": "VEDL.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 264.0,
+        "tech": {
+          "price": 264.0,
+          "chg_1d_pct": 4.306595667179236,
+          "chg_5d_pct": 4.741121524917524,
+          "chg_1m_pct": -2.941176470588236,
+          "chg_3m_pct": -3.0481043573455047,
+          "ema20": 262.37891541582474,
+          "ema50": 273.23374214483016,
+          "ema200": 330.35846673288654,
+          "rsi14": 50.11521411340221,
+          "macd": -2.922124861595705,
+          "macd_sig": -3.1720986803473705,
+          "macd_hist": 0.24997381875166536,
+          "atr14": 7.873344786268349,
+          "atr_pct": 2.9823275705561927,
+          "bb_low": 250.5777490964334,
+          "bb_high": 272.2572545656759,
+          "vol_ratio": 1.3657042957412384,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Strong Bullish candle"
+        ],
+        "sr": {
+          "support": 261.35,
+          "resistance": 267.7,
+          "support_strength": 1,
+          "resistance_strength": 2,
+          "pivot_p": 256.18,
+          "pivot_r1": 259.27,
+          "pivot_s1": 250.02
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 70,
+          "score": 2.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Candle pattern suggests buyers in control",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 61.2,
+        "bucket_score": 138.4,
+        "levels": {
+          "entry": 264.0,
+          "sl": 260.04,
+          "target": 267.16,
+          "support": 261.35,
+          "resistance": 267.7,
+          "expected_profit_pct": 1.2,
+          "risk_pct": 1.5,
+          "rr": 0.8,
+          "est_hold_days": 0,
+          "hold_hint": "Same trading day \u2014 exit by 3:20 PM",
+          "buy_window": "After 09:30 IST on dip to entry \u2014 avoid first 15-min chaos",
+          "forecast_1d": [
+            256.13,
+            271.87
+          ],
+          "forecast_3d": [
+            250.62,
+            277.38
+          ],
+          "forecast_5d": [
+            246.68,
+            281.32
+          ]
+        }
+      }
+    ],
+    "swing": [
+      {
+        "symbol": "BHEL.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 433.6000061035156,
+        "tech": {
+          "price": 433.6000061035156,
+          "chg_1d_pct": 0.931098683233289,
+          "chg_5d_pct": 2.9928755590298506,
+          "chg_1m_pct": 2.712308983199674,
+          "chg_3m_pct": 14.769724752115355,
+          "ema20": 427.96107185266635,
+          "ema50": 421.2352849673814,
+          "ema200": 402.2366138581307,
+          "rsi14": 53.51894792807136,
+          "macd": 3.5125131014266344,
+          "macd_sig": 2.02635384640415,
+          "macd_hist": 1.4861592550224842,
+          "atr14": 14.075863021971935,
+          "atr_pct": 3.2462783265301733,
+          "bb_low": 402.6640910747682,
+          "bb_high": 449.7459125873412,
+          "vol_ratio": 1.2716808620049131,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Doji (indecision)"
+        ],
+        "sr": {
+          "support": 417.35,
+          "resistance": 435.95,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 436.83,
+          "pivot_r1": 444.22,
+          "pivot_s1": 422.22
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 80,
+          "score": 3.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Price near resistance \u20b9435.95 \u2014 may struggle to break above",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 65.8,
+        "bucket_score": 95.1,
+        "levels": {
+          "entry": 433.6,
+          "sl": 415.26,
+          "target": 489.9,
+          "support": 417.35,
+          "resistance": 435.95,
+          "expected_profit_pct": 12.99,
+          "risk_pct": 4.23,
+          "rr": 3.07,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            419.52,
+            447.68
+          ],
+          "forecast_3d": [
+            409.67,
+            457.53
+          ],
+          "forecast_5d": [
+            402.63,
+            464.57
+          ]
+        }
+      },
+      {
+        "symbol": "PNB.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 116.9800033569336,
+        "tech": {
+          "price": 116.9800033569336,
+          "chg_1d_pct": 1.4658707849646957,
+          "chg_5d_pct": 6.762803397597716,
+          "chg_1m_pct": 0.8448304801151663,
+          "chg_3m_pct": 15.879154921530226,
+          "ema20": 114.75002632798301,
+          "ema50": 114.25134172034902,
+          "ema200": 110.78338727643413,
+          "rsi14": 55.842309256321144,
+          "macd": -0.3238665363024893,
+          "macd_sig": -0.37815496427111583,
+          "macd_hist": 0.05428842796862654,
+          "atr14": 2.820756351899411,
+          "atr_pct": 2.411314986282415,
+          "bb_low": 110.2240864896595,
+          "bb_high": 120.17291286947136,
+          "vol_ratio": 0.903712966239061,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 115.0,
+          "resistance": 118.2,
+          "support_strength": 2,
+          "resistance_strength": 3,
+          "pivot_p": 115.48,
+          "pivot_r1": 117.26,
+          "pivot_s1": 113.52
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 90,
+          "score": 4.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 65.8,
+        "bucket_score": 93.5,
+        "levels": {
+          "entry": 116.98,
+          "sl": 114.42,
+          "target": 128.26,
+          "support": 115.0,
+          "resistance": 118.2,
+          "expected_profit_pct": 9.65,
+          "risk_pct": 2.18,
+          "rr": 4.42,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            114.16,
+            119.8
+          ],
+          "forecast_3d": [
+            112.18,
+            121.78
+          ],
+          "forecast_5d": [
+            110.77,
+            123.19
+          ]
+        }
+      },
+      {
+        "symbol": "PERSISTENT.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 5770.0,
+        "tech": {
+          "price": 5770.0,
+          "chg_1d_pct": 5.523043160204821,
+          "chg_5d_pct": 7.50885038196385,
+          "chg_1m_pct": 3.7769784172661858,
+          "chg_3m_pct": 20.97704161861831,
+          "ema20": 5465.14250897956,
+          "ema50": 5428.024056497986,
+          "ema200": 5208.612084173387,
+          "rsi14": 63.08266296359235,
+          "macd": 15.133084951080491,
+          "macd_sig": -22.733960652860244,
+          "macd_hist": 37.86704560394074,
+          "atr14": 166.90417036860256,
+          "atr_pct": 2.892619937064169,
+          "bb_low": 5157.9628855457295,
+          "bb_high": 5688.887114454271,
+          "vol_ratio": 1.758029118068591,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Strong Bullish candle",
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 5390.0,
+          "resistance": 5910.0,
+          "support_strength": 2,
+          "resistance_strength": 1,
+          "pivot_p": 5509.0,
+          "pivot_r1": 5588.0,
+          "pivot_s1": 5389.0
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 7.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume is 1.8\u00d7 the usual \u2014 strong interest",
+            "Candle pattern suggests buyers in control",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 91.6,
+        "levels": {
+          "entry": 5770.0,
+          "sl": 5469.57,
+          "target": 6437.62,
+          "support": 5390.0,
+          "resistance": 5910.0,
+          "expected_profit_pct": 11.57,
+          "risk_pct": 5.21,
+          "rr": 2.22,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            5603.1,
+            5936.9
+          ],
+          "forecast_3d": [
+            5486.26,
+            6053.74
+          ],
+          "forecast_5d": [
+            5402.81,
+            6137.19
+          ]
+        }
+      },
+      {
+        "symbol": "DIVISLAB.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 9340.0,
+        "tech": {
+          "price": 9340.0,
+          "chg_1d_pct": -0.2243350069436989,
+          "chg_5d_pct": 0.983890150286526,
+          "chg_1m_pct": -2.4543080939947726,
+          "chg_3m_pct": 38.2679496669134,
+          "ema20": 9349.43016180131,
+          "ema50": 8904.838595525549,
+          "ema200": 7661.6411290322585,
+          "rsi14": 52.49634997289801,
+          "macd": 120.07459370552351,
+          "macd_sig": 168.08281377603177,
+          "macd_hist": -48.00822007050826,
+          "atr14": 213.09683049232038,
+          "atr_pct": 2.2815506476693828,
+          "bb_low": 9102.424169049207,
+          "bb_high": 9695.475830950794,
+          "vol_ratio": 0.7694139372490427,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 9312.5,
+          "resistance": 9467.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 9458.0,
+          "pivot_r1": 9561.0,
+          "pivot_s1": 9258.0
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 80,
+          "score": 3.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum fading (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Price near support \u20b99312.50 \u2014 good risk:reward if it holds",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 61.2,
+        "bucket_score": 83.7,
+        "levels": {
+          "entry": 9340.0,
+          "sl": 9265.94,
+          "target": 10192.39,
+          "support": 9312.5,
+          "resistance": 9467.0,
+          "expected_profit_pct": 9.13,
+          "risk_pct": 0.79,
+          "rr": 11.51,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            9126.9,
+            9553.1
+          ],
+          "forecast_3d": [
+            8977.74,
+            9702.26
+          ],
+          "forecast_5d": [
+            8871.19,
+            9808.81
+          ]
+        }
+      },
+      {
+        "symbol": "KOTAKBANK.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 441.0,
+        "tech": {
+          "price": 441.0,
+          "chg_1d_pct": 1.379310344827589,
+          "chg_5d_pct": 5.414125389275104,
+          "chg_1m_pct": 5.187835420393561,
+          "chg_3m_pct": 19.156982633676023,
+          "ema20": 420.3503071372283,
+          "ema50": 411.0660768410108,
+          "ema200": 395.0685481409873,
+          "rsi14": 67.95261257357524,
+          "macd": 6.574194634995081,
+          "macd_sig": 3.7173838834172663,
+          "macd_hist": 2.8568107515778145,
+          "atr14": 9.850058317362707,
+          "atr_pct": 2.233573314594718,
+          "bb_low": 394.61307503620594,
+          "bb_high": 439.97191947063004,
+          "vol_ratio": 1.4418798650784703,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 418.95,
+          "resistance": 463.05,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 435.98,
+          "pivot_r1": 439.02,
+          "pivot_s1": 431.97
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 90,
+          "score": 4.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Trading volume is 1.4\u00d7 the usual \u2014 strong interest",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 70.2,
+        "bucket_score": 82.9,
+        "levels": {
+          "entry": 441.0,
+          "sl": 423.27,
+          "target": 480.4,
+          "support": 418.95,
+          "resistance": 463.05,
+          "expected_profit_pct": 8.93,
+          "risk_pct": 4.02,
+          "rr": 2.22,
+          "est_hold_days": 7,
+          "hold_hint": "~7 trading days (max 15)",
+          "buy_window": "Stagger: 50% now, 50% on pullback toward support",
+          "forecast_1d": [
+            431.15,
+            450.85
+          ],
+          "forecast_3d": [
+            424.25,
+            457.75
+          ],
+          "forecast_5d": [
+            419.33,
+            462.67
+          ]
+        }
+      }
+    ],
+    "holding": [
+      {
+        "symbol": "KOTAKBANK.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 441.0,
+        "tech": {
+          "price": 441.0,
+          "chg_1d_pct": 1.379310344827589,
+          "chg_5d_pct": 5.414125389275104,
+          "chg_1m_pct": 5.187835420393561,
+          "chg_3m_pct": 19.156982633676023,
+          "ema20": 420.3503071372283,
+          "ema50": 411.0660768410108,
+          "ema200": 395.0685481409873,
+          "rsi14": 67.95261257357524,
+          "macd": 6.574194634995081,
+          "macd_sig": 3.7173838834172663,
+          "macd_hist": 2.8568107515778145,
+          "atr14": 9.850058317362707,
+          "atr_pct": 2.233573314594718,
+          "bb_low": 394.61307503620594,
+          "bb_high": 439.97191947063004,
+          "vol_ratio": 1.4418798650784703,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 418.95,
+          "resistance": 463.05,
+          "support_strength": 1,
+          "resistance_strength": 0,
+          "pivot_p": 435.98,
+          "pivot_r1": 439.02,
+          "pivot_s1": 431.97
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 90,
+          "score": 4.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Trading volume is 1.4\u00d7 the usual \u2014 strong interest",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 70.2,
+        "bucket_score": 59.0,
+        "levels": {
+          "entry": 441.0,
+          "sl": 416.86,
+          "target": 551.25,
+          "support": 418.95,
+          "resistance": 463.05,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 5.47,
+          "rr": 4.57,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            431.15,
+            450.85
+          ],
+          "forecast_3d": [
+            424.25,
+            457.75
+          ],
+          "forecast_5d": [
+            419.33,
+            462.67
+          ]
+        }
+      },
+      {
+        "symbol": "PERSISTENT.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 5770.0,
+        "tech": {
+          "price": 5770.0,
+          "chg_1d_pct": 5.523043160204821,
+          "chg_5d_pct": 7.50885038196385,
+          "chg_1m_pct": 3.7769784172661858,
+          "chg_3m_pct": 20.97704161861831,
+          "ema20": 5465.14250897956,
+          "ema50": 5428.024056497986,
+          "ema200": 5208.612084173387,
+          "rsi14": 63.08266296359235,
+          "macd": 15.133084951080491,
+          "macd_sig": -22.733960652860244,
+          "macd_hist": 37.86704560394074,
+          "atr14": 166.90417036860256,
+          "atr_pct": 2.892619937064169,
+          "bb_low": 5157.9628855457295,
+          "bb_high": 5688.887114454271,
+          "vol_ratio": 1.758029118068591,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Strong Bullish candle",
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 5390.0,
+          "resistance": 5910.0,
+          "support_strength": 2,
+          "resistance_strength": 1,
+          "pivot_p": 5509.0,
+          "pivot_r1": 5588.0,
+          "pivot_s1": 5389.0
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 95,
+          "score": 7.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Trading volume is 1.8\u00d7 the usual \u2014 strong interest",
+            "Candle pattern suggests buyers in control",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 68.0,
+        "bucket_score": 58.0,
+        "levels": {
+          "entry": 5770.0,
+          "sl": 5363.05,
+          "target": 7212.5,
+          "support": 5390.0,
+          "resistance": 5910.0,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 7.05,
+          "rr": 3.54,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            5603.1,
+            5936.9
+          ],
+          "forecast_3d": [
+            5486.26,
+            6053.74
+          ],
+          "forecast_5d": [
+            5402.81,
+            6137.19
+          ]
+        }
+      },
+      {
+        "symbol": "BHEL.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 433.6000061035156,
+        "tech": {
+          "price": 433.6000061035156,
+          "chg_1d_pct": 0.931098683233289,
+          "chg_5d_pct": 2.9928755590298506,
+          "chg_1m_pct": 2.712308983199674,
+          "chg_3m_pct": 14.769724752115355,
+          "ema20": 427.96107185266635,
+          "ema50": 421.2352849673814,
+          "ema200": 402.2366138581307,
+          "rsi14": 53.51894792807136,
+          "macd": 3.5125131014266344,
+          "macd_sig": 2.02635384640415,
+          "macd_hist": 1.4861592550224842,
+          "atr14": 14.075863021971935,
+          "atr_pct": 3.2462783265301733,
+          "bb_low": 402.6640910747682,
+          "bb_high": 449.7459125873412,
+          "vol_ratio": 1.2716808620049131,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Doji (indecision)"
+        ],
+        "sr": {
+          "support": 417.35,
+          "resistance": 435.95,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 436.83,
+          "pivot_r1": 444.22,
+          "pivot_s1": 422.22
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 80,
+          "score": 3.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Price near resistance \u20b9435.95 \u2014 may struggle to break above",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 65.8,
+        "bucket_score": 57.0,
+        "levels": {
+          "entry": 433.6,
+          "sl": 415.26,
+          "target": 542.0,
+          "support": 417.35,
+          "resistance": 435.95,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 4.23,
+          "rr": 5.91,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            419.52,
+            447.68
+          ],
+          "forecast_3d": [
+            409.67,
+            457.53
+          ],
+          "forecast_5d": [
+            402.63,
+            464.57
+          ]
+        }
+      },
+      {
+        "symbol": "PNB.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 116.9800033569336,
+        "tech": {
+          "price": 116.9800033569336,
+          "chg_1d_pct": 1.4658707849646957,
+          "chg_5d_pct": 6.762803397597716,
+          "chg_1m_pct": 0.8448304801151663,
+          "chg_3m_pct": 15.879154921530226,
+          "ema20": 114.75002632798301,
+          "ema50": 114.25134172034902,
+          "ema200": 110.78338727643413,
+          "rsi14": 55.842309256321144,
+          "macd": -0.3238665363024893,
+          "macd_sig": -0.37815496427111583,
+          "macd_hist": 0.05428842796862654,
+          "atr14": 2.820756351899411,
+          "atr_pct": 2.411314986282415,
+          "bb_low": 110.2240864896595,
+          "bb_high": 120.17291286947136,
+          "vol_ratio": 0.903712966239061,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 115.0,
+          "resistance": 118.2,
+          "support_strength": 2,
+          "resistance_strength": 3,
+          "pivot_p": 115.48,
+          "pivot_r1": 117.26,
+          "pivot_s1": 113.52
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 90,
+          "score": 4.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum turning positive (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 65.8,
+        "bucket_score": 57.0,
+        "levels": {
+          "entry": 116.98,
+          "sl": 114.42,
+          "target": 146.23,
+          "support": 115.0,
+          "resistance": 118.2,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 2.18,
+          "rr": 11.45,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            114.16,
+            119.8
+          ],
+          "forecast_3d": [
+            112.18,
+            121.78
+          ],
+          "forecast_5d": [
+            110.77,
+            123.19
+          ]
+        }
+      },
+      {
+        "symbol": "DIVISLAB.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 9340.0,
+        "tech": {
+          "price": 9340.0,
+          "chg_1d_pct": -0.2243350069436989,
+          "chg_5d_pct": 0.983890150286526,
+          "chg_1m_pct": -2.4543080939947726,
+          "chg_3m_pct": 38.2679496669134,
+          "ema20": 9349.43016180131,
+          "ema50": 8904.838595525549,
+          "ema200": 7661.6411290322585,
+          "rsi14": 52.49634997289801,
+          "macd": 120.07459370552351,
+          "macd_sig": 168.08281377603177,
+          "macd_hist": -48.00822007050826,
+          "atr14": 213.09683049232038,
+          "atr_pct": 2.2815506476693828,
+          "bb_low": 9102.424169049207,
+          "bb_high": 9695.475830950794,
+          "vol_ratio": 0.7694139372490427,
+          "trend_up": true
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 9312.5,
+          "resistance": 9467.0,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 9458.0,
+          "pivot_r1": 9561.0,
+          "pivot_s1": 9258.0
+        },
+        "predict": {
+          "direction": "UP",
+          "confidence": 80,
+          "score": 3.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is above its 50- & 200-day averages (uptrend)",
+            "Momentum fading (MACD)",
+            "Momentum healthy (RSI in strong zone)",
+            "Price near support \u20b99312.50 \u2014 good risk:reward if it holds",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 61.2,
+        "bucket_score": 55.0,
+        "levels": {
+          "entry": 9340.0,
+          "sl": 9265.94,
+          "target": 11675.0,
+          "support": 9312.5,
+          "resistance": 9467.0,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 0.79,
+          "rr": 31.53,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            9126.9,
+            9553.1
+          ],
+          "forecast_3d": [
+            8977.74,
+            9702.26
+          ],
+          "forecast_5d": [
+            8871.19,
+            9808.81
+          ]
+        }
+      }
+    ],
+    "sell": [
+      {
+        "symbol": "KPITTECH.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 479.0,
+        "tech": {
+          "price": 479.0,
+          "chg_1d_pct": 1.698513800424628,
+          "chg_5d_pct": -2.6422764227642226,
+          "chg_1m_pct": -14.768683274021354,
+          "chg_3m_pct": -13.63144228523735,
+          "ema20": 515.0606870075409,
+          "ema50": 555.4164529520752,
+          "ema200": 642.3713725920646,
+          "rsi14": 28.657420029934826,
+          "macd": -25.476291794205054,
+          "macd_sig": -22.84303498570206,
+          "macd_hist": -2.633256808502992,
+          "atr14": 16.749678816001502,
+          "atr_pct": 3.4968014229648228,
+          "bb_low": 461.58776842013145,
+          "bb_high": 576.3472321902202,
+          "vol_ratio": 1.1697175475828747,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 455.05,
+          "resistance": 580.95,
+          "support_strength": 0,
+          "resistance_strength": 1,
+          "pivot_p": 478.32,
+          "pivot_r1": 486.53,
+          "pivot_s1": 462.78
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 50,
+          "score": 0.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Oversold \u2014 possible bounce",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 43.2,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 479.0,
+          "sl": 452.77,
+          "target": 598.75,
+          "support": 455.05,
+          "resistance": 580.95,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 5.48,
+          "rr": 4.57,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            462.25,
+            495.75
+          ],
+          "forecast_3d": [
+            450.53,
+            507.47
+          ],
+          "forecast_5d": [
+            442.15,
+            515.85
+          ]
+        }
+      },
+      {
+        "symbol": "TITAN.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 4410.0,
+        "tech": {
+          "price": 4410.0,
+          "chg_1d_pct": 1.1583897235921459,
+          "chg_5d_pct": -2.3407265925718845,
+          "chg_1m_pct": -11.57008221375576,
+          "chg_3m_pct": -3.846151798791153,
+          "ema20": 4681.257001592435,
+          "ema50": 4775.379357059438,
+          "ema200": 4592.340334000126,
+          "rsi14": 29.369916150627304,
+          "macd": -144.16893993028498,
+          "macd_sig": -99.81155162578011,
+          "macd_hist": -44.357388304504866,
+          "atr14": 98.91459673314178,
+          "atr_pct": 2.242961377168748,
+          "bb_low": 4314.707641619996,
+          "bb_high": 5156.112377911253,
+          "vol_ratio": 0.7073260886873397,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [
+          "Morning Star (bullish reversal)"
+        ],
+        "sr": {
+          "support": 4189.5,
+          "resistance": 4982.0,
+          "support_strength": 0,
+          "resistance_strength": 1,
+          "pivot_p": 4395.33,
+          "pivot_r1": 4431.17,
+          "pivot_s1": 4323.67
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 60,
+          "score": 1.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Oversold \u2014 possible bounce",
+            "Candle pattern suggests buyers in control",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 43.2,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 4410.0,
+          "sl": 4168.55,
+          "target": 5512.5,
+          "support": 4189.5,
+          "resistance": 4982.0,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 5.48,
+          "rr": 4.57,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            4311.09,
+            4508.91
+          ],
+          "forecast_3d": [
+            4241.85,
+            4578.15
+          ],
+          "forecast_5d": [
+            4192.39,
+            4627.61
+          ]
+        }
+      },
+      {
+        "symbol": "ADANIENT.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 2634.39990234375,
+        "tech": {
+          "price": 2634.39990234375,
+          "chg_1d_pct": 1.4791950055373704,
+          "chg_5d_pct": -6.475438203725503,
+          "chg_1m_pct": -10.792055290148772,
+          "chg_3m_pct": -13.538350888478313,
+          "ema20": 2857.0813459901306,
+          "ema50": 2924.8168566183094,
+          "ema200": 2875.007257276966,
+          "rsi14": 34.20639059796534,
+          "macd": -77.91922752179698,
+          "macd_sig": -46.46460033394236,
+          "macd_hist": -31.454627187854626,
+          "atr14": 93.81728536847089,
+          "atr_pct": 3.5612393275980745,
+          "bb_low": 2642.6058370161013,
+          "bb_high": 3149.6141336870237,
+          "vol_ratio": 0.9999658792634636,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 2502.68,
+          "resistance": 3026.1,
+          "support_strength": 0,
+          "resistance_strength": 1,
+          "pivot_p": 2628.67,
+          "pivot_r1": 2710.33,
+          "pivot_s1": 2514.33
+        },
+        "predict": {
+          "direction": "DOWN",
+          "confidence": 70,
+          "score": -2.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 45.5,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 2634.4,
+          "sl": 2490.17,
+          "target": 3293.0,
+          "support": 2502.68,
+          "resistance": 3026.1,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 5.47,
+          "rr": 4.57,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            2540.58,
+            2728.22
+          ],
+          "forecast_3d": [
+            2474.91,
+            2793.89
+          ],
+          "forecast_5d": [
+            2428.0,
+            2840.8
+          ]
+        }
+      },
+      {
+        "symbol": "M&M.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 2796.199951171875,
+        "tech": {
+          "price": 2796.199951171875,
+          "chg_1d_pct": 1.6356499272556446,
+          "chg_5d_pct": -2.2307709380463336,
+          "chg_1m_pct": -11.512659773041934,
+          "chg_3m_pct": -9.872684893734895,
+          "ema20": 2960.044198283458,
+          "ema50": 3091.8354878633304,
+          "ema200": 3159.104834771925,
+          "rsi14": 25.75911921284505,
+          "macd": -110.33394144090926,
+          "macd_sig": -95.44031964401692,
+          "macd_hist": -14.893621796892333,
+          "atr14": 62.75597776865972,
+          "atr_pct": 2.244330837011815,
+          "bb_low": 2745.538718618374,
+          "bb_high": 3196.8712911472508,
+          "vol_ratio": 0.5052391141372311,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 2656.39,
+          "resistance": 3127.8,
+          "support_strength": 0,
+          "resistance_strength": 1,
+          "pivot_p": 2767.2,
+          "pivot_r1": 2790.1,
+          "pivot_s1": 2728.3
+        },
+        "predict": {
+          "direction": "SIDEWAYS",
+          "confidence": 50,
+          "score": 0.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Oversold \u2014 possible bounce",
+            "Trading volume low \u2014 weak conviction",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 43.2,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 2796.2,
+          "sl": 2643.11,
+          "target": 3495.25,
+          "support": 2656.39,
+          "resistance": 3127.8,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 5.47,
+          "rr": 4.57,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            2733.44,
+            2858.96
+          ],
+          "forecast_3d": [
+            2689.51,
+            2902.89
+          ],
+          "forecast_5d": [
+            2658.14,
+            2934.26
+          ]
+        }
+      },
+      {
+        "symbol": "BAJAJFINSV.NS",
+        "name": "\u2014",
+        "sector": "\u2014",
+        "price": 1734.699951171875,
+        "tech": {
+          "price": 1734.699951171875,
+          "chg_1d_pct": 1.5632289913275699,
+          "chg_5d_pct": 0.12120371785342421,
+          "chg_1m_pct": -10.494815900948007,
+          "chg_3m_pct": -6.4801375632175695,
+          "ema20": 1795.9086736841807,
+          "ema50": 1858.2188309648106,
+          "ema200": 1849.9790285172,
+          "rsi14": 32.886491803103624,
+          "macd": -56.106664484346766,
+          "macd_sig": -54.21168446046282,
+          "macd_hist": -1.8949800238839458,
+          "atr14": 35.97899035571403,
+          "atr_pct": 2.074075711560864,
+          "bb_low": 1663.240225530559,
+          "bb_high": 1932.659786676472,
+          "vol_ratio": 0.8868843019407432,
+          "trend_up": false
+        },
+        "fund": {
+          "score": 50.0,
+          "details": {},
+          "pe": null,
+          "pb": null,
+          "roe": null,
+          "de": null,
+          "mcap": null,
+          "sector": "\u2014",
+          "name": "\u2014"
+        },
+        "senti": {
+          "score": 50.0,
+          "matched": 0,
+          "pos": 0,
+          "neg": 0,
+          "categories": {},
+          "samples": []
+        },
+        "patterns": [],
+        "sr": {
+          "support": 1702.1,
+          "resistance": 1760.9,
+          "support_strength": 1,
+          "resistance_strength": 1,
+          "pivot_p": 1715.53,
+          "pivot_r1": 1731.07,
+          "pivot_s1": 1692.47
+        },
+        "predict": {
+          "direction": "DOWN",
+          "confidence": 70,
+          "score": -2.0,
+          "macro_bias": 0,
+          "senti_bias": 0.0,
+          "reasons": [
+            "Price is below its 50-day average (weak trend)",
+            "Momentum fading (MACD)",
+            "Geopolitical mood positive: \u201cUS Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuati\u201d"
+          ]
+        },
+        "filings": [],
+        "option_chain": {},
+        "composite": 45.5,
+        "bucket_score": 80.0,
+        "levels": {
+          "entry": 1734.7,
+          "sl": 1693.59,
+          "target": 2168.37,
+          "support": 1702.1,
+          "resistance": 1760.9,
+          "expected_profit_pct": 25.0,
+          "risk_pct": 2.37,
+          "rr": 10.55,
+          "est_hold_days": 252,
+          "hold_hint": "6\u201312 months+ ; review quarterly",
+          "buy_window": "Accumulate on any 3\u20135% dip; SIP-style monthly adds",
+          "forecast_1d": [
+            1698.72,
+            1770.68
+          ],
+          "forecast_3d": [
+            1673.54,
+            1795.86
+          ],
+          "forecast_5d": [
+            1655.55,
+            1813.85
+          ]
+        }
+      }
+    ]
+  },
+  "mfs": [
+    {
+      "code": "118560",
+      "name": "Franklin India Ultra Short Bond Fund - Super Institutional Plan - Direct - Growth",
+      "cat": "Debt Scheme - Ultra Short Duration Fund",
+      "nav": 34.2355,
+      "r_1m": 0.58,
+      "r_3m": 1.28,
+      "r_1y": 11.09,
+      "r_3y": 27.04,
+      "score": 6.04
+    },
+    {
+      "code": "125354",
+      "name": "Axis Small Cap Fund - Direct Plan - Growth Option",
+      "cat": "Equity Schemes - Small Cap Fund",
+      "nav": 132.26,
+      "r_1m": -4.5,
+      "r_3m": -0.71,
+      "r_1y": 7.36,
+      "r_3y": 51.67,
+      "score": 2.57
+    },
+    {
+      "code": "119551",
+      "name": "Aditya Birla Sun Life Banking & PSU Debt Fund - Direct Plan - IDCW-Re-investment",
+      "cat": "Income/Debt Oriented Schemes - Banking and PSU Debt Fund",
+      "nav": 106.983,
+      "r_1m": -0.22,
+      "r_3m": 0.38,
+      "r_1y": -1.46,
+      "r_3y": -5.91,
+      "score": -0.66
+    },
+    {
+      "code": "118989",
+      "name": "HDFC Mid Cap Fund - Direct Plan - Growth Option",
+      "cat": "Equity Scheme - Mid Cap Fund",
+      "nav": 219.816,
+      "r_1m": -5.96,
+      "r_3m": -5.24,
+      "r_1y": 3.8,
+      "r_3y": 50.49,
+      "score": -0.86
+    },
+    {
+      "code": "118834",
+      "name": "Mirae Asset Large & Midcap Fund - Direct Plan - Growth",
+      "cat": "Equity Schemes - Large & Mid Cap Fund",
+      "nav": 167.333,
+      "r_1m": -6.21,
+      "r_3m": -6.57,
+      "r_1y": -0.29,
+      "r_3y": 31.12,
+      "score": -3.36
+    }
+  ],
+  "watchlist": [
+    "TATAPOWER.NS",
+    "IRFC.NS",
+    "SUZLON.NS",
+    "IREDA.NS",
+    "BHEL.NS",
+    "KPITTECH.NS",
+    "POLYCAB.NS",
+    "PERSISTENT.NS",
+    "ITC.NS",
+    "POWERGRID.NS",
+    "COALINDIA.NS"
+  ],
+  "macro": {
+    "regime": "neutral",
+    "bias": 0,
+    "geo": {
+      "level": 22.6,
+      "risk_off_hits": 7,
+      "risk_on_hits": 24,
+      "off_samples": [
+        "Michael Burry screams big market crash ahead! Why legendary investor Peter Lynch ignored such predictions",
+        "India shields city gas users as Hormuz crisis threatens South Asia's LNG demand",
+        "India's retail inflation quickens to 5.54% in September from 4.83% in August, hits near two-year high",
+        "Inflation could hit 7%, forcing RBI to hike rates by 150 bps further: Report"
+      ],
+      "on_samples": [
+        "US Stocks: Dating app Bumble shares surge 52% on talks to go private at $1 billion valuation",
+        "Jubilant Pharmova block deal: Quant Mutual Fund offloads Rs 190 crore stake amid Rs 800 crore fundraising plan; Abakkus buys 11 lakh shares",
+        "Dow Jones| Nasdaq | US Stock Market Today | Live: US stocks hover near record highs as oil tops $106 a barrel",
+        "RBI measures, intervention spark rupee's sharpest rally in six months"
+      ]
+    },
+    "snapshot": {
+      "SPY": {
+        "last": 777.76,
+        "chg_pct": -0.1
+      },
+      "QQQ": {
+        "last": 745.86,
+        "chg_pct": -0.72
+      },
+      "DJI": {
+        "last": 51821.44,
+        "chg_pct": 0.32
+      },
+      "VIX": {
+        "last": 15.32,
+        "chg_pct": 3.23
+      },
+      "OIL": {
+        "last": 93.55,
+        "chg_pct": 1.85
+      },
+      "DXY": {
+        "last": 102.58,
+        "chg_pct": 0.36
+      },
+      "GOLD": {
+        "last": 4191.4,
+        "chg_pct": -0.59
+      },
+      "INR": {
+        "last": 95.76,
+        "chg_pct": -1.1
+      },
+      "NIFTY": {
+        "last": 22520.45,
+        "chg_pct": 1.3
+      },
+      "NIFTY_NEXT50": {
+        "last": 68166.7,
+        "chg_pct": 0.82
+      },
+      "NIFTY100": {
+        "last": 23547.9,
+        "chg_pct": 1.21
+      },
+      "NIFTY200": {
+        "last": 13062.85,
+        "chg_pct": 1.28
+      },
+      "NIFTY500": {
+        "last": 21866.65,
+        "chg_pct": 1.16
+      },
+      "NIFTY_MIDCAP": {
+        "last": 58834.55,
+        "chg_pct": 0.0
+      },
+      "NIFTY_SMALLCAP": {
+        "last": 19425.8,
+        "chg_pct": 0.0
+      },
+      "BANKNIFTY": {
+        "last": 55256.65,
+        "chg_pct": 1.36
+      },
+      "FINNIFTY": {
+        "last": 24866.35,
+        "chg_pct": 0.0
+      },
+      "NIFTY_IT": {
+        "last": 28574.9,
+        "chg_pct": 3.02
+      },
+      "NIFTY_AUTO": {
+        "last": 25084.4,
+        "chg_pct": 0.0
+      },
+      "NIFTY_PHARMA": {
+        "last": 25962.05,
+        "chg_pct": 0.54
+      },
+      "NIFTY_FMCG": {
+        "last": 44113.4,
+        "chg_pct": 0.0
+      },
+      "NIFTY_ENERGY": {
+        "last": 35857.15,
+        "chg_pct": 0.0
+      },
+      "NIFTY_METAL": {
+        "last": 11951.15,
+        "chg_pct": 0.0
+      },
+      "NIFTY_REALTY": {
+        "last": 810.05,
+        "chg_pct": 0.0
+      },
+      "NIFTY_PSU_BANK": {
+        "last": 8030.65,
+        "chg_pct": 0.0
+      },
+      "INDIA_VIX": {
+        "last": 14.38,
+        "chg_pct": -5.89
+      },
+      "SENSEX": {
+        "last": 72472.33,
+        "chg_pct": 1.23
+      },
+      "BSE500": {
+        "last": 34192.47,
+        "chg_pct": 1.06
+      },
+      "regime": "neutral"
+    }
+  },
+  "market_forecast": {
+    "direction": "UP",
+    "confidence": 95,
+    "band_pct": [
+      -0.97,
+      3.65
+    ],
+    "reasons": [
+      "Breadth 88/104 advancing (85%), 5% trending up.",
+      "10 per-stock predictions avg 81% confidence, net direction score +1.85.",
+      "Macro regime NEUTRAL, bias +0.",
+      "Nifty opening expectation: FLAT OPEN."
+    ],
+    "components": {
+      "breadth_vote": 10.07,
+      "pred_vote": 1.85,
+      "macro_vote": 0.0,
+      "total_score": 11.93,
+      "median_atr": 2.43,
+      "advancing": 88,
+      "declining": 9,
+      "trending_up": 5,
+      "universe": 104
+    }
+  },
+  "self_review": {
+    "updated_at": null,
+    "window_runs": null,
+    "overall_accuracy": null,
+    "picks_scored": 0,
+    "picks_won": 0,
+    "n_features": 0,
+    "best_features": [],
+    "worst_features": [],
+    "calibration": {}
+  }
+}
