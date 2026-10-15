@@ -20,24 +20,6 @@
       "trail_active": false
     },
     {
-      "symbol": "TECHM.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 8,
-      "entry_price": 1635.7,
-      "sl": 1592.08,
-      "target": 1645.7,
-      "order_id": null,
-      "opened_at": "2026-10-15 14:09:15",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1635.7,
-      "initial_sl": 1592.08,
-      "trail_active": false
-    },
-    {
       "symbol": "BAJAJHLDNG.NS",
       "bucket": "intraday",
       "side": "BUY",
@@ -51,7 +33,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 11181.0,
+      "peak_price": 11225.0,
       "initial_sl": 10922.04,
       "trail_active": false
     },
@@ -105,17 +87,36 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 3690.0,
+      "peak_price": 3700.0,
       "initial_sl": 3666.57,
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "TECHM.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 8,
+      "entry_price": 1635.7,
+      "sl": 1592.08,
+      "target": 1645.7,
+      "order_id": null,
+      "opened_at": "2026-10-15 14:09:15",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-10-15 19:06:19",
+      "exit_price": 1650.0,
+      "realised_pnl": 94.69,
+      "peak_price": 1650.0,
+      "initial_sl": 1592.08,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": 94.69,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -5637.42,
-  "cumulative_wins": 202,
+  "cumulative_pnl": -5542.73,
+  "cumulative_wins": 203,
   "cumulative_losses": 291,
   "history": [
     {
