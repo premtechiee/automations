@@ -33,7 +33,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1779.0,
+      "peak_price": 1790.0,
       "initial_sl": 1725.94,
       "trail_active": false
     },
@@ -51,7 +51,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 552.0,
+      "peak_price": 555.0,
       "initial_sl": 542.87,
       "trail_active": false
     },
@@ -69,26 +69,8 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 2450.5,
+      "peak_price": 2465.0,
       "initial_sl": 2377.33,
-      "trail_active": false
-    },
-    {
-      "symbol": "INFY.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 6,
-      "entry_price": 1154.5,
-      "sl": 1122.6,
-      "target": 1153.69,
-      "order_id": null,
-      "opened_at": "2026-10-16 14:04:14",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1154.5,
-      "initial_sl": 1122.6,
       "trail_active": false
     }
   ],
@@ -110,13 +92,31 @@
       "peak_price": 184.16,
       "initial_sl": 179.42,
       "trail_active": false
+    },
+    {
+      "symbol": "INFY.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 6,
+      "entry_price": 1154.5,
+      "sl": 1122.6,
+      "target": 1153.69,
+      "order_id": null,
+      "opened_at": "2026-10-16 14:04:14",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-10-16 18:55:14",
+      "exit_price": 1161.2,
+      "realised_pnl": 29.78,
+      "peak_price": 1161.2,
+      "initial_sl": 1122.6,
+      "trail_active": false
     }
   ],
-  "realised_pnl": -18.9,
+  "realised_pnl": 10.88,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -5632.45,
-  "cumulative_wins": 205,
+  "cumulative_pnl": -5602.67,
+  "cumulative_wins": 206,
   "cumulative_losses": 294,
   "history": [
     {
