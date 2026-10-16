@@ -7,7 +7,7 @@
       "side": "BUY",
       "qty": 10,
       "entry_price": 665.55,
-      "sl": 670.89,
+      "sl": 671.39,
       "target": 734.01,
       "order_id": null,
       "opened_at": "2026-10-14 14:36:43",
@@ -15,27 +15,9 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 676.3,
+      "peak_price": 676.8,
       "initial_sl": 648.04,
       "trail_active": true
-    },
-    {
-      "symbol": "WIPRO.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 71,
-      "entry_price": 184.15,
-      "sl": 179.42,
-      "target": 184.13,
-      "order_id": null,
-      "opened_at": "2026-10-16 14:04:14",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 184.15,
-      "initial_sl": 179.42,
-      "trail_active": false
     },
     {
       "symbol": "TECHM.NS",
@@ -110,13 +92,32 @@
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "WIPRO.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 71,
+      "entry_price": 184.15,
+      "sl": 179.42,
+      "target": 184.13,
+      "order_id": null,
+      "opened_at": "2026-10-16 14:04:14",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-10-16 14:15:56",
+      "exit_price": 184.16,
+      "realised_pnl": -18.9,
+      "peak_price": 184.16,
+      "initial_sl": 179.42,
+      "trail_active": false
+    }
+  ],
+  "realised_pnl": -18.9,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -5613.55,
+  "cumulative_pnl": -5632.45,
   "cumulative_wins": 205,
-  "cumulative_losses": 293,
+  "cumulative_losses": 294,
   "history": [
     {
       "symbol": "BAJAJ-AUTO.NS",
