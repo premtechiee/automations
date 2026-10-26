@@ -25,7 +25,7 @@
       "side": "BUY",
       "qty": 5,
       "entry_price": 1386.0,
-      "sl": 1342.37,
+      "sl": 1391.78,
       "target": 1490.7,
       "order_id": null,
       "opened_at": "2026-10-23 14:36:14",
@@ -33,9 +33,9 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1402.0,
+      "peak_price": 1403.0,
       "initial_sl": 1342.37,
-      "trail_active": false
+      "trail_active": true
     },
     {
       "symbol": "DRREDDY.NS",
@@ -53,24 +53,6 @@
       "realised_pnl": 0.0,
       "peak_price": 1317.7,
       "initial_sl": 1285.94,
-      "trail_active": false
-    },
-    {
-      "symbol": "JSWSTEEL.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 8,
-      "entry_price": 1237.3,
-      "sl": 1220.87,
-      "target": 1258.38,
-      "order_id": null,
-      "opened_at": "2026-10-26 14:55:52",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 1240.9,
-      "initial_sl": 1220.87,
       "trail_active": false
     },
     {
@@ -105,17 +87,36 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1156.8,
+      "peak_price": 1160.4,
       "initial_sl": 1122.09,
       "trail_active": false
     }
   ],
-  "closed_today": [],
-  "realised_pnl": 0.0,
+  "closed_today": [
+    {
+      "symbol": "JSWSTEEL.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 8,
+      "entry_price": 1237.3,
+      "sl": 1249.92,
+      "target": 1258.38,
+      "order_id": null,
+      "opened_at": "2026-10-26 14:55:52",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-10-26 20:52:03",
+      "exit_price": 1260.0,
+      "realised_pnl": 166.62,
+      "peak_price": 1260.0,
+      "initial_sl": 1220.87,
+      "trail_active": true
+    }
+  ],
+  "realised_pnl": 166.62,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -6142.21,
-  "cumulative_wins": 216,
+  "cumulative_pnl": -5975.59,
+  "cumulative_wins": 217,
   "cumulative_losses": 311,
   "history": [
     {
