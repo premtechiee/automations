@@ -33,7 +33,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 994.0,
+      "peak_price": 1000.0,
       "initial_sl": 981.07,
       "trail_active": false
     },
@@ -51,7 +51,7 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1976.3,
+      "peak_price": 1978.8,
       "initial_sl": 1928.71,
       "trail_active": false
     },
@@ -69,26 +69,8 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 1345.9,
+      "peak_price": 1350.0,
       "initial_sl": 1314.09,
-      "trail_active": false
-    },
-    {
-      "symbol": "IOC.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 56,
-      "entry_price": 131.28,
-      "sl": 128.43,
-      "target": 131.34,
-      "order_id": null,
-      "opened_at": "2026-10-27 14:54:56",
-      "status": "OPEN",
-      "closed_at": null,
-      "exit_price": null,
-      "realised_pnl": 0.0,
-      "peak_price": 131.28,
-      "initial_sl": 128.43,
       "trail_active": false
     },
     {
@@ -128,13 +110,31 @@
       "peak_price": 1403.0,
       "initial_sl": 1342.37,
       "trail_active": true
+    },
+    {
+      "symbol": "IOC.NS",
+      "bucket": "intraday",
+      "side": "BUY",
+      "qty": 56,
+      "entry_price": 131.28,
+      "sl": 128.43,
+      "target": 131.34,
+      "order_id": null,
+      "opened_at": "2026-10-27 14:54:56",
+      "status": "CLOSED_TGT",
+      "closed_at": "2026-10-27 20:17:48",
+      "exit_price": 131.75,
+      "realised_pnl": 15.27,
+      "peak_price": 131.75,
+      "initial_sl": 128.43,
+      "trail_active": false
     }
   ],
-  "realised_pnl": -8.4,
+  "realised_pnl": 6.87,
   "halted": false,
   "halted_reason": "",
-  "cumulative_pnl": -6145.16,
-  "cumulative_wins": 218,
+  "cumulative_pnl": -6129.89,
+  "cumulative_wins": 219,
   "cumulative_losses": 314,
   "history": [
     {
