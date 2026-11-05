@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-04",
+  "date": "2026-11-05",
   "open_trades": [
     {
       "symbol": "PERSISTENT.NS",
@@ -7,7 +7,7 @@
       "side": "BUY",
       "qty": 1,
       "entry_price": 5841.5,
-      "sl": 6048.22,
+      "sl": 6060.62,
       "target": 6616.97,
       "order_id": null,
       "opened_at": "2026-10-27 15:06:22",
@@ -15,56 +15,19 @@
       "closed_at": null,
       "exit_price": null,
       "realised_pnl": 0.0,
-      "peak_price": 6097.0,
+      "peak_price": 6109.5,
       "initial_sl": 5479.49,
       "trail_active": true
     }
   ],
-  "closed_today": [
-    {
-      "symbol": "KOTAKBANK.NS",
-      "bucket": "swing",
-      "side": "BUY",
-      "qty": 17,
-      "entry_price": 435.85,
-      "sl": 460.93,
-      "target": 473.48,
-      "order_id": null,
-      "opened_at": "2026-10-21 14:26:07",
-      "status": "CLOSED_SL",
-      "closed_at": "2026-11-04 17:10:03",
-      "exit_price": 459.4,
-      "realised_pnl": 388.94,
-      "peak_price": 464.65,
-      "initial_sl": 418.84,
-      "trail_active": true
-    }
-  ],
-  "realised_pnl": 388.94,
+  "closed_today": [],
+  "realised_pnl": 0.0,
   "halted": false,
   "halted_reason": "",
   "cumulative_pnl": -5658.15,
   "cumulative_wins": 222,
   "cumulative_losses": 315,
   "history": [
-    {
-      "symbol": "DIVISLAB.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 1,
-      "entry_price": 6796.0,
-      "sl": 6670.66,
-      "target": 7134.1,
-      "order_id": null,
-      "opened_at": "2026-05-13 12:12:24",
-      "status": "CLOSED_EOD",
-      "closed_at": "2026-05-13 17:39:32",
-      "exit_price": 6796.0,
-      "realised_pnl": -10.19,
-      "peak_price": 6801.0,
-      "initial_sl": 6670.66,
-      "trail_active": false
-    },
     {
       "symbol": "HAL.NS",
       "bucket": "intraday",
@@ -9046,6 +9009,24 @@
       "peak_price": 1350.0,
       "initial_sl": 1314.09,
       "trail_active": false
+    },
+    {
+      "symbol": "KOTAKBANK.NS",
+      "bucket": "swing",
+      "side": "BUY",
+      "qty": 17,
+      "entry_price": 435.85,
+      "sl": 460.93,
+      "target": 473.48,
+      "order_id": null,
+      "opened_at": "2026-10-21 14:26:07",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-11-04 17:10:03",
+      "exit_price": 459.4,
+      "realised_pnl": 388.94,
+      "peak_price": 464.65,
+      "initial_sl": 418.84,
+      "trail_active": true
     }
   ]
 }
