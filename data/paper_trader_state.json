@@ -1,51 +1,14 @@
 {
-  "date": "2026-11-06",
+  "date": "2026-11-09",
   "open_trades": [],
-  "closed_today": [
-    {
-      "symbol": "PERSISTENT.NS",
-      "bucket": "swing",
-      "side": "BUY",
-      "qty": 1,
-      "entry_price": 5841.5,
-      "sl": 6060.62,
-      "target": 6616.97,
-      "order_id": null,
-      "opened_at": "2026-10-27 15:06:22",
-      "status": "CLOSED_SL",
-      "closed_at": "2026-11-06 17:09:37",
-      "exit_price": 6053.5,
-      "realised_pnl": 203.08,
-      "peak_price": 6109.5,
-      "initial_sl": 5479.49,
-      "trail_active": true
-    }
-  ],
-  "realised_pnl": 203.08,
+  "closed_today": [],
+  "realised_pnl": 0.0,
   "halted": false,
   "halted_reason": "",
   "cumulative_pnl": -5455.07,
   "cumulative_wins": 223,
   "cumulative_losses": 315,
   "history": [
-    {
-      "symbol": "HAL.NS",
-      "bucket": "intraday",
-      "side": "BUY",
-      "qty": 1,
-      "entry_price": 4682.1,
-      "sl": 4564.01,
-      "target": 4826.63,
-      "order_id": null,
-      "opened_at": "2026-05-13 12:12:24",
-      "status": "CLOSED_EOD",
-      "closed_at": "2026-05-13 17:39:32",
-      "exit_price": 4618.5,
-      "realised_pnl": -70.58,
-      "peak_price": 4682.1,
-      "initial_sl": 4564.01,
-      "trail_active": false
-    },
     {
       "symbol": "ADANIENT.NS",
       "bucket": "intraday",
@@ -9026,6 +8989,24 @@
       "realised_pnl": 388.94,
       "peak_price": 464.65,
       "initial_sl": 418.84,
+      "trail_active": true
+    },
+    {
+      "symbol": "PERSISTENT.NS",
+      "bucket": "swing",
+      "side": "BUY",
+      "qty": 1,
+      "entry_price": 5841.5,
+      "sl": 6060.62,
+      "target": 6616.97,
+      "order_id": null,
+      "opened_at": "2026-10-27 15:06:22",
+      "status": "CLOSED_SL",
+      "closed_at": "2026-11-06 17:09:37",
+      "exit_price": 6053.5,
+      "realised_pnl": 203.08,
+      "peak_price": 6109.5,
+      "initial_sl": 5479.49,
       "trail_active": true
     }
   ]
